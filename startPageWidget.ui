@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>StartPageWidget</class>
+ <widget class="QWidget" name="StartPageWidget">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1280</width>
+    <height>1024</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">QWidget {
+	background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #161616, stop:1 #424242); 
+}
+</string>
+  </property>
+  <widget class="QPushButton" name="startButton">
+   <property name="geometry">
+    <rect>
+     <x>280</x>
+     <y>829</y>
+     <width>720</width>
+     <height>100</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">QPushButton { 
+	background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 #ffdd33, stop:1 #ffb932);
+	border: none;
+}</string>
+   </property>
+   <property name="text">
+    <string>НАЧАТЬ</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label03">
+   <property name="geometry">
+    <rect>
+     <x>460</x>
+     <y>573</y>
+     <width>244</width>
+     <height>200</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">QLabel {
+	background-color: rgba(0, 0, 0, 0);
+	color: #3e3e3e;
+}</string>
+   </property>
+   <property name="text">
+    <string>03</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label02">
+   <property name="geometry">
+    <rect>
+     <x>460</x>
+     <y>349</y>
+     <width>244</width>
+     <height>200</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">QLabel {
+	background-color: rgba(0, 0, 0, 0);
+	color: #3e3e3e;
+}</string>
+   </property>
+   <property name="text">
+    <string>02</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label01">
+   <property name="geometry">
+    <rect>
+     <x>460</x>
+     <y>125</y>
+     <width>244</width>
+     <height>200</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">QLabel {
+	background-color: rgba(0, 0, 0, 0);
+	color: #3e3e3e;
+}</string>
+   </property>
+   <property name="text">
+    <string>01</string>
+   </property>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
