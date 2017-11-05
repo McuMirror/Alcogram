@@ -1,5 +1,13 @@
 <RCC>
-    <qresource prefix="/fonts">
+    <qresource prefix="/">
+        <file>images/drunkWomens.jpg</file>
+        <file>images/logoSign.svg</file>
+        <file>images/cameraIcon.svg</file>
+        <file>images/cancel.svg</file>
         <file>fonts/proximanova_bold.ttf</file>
+        <file>fonts/proximanova_regular.ttf</file>
+        <file>fonts/proximanova_semibold.ttf</file>
+        <file>images/timer.svg</file>
+        <file>images/cameraIcon1.svg</file>
     </qresource>
 </RCC>

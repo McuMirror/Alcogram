@@ -1,13 +1,15 @@
-#ifndef STARTPAGEWIDGET_H
-#define STARTPAGEWIDGET_H
+#pragma once
 
 #include <QWidget>
 
+#include "page.h"
+
 namespace Ui {
-class StartPageWidget;
+    class StartPageWidget;
 }
 
-class StartPageWidget : public QWidget
+
+class StartPageWidget : public Page
 {
     Q_OBJECT
 
@@ -15,11 +17,14 @@ public:
     explicit StartPageWidget(QWidget *parent = 0);
     ~StartPageWidget();
 
+    void init(MainWindow* mainWindow) override;
+
+private slots:
+    void onStartButtonRelease();
+
 private:
-    void initInterface();
+    void initInterface(const QString& family);
 
-
-    Ui::StartPageWidget *ui;
+    Ui::StartPageWidget* _ui;
+    MainWindow* _mainWindow;
 };
-
-#endif // STARTPAGEWIDGET_H

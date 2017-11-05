@@ -1,10 +1,9 @@
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
+#pragma once
 
 #include <QMainWindow>
 
 namespace Ui {
-class MainWindow;
+    class MainWindow;
 }
 
 class MainWindow : public QMainWindow
@@ -15,8 +14,14 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
-private:
-    Ui::MainWindow *ui;
-};
+    QString getFontFamily();
+    void nextPage();
 
-#endif // MAINWINDOW_H
+private:
+    void loadFonts();
+    void removeFonts();
+
+    Ui::MainWindow*_ui;
+    QVector<int> _fonts;
+    QString _fontFamily;
+};

@@ -1,6 +1,7 @@
-#include "mainWindow.h"
 #include <QApplication>
 #include <QFontDatabase>
+
+#include "mainWindow.h"
 
 int main(int argc, char *argv[])
 {

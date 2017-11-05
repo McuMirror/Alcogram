@@ -1,67 +1,36 @@
-#include "startPageWidget.h"
-#include "ui_startPageWidget.h"
-
 #include <QGraphicsDropShadowEffect>
 #include <QFontDatabase>
 
+#include "startPageWidget.h"
+#include "ui_startPageWidget.h"
+
 StartPageWidget::StartPageWidget(QWidget *parent) :
-    QWidget(parent),
-    ui(new Ui::StartPageWidget)
+    Page(parent),
+    _ui(new Ui::StartPageWidget)
 {
-    ui->setupUi(this);
-
-
-    int fontId = QFontDatabase::addApplicationFont(":/fonts/fonts/proximanova_bold.ttf");
-    QString family = QFontDatabase::applicationFontFamilies(fontId).at(0);
-
-    QFont font(family);
-    font.setPixelSize(28);
-    font.setLetterSpacing(QFont::AbsoluteSpacing, 4);
-    font.setBold(true);
-
-    ui->startButton->setFont(font);
-
-    QPalette* startButtonPalette = new QPalette();
-
-    startButtonPalette->setColor(QPalette::ButtonText, QColor("#050505"));
-
-    ui->startButton->setPalette(*startButtonPalette);
-
-    QGraphicsDropShadowEffect* effect = new QGraphicsDropShadowEffect(this);
-
-    effect->setBlurRadius(142);
-    effect->setColor(QColor(0, 0, 0, 117));
-    effect->setOffset(0, 57);
-    ui->startButton->setGraphicsEffect(effect);
-
-
-    QFont label0Font(family);
-    label0Font.setPixelSize(200);
-    label0Font.setBold(true);
-
-    ui->label01->setFont(label0Font);
-    ui->label02->setFont(label0Font);
-    ui->label03->setFont(label0Font);
+    _ui->setupUi(this);
 }
 
-void StartPageWidget::initInterface() {
-    int fontId = QFontDatabase::addApplicationFont(":/fonts/fonts/proximanova_bold.ttf");
-    QString family = QFontDatabase::applicationFontFamilies(fontId).at(0);
+void StartPageWidget::init(MainWindow* mainWindow) {
+    _mainWindow = mainWindow;
 
-    //setting startButton font and text color
+    initInterface(_mainWindow->getFontFamily());
+
+    QObject::connect(_ui->startButton, &QPushButton::released, this, &StartPageWidget::onStartButtonRelease);
+}
+
+void StartPageWidget::onStartButtonRelease() {
+    _mainWindow->nextPage();
+}
+
+void StartPageWidget::initInterface(const QString& family) {
+    //startButton font and text color
     QFont font(family);
     font.setPixelSize(28);
     font.setLetterSpacing(QFont::AbsoluteSpacing, 4);
     font.setBold(true);
 
-    ui->startButton->setFont(font);
-
-    QPalette* startButtonPalette = new QPalette();
-
-    startButtonPalette->setColor(QPalette::ButtonText, QColor("#050505"));
-
-    ui->startButton->setPalette(*startButtonPalette);
-
+    _ui->startButton->setFont(font);
 
     //startButton shadow
     QGraphicsDropShadowEffect* effect = new QGraphicsDropShadowEffect(this);
@@ -69,20 +38,43 @@ void StartPageWidget::initInterface() {
     effect->setBlurRadius(142);
     effect->setColor(QColor(0, 0, 0, 117));
     effect->setOffset(0, 57);
-    ui->startButton->setGraphicsEffect(effect);
+    _ui->startButton->setGraphicsEffect(effect);
 
-    //setting font for text 01, 02, 03
+    //drunk womens photo shadow
+    effect = new QGraphicsDropShadowEffect(this);
+    effect->setBlurRadius(128);
+    effect->setColor(QColor(0, 0, 0, 127));
+    effect->setOffset(0, 42);
+    _ui->drunkWomensPhoto->setGraphicsEffect(effect);
+
+    //text 01, 02, 03 font
     font = QFont(family);
     font.setPixelSize(200);
     font.setBold(true);
 
-    ui->label01->setFont(font);
-    ui->label02->setFont(font);
-    ui->label03->setFont(font);
+    _ui->label01->setFont(font);
+    _ui->label02->setFont(font);
+    _ui->label03->setFont(font);
 
+    //step descriptions font
+    font = QFont(family);
+    font.setPixelSize(29);
+    font.setBold(true);
+
+    _ui->firstStepDescription->setFont(font);
+    _ui->sndStepDescription->setFont(font);
+    _ui->thirdStepDescription->setFont(font);
+
+    //switch language button font
+    _ui->switchLanguageButton->setFont(font);
+
+    //alcogram text font
+    font = QFont(family);
+    font.setPixelSize(28);
+    _ui->alcogramText->setFont(font);
 }
 
 StartPageWidget::~StartPageWidget()
 {
-    delete ui;
+    delete _ui;
 }

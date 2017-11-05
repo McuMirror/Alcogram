@@ -1,0 +1,561 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>TakePhotoPageWidget</class>
+ <widget class="QWidget" name="TakePhotoPageWidget">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1280</width>
+    <height>1024</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QHBoxLayout" name="horizontalLayout">
+   <property name="spacing">
+    <number>0</number>
+   </property>
+   <property name="leftMargin">
+    <number>0</number>
+   </property>
+   <property name="topMargin">
+    <number>0</number>
+   </property>
+   <property name="rightMargin">
+    <number>0</number>
+   </property>
+   <property name="bottomMargin">
+    <number>0</number>
+   </property>
+   <item>
+    <widget class="QFrame" name="frame">
+     <property name="styleSheet">
+      <string notr="true">QFrame {
+	background-color: rgb(5, 5, 5);
+}</string>
+     </property>
+     <property name="frameShape">
+      <enum>QFrame::StyledPanel</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Raised</enum>
+     </property>
+     <widget class="QLabel" name="logo">
+      <property name="geometry">
+       <rect>
+        <x>40</x>
+        <y>26</y>
+        <width>70</width>
+        <height>70</height>
+       </rect>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">QLabel {
+	background-color: rgba(0, 0, 0, 0);
+}</string>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+      <property name="pixmap">
+       <pixmap resource="resources.qrc">:/images/logoSign.svg</pixmap>
+      </property>
+     </widget>
+     <widget class="QLabel" name="stepOne">
+      <property name="geometry">
+       <rect>
+        <x>160</x>
+        <y>56</y>
+        <width>216</width>
+        <height>24</height>
+       </rect>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">QLabel {
+	background-color: rgba(0, 0, 0, 0);
+	color: rgb(255, 210, 51);
+}</string>
+      </property>
+      <property name="text">
+       <string>01 ДЕЛАЕМ ФОТО</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+     </widget>
+     <widget class="QLabel" name="stepTwo">
+      <property name="geometry">
+       <rect>
+        <x>408</x>
+        <y>56</y>
+        <width>216</width>
+        <height>24</height>
+       </rect>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">QLabel {
+	background-color: rgba(0, 0, 0, 0);
+	color: rgb(255, 255, 255, 127);
+}</string>
+      </property>
+      <property name="text">
+       <string>02</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+     </widget>
+     <widget class="QLabel" name="stepThree">
+      <property name="geometry">
+       <rect>
+        <x>656</x>
+        <y>56</y>
+        <width>216</width>
+        <height>24</height>
+       </rect>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">QLabel {
+	background-color: rgba(0, 0, 0, 0);
+	color: rgb(255, 255, 255, 127);
+}</string>
+      </property>
+      <property name="text">
+       <string>03</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+     </widget>
+     <widget class="QLabel" name="stepFour">
+      <property name="geometry">
+       <rect>
+        <x>904</x>
+        <y>56</y>
+        <width>216</width>
+        <height>24</height>
+       </rect>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">QLabel {
+	background-color: rgba(0, 0, 0, 0);
+	color: rgb(255, 255, 255, 127);
+}</string>
+      </property>
+      <property name="text">
+       <string>04</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="cancelButton">
+      <property name="geometry">
+       <rect>
+        <x>1162</x>
+        <y>18</y>
+        <width>100</width>
+        <height>100</height>
+       </rect>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">QPushButton {
+	background-color: rgba(0, 0, 0, 0);
+border: no;
+}</string>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+      <property name="icon">
+       <iconset resource="resources.qrc">
+        <normaloff>:/images/cancel.svg</normaloff>:/images/cancel.svg</iconset>
+      </property>
+      <property name="iconSize">
+       <size>
+        <width>30</width>
+        <height>30</height>
+       </size>
+      </property>
+     </widget>
+     <widget class="QStackedWidget" name="bottomPanel">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>924</y>
+        <width>1280</width>
+        <height>100</height>
+       </rect>
+      </property>
+      <property name="currentIndex">
+       <number>2</number>
+      </property>
+      <widget class="QWidget" name="takePhotoBottom">
+       <widget class="QPushButton" name="takePhotoButton">
+        <property name="geometry">
+         <rect>
+          <x>0</x>
+          <y>0</y>
+          <width>1280</width>
+          <height>100</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <family>Proxima Nova Rg</family>
+          <pointsize>8</pointsize>
+          <weight>50</weight>
+          <bold>false</bold>
+         </font>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">QPushButton { 
+	background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 #ffdd33, stop:1 #ffb932);
+	border: none;
+}</string>
+        </property>
+        <property name="iconSize">
+         <size>
+          <width>67</width>
+          <height>62</height>
+         </size>
+        </property>
+        <property name="flat">
+         <bool>false</bool>
+        </property>
+       </widget>
+       <widget class="QLabel" name="photoIcon">
+        <property name="geometry">
+         <rect>
+          <x>436</x>
+          <y>17</y>
+          <width>67</width>
+          <height>62</height>
+         </rect>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">QLabel {
+	background-color: rgba(0, 0, 0, 0);
+}</string>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+        <property name="pixmap">
+         <pixmap resource="resources.qrc">:/images/cameraIcon.svg</pixmap>
+        </property>
+       </widget>
+       <widget class="QLabel" name="takePhotoText">
+        <property name="geometry">
+         <rect>
+          <x>527</x>
+          <y>30</y>
+          <width>317</width>
+          <height>40</height>
+         </rect>
+        </property>
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">QLabel {
+	background-color: rgba(0, 0, 0, 0);
+}</string>
+        </property>
+        <property name="text">
+         <string>СДЕЛАТЬ СНИМОК</string>
+        </property>
+       </widget>
+      </widget>
+      <widget class="QWidget" name="timerPanel">
+       <property name="styleSheet">
+        <string notr="true">QWidget {
+	background-color: rgb(74, 74, 74);
+}</string>
+       </property>
+       <widget class="QFrame" name="innerTimerFrame">
+        <property name="geometry">
+         <rect>
+          <x>0</x>
+          <y>0</y>
+          <width>440</width>
+          <height>100</height>
+         </rect>
+        </property>
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">QFrame {
+	background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 #ffdd33, stop:1 #ffb932);
+}</string>
+        </property>
+        <property name="frameShape">
+         <enum>QFrame::StyledPanel</enum>
+        </property>
+        <property name="frameShadow">
+         <enum>QFrame::Raised</enum>
+        </property>
+        <widget class="QLabel" name="timerIcon">
+         <property name="geometry">
+          <rect>
+           <x>32</x>
+           <y>18</y>
+           <width>64</width>
+           <height>64</height>
+          </rect>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">QLabel {
+	background-color: rgba(0, 0, 0, 0);
+}</string>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="pixmap">
+          <pixmap resource="resources.qrc">:/images/timer.svg</pixmap>
+         </property>
+         <property name="scaledContents">
+          <bool>false</bool>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+        <widget class="QLabel" name="timer">
+         <property name="geometry">
+          <rect>
+           <x>143</x>
+           <y>21</y>
+           <width>214</width>
+           <height>64</height>
+          </rect>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">QLabel {
+	background-color: rgba(0, 0, 0, 0);
+}</string>
+         </property>
+         <property name="text">
+          <string>00:00:00</string>
+         </property>
+        </widget>
+       </widget>
+      </widget>
+      <widget class="QWidget" name="photoTakenBottom">
+       <widget class="QPushButton" name="retakePhotoButton">
+        <property name="geometry">
+         <rect>
+          <x>0</x>
+          <y>0</y>
+          <width>640</width>
+          <height>100</height>
+         </rect>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">QPushButton {
+	background-color: rgb(5, 5, 5);
+	border: no
+}</string>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+       <widget class="QLabel" name="photoIcon1">
+        <property name="geometry">
+         <rect>
+          <x>221</x>
+          <y>35</y>
+          <width>32</width>
+          <height>30</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+        <property name="pixmap">
+         <pixmap resource="resources.qrc">:/images/cameraIcon1.svg</pixmap>
+        </property>
+        <property name="scaledContents">
+         <bool>true</bool>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
+       <widget class="QLabel" name="retakePhototText">
+        <property name="geometry">
+         <rect>
+          <x>277</x>
+          <y>30</y>
+          <width>143</width>
+          <height>40</height>
+         </rect>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">QLabel {
+	color: rgb(255, 210, 51);
+	
+	background-color: rgb(0, 0, 0, 0);
+}</string>
+        </property>
+        <property name="text">
+         <string>ЗАНОВО</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="continueButton">
+        <property name="geometry">
+         <rect>
+          <x>640</x>
+          <y>0</y>
+          <width>640</width>
+          <height>480</height>
+         </rect>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">QPushButton { 
+	background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 #ffdd33, stop:1 #ffb932);
+	border: none;
+}</string>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+       <widget class="QLabel" name="continueText">
+        <property name="geometry">
+         <rect>
+          <x>730</x>
+          <y>30</y>
+          <width>460</width>
+          <height>40</height>
+         </rect>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">QLabel {
+	color: rgb(5, 5, 5);
+	
+	background-color: rgba(0, 0, 0, 0);
+}</string>
+        </property>
+        <property name="text">
+         <string>ПРОДОЛЖИТЬ</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
+      </widget>
+     </widget>
+     <widget class="QStackedWidget" name="mainPanel">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>1280</width>
+        <height>924</height>
+       </rect>
+      </property>
+      <property name="currentIndex">
+       <number>1</number>
+      </property>
+      <widget class="QWidget" name="takePhotoMain">
+       <property name="styleSheet">
+        <string notr="true">QWidget {
+	background-color: rgb(5, 5, 5);
+}</string>
+       </property>
+       <widget class="QWidget" name="cameraOutput" native="true">
+        <property name="geometry">
+         <rect>
+          <x>0</x>
+          <y>70</y>
+          <width>1280</width>
+          <height>854</height>
+         </rect>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">QWidget {
+	background-color: rgb(255, 0, 0);
+}</string>
+        </property>
+       </widget>
+       <widget class="QFrame" name="topGradient">
+        <property name="geometry">
+         <rect>
+          <x>0</x>
+          <y>67</y>
+          <width>1280</width>
+          <height>136</height>
+         </rect>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">QFrame {
+
+	background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(0, 0, 0, 255), stop:1 rgba(0, 0, 0, 0));
+}</string>
+        </property>
+        <property name="frameShape">
+         <enum>QFrame::StyledPanel</enum>
+        </property>
+        <property name="frameShadow">
+         <enum>QFrame::Raised</enum>
+        </property>
+       </widget>
+      </widget>
+      <widget class="QWidget" name="photoTakenMain">
+       <property name="styleSheet">
+        <string notr="true">QWidget {
+	background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 #161616, stop:1 #424242);
+}</string>
+       </property>
+       <widget class="QLabel" name="takenPhoto">
+        <property name="geometry">
+         <rect>
+          <x>160</x>
+          <y>144</y>
+          <width>960</width>
+          <height>640</height>
+         </rect>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">QLabel {
+	background-color: rgb(255, 0, 0);
+}</string>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+      </widget>
+     </widget>
+     <zorder>bottomPanel</zorder>
+     <zorder>mainPanel</zorder>
+     <zorder>logo</zorder>
+     <zorder>cancelButton</zorder>
+     <zorder>stepOne</zorder>
+     <zorder>stepThree</zorder>
+     <zorder>stepFour</zorder>
+     <zorder>stepTwo</zorder>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources>
+  <include location="resources.qrc"/>
+ </resources>
+ <connections/>
+</ui>

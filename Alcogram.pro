@@ -14,13 +14,17 @@ TEMPLATE = app
 
 SOURCES += main.cpp\
         mainWindow.cpp \
-    startPageWidget.cpp
+    startPageWidget.cpp \
+    takePhotoPageWidget.cpp
 
 HEADERS  += mainWindow.h \
-    startPageWidget.h
+    startPageWidget.h \
+    takePhotoPageWidget.h \
+    page.h
 
 FORMS    += mainWindow.ui \
-    startPageWidget.ui
+    startPageWidget.ui \
+    takePhotoPageWidget.ui
 
 RESOURCES += \
     resources.qrc
