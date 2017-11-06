@@ -23,7 +23,7 @@ private slots:
     void onStartButtonRelease();
 
 private:
-    void initInterface(const QString& family);
+    void initInterface();
 
     Ui::StartPageWidget* _ui;
     MainWindow* _mainWindow;

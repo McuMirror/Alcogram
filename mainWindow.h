@@ -13,8 +13,6 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
-
-    QString getFontFamily();
     void nextPage();
 
 private:
@@ -23,5 +21,4 @@ private:
 
     Ui::MainWindow*_ui;
     QVector<int> _fonts;
-    QString _fontFamily;
 };

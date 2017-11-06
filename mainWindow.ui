@@ -39,7 +39,7 @@
        </sizepolicy>
       </property>
       <property name="currentIndex">
-       <number>2</number>
+       <number>4</number>
       </property>
       <widget class="StartPageWidget" name="startPage">
        <property name="styleSheet">
@@ -47,7 +47,9 @@
        </property>
       </widget>
       <widget class="TakePhotoPageWidget" name="takePhotoPage"/>
-      <widget class="QWidget" name="payPage"/>
+      <widget class="PayPageWidget" name="payPage"/>
+      <widget class="AlcoTestPageWidget" name="alcoTest"/>
+      <widget class="PhotoPrintPageWidget" name="photoPrint"/>
      </widget>
     </item>
    </layout>
@@ -65,6 +67,24 @@
    <class>TakePhotoPageWidget</class>
    <extends>QWidget</extends>
    <header>takePhotoPageWidget.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>PayPageWidget</class>
+   <extends>QWidget</extends>
+   <header>payPageWidget.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>AlcoTestPageWidget</class>
+   <extends>QWidget</extends>
+   <header>alcoTestPageWidget.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>PhotoPrintPageWidget</class>
+   <extends>QWidget</extends>
+   <header>photoPrintPageWidget.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

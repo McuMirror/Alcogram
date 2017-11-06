@@ -9,5 +9,10 @@
         <file>fonts/proximanova_semibold.ttf</file>
         <file>images/timer.svg</file>
         <file>images/cameraIcon1.svg</file>
+        <file>images/alcoFace.svg</file>
+        <file>images/alcoFace1.png</file>
+        <file>fonts/helveticaneueinterface.ttf</file>
+        <file>fonts/proximanova_light.ttf</file>
+        <file>images/instagram.svg</file>
     </qresource>
 </RCC>

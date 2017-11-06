@@ -20,10 +20,6 @@ MainWindow::MainWindow(QWidget *parent) :
     }
 }
 
-QString MainWindow::getFontFamily() {
-    return _fontFamily;
-}
-
 void MainWindow::nextPage() {
     int currentIndex = _ui->stackedWidget->currentIndex();
     _ui->stackedWidget->setCurrentIndex(currentIndex + 1);
@@ -33,13 +29,13 @@ void MainWindow::loadFonts()
 {
     QDir directory(":/fonts/");
     QStringList fontList = directory.entryList(QStringList("*.ttf"));
+    QString ff;
 
     for (QString font : fontList) {
         int id = QFontDatabase::addApplicationFont(":/fonts/" + font);
         _fonts.append(id);
+        ff = QFontDatabase::applicationFontFamilies(id).at(0);
     }
-
-    _fontFamily = QFontDatabase::applicationFontFamilies(_fonts.at(0)).at(0);
 }
 
 void MainWindow::removeFonts() {

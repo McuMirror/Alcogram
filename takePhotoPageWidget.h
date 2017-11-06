@@ -19,7 +19,7 @@ public:
     void init(MainWindow* mainWindow) override;
 
 private:
-    void initInterface(const QString& family);
+    void initInterface();
 
     Ui::TakePhotoPageWidget* _ui;
 };

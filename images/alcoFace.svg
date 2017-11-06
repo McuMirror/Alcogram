@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="278" height="279" viewBox="0 0 278 279">
+    <defs>
+        <path id="b" d="M0 100c0 55.229 44.771 100 100 100s100-44.771 100-100S155.229 0 100 0 0 44.771 0 100z"/>
+        <filter id="a" width="180%" height="180%" x="-40%" y="-20%" filterUnits="objectBoundingBox">
+            <feOffset dy="40" in="SourceAlpha" result="shadowOffsetOuter1"/>
+            <feGaussianBlur in="shadowOffsetOuter1" result="shadowBlurOuter1" stdDeviation="20"/>
+            <feColorMatrix in="shadowBlurOuter1" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.5 0"/>
+        </filter>
+    </defs>
+    <g fill="none" fill-rule="evenodd">
+        <g fill-rule="nonzero" transform="translate(39)">
+            <use fill="#000" filter="url(#a)" xlink:href="#b"/>
+            <use fill="#FFD233" fill-rule="evenodd" xlink:href="#b"/>
+            <use fill="#FFD233" fill-rule="evenodd" xlink:href="#b"/>
+        </g>
+        <path stroke="#000" stroke-width="4" d="M161 85.625c0 8.572 6.928 15.5 15.5 15.5s15.5-6.928 15.5-15.5-6.928-15.5-15.5-15.5-15.5 6.928-15.5 15.5z"/>
+        <path stroke="#000" stroke-linecap="round" stroke-width="4" d="M173.404 128.354l13.692 8.292"/>
+        <path stroke="#050505" stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M144 101.25l-16.25 26.25h17.5"/>
+        <g stroke="#050505" stroke-width="4">
+            <path d="M87.281 90.841h23.438"/>
+            <path stroke-linecap="round" stroke-linejoin="round" d="M117.75 103.75L99 68.75l-18.75 35"/>
+        </g>
+        <path stroke="#050505" stroke-linecap="round" stroke-width="4" d="M98.381 133.75c6.453 16.114 22.201 27.5 40.619 27.5s34.166-11.386 40.619-27.5"/>
+    </g>
+</svg>
