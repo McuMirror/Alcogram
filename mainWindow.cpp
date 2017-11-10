@@ -5,24 +5,33 @@
 #include "ui_mainWindow.h"
 
 MainWindow::MainWindow(QWidget *parent) :
-    QMainWindow(parent),
-    _ui(new Ui::MainWindow)
+    QMainWindow(parent)
+    , _configManager(new ConfigManager(this))
+    , _ui(new Ui::MainWindow)
 {
     _ui->setupUi(this);
+
+    _configManager->load(":/config.conf");
 
     loadFonts();
 
     //init pages
-    for (int i = 0; i < _ui->stackedWidget->count(); i++) {
-        Page* page = static_cast<Page*>(_ui->stackedWidget->widget(i));
+    for (int i = 0; i < _ui->pages->count(); i++) {
+        Page* page = static_cast<Page*>(_ui->pages->widget(i));
 
         page->init(this);
     }
 }
 
-void MainWindow::nextPage() {
-    int currentIndex = _ui->stackedWidget->currentIndex();
-    _ui->stackedWidget->setCurrentIndex(currentIndex + 1);
+void MainWindow::nextPage()
+{
+    int currentIndex = _ui->pages->currentIndex();
+    _ui->pages->setCurrentIndex(currentIndex + 1);
+}
+
+ConfigManager* MainWindow::getConfigManager() const
+{
+    return _configManager;
 }
 
 void MainWindow::loadFonts()
@@ -38,7 +47,8 @@ void MainWindow::loadFonts()
     }
 }
 
-void MainWindow::removeFonts() {
+void MainWindow::removeFonts()
+{
     for (int id : _fonts) {
         QFontDatabase::removeApplicationFont(id);
     }

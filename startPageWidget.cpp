@@ -4,6 +4,7 @@
 #include "startPageWidget.h"
 #include "ui_startPageWidget.h"
 #include "utils.h"
+#include "configManager.h"
 
 StartPageWidget::StartPageWidget(QWidget *parent) :
     Page(parent),
@@ -12,21 +13,27 @@ StartPageWidget::StartPageWidget(QWidget *parent) :
     _ui->setupUi(this);
 }
 
-void StartPageWidget::init(MainWindow* mainWindow) {
-    _mainWindow = mainWindow;
+void StartPageWidget::init(MainWindow* mainWindow)
+{
+    Page::init(mainWindow);
 
     initInterface();
 
     QObject::connect(_ui->startButton, &QPushButton::released, this, &StartPageWidget::onStartButtonRelease);
 }
 
-void StartPageWidget::onStartButtonRelease() {
+QString StartPageWidget::getName() const
+{
+    return "start";
+}
+
+void StartPageWidget::onStartButtonRelease()
+{
     _mainWindow->nextPage();
 }
 
 void StartPageWidget::initInterface() {
-    //startButton font
-    _ui->startButton->setFont(Utils::getFont("Proxima Nova Rg", 28, 4, QFont::Bold));
+    updateTexts(_ui->frame);
 
     //startButton shadow
     QGraphicsDropShadowEffect* effect = new QGraphicsDropShadowEffect(this);
@@ -42,37 +49,6 @@ void StartPageWidget::initInterface() {
     effect->setColor(QColor(0, 0, 0, 127));
     effect->setOffset(0, 42);
     _ui->drunkWomensPhoto->setGraphicsEffect(effect);
-
-    //text 01, 02, 03 font
-    QFont font = Utils::getFont("Proxima Nova Rg", 200, 0, QFont::Bold);
-
-    _ui->label01->setFont(font);
-    _ui->label02->setFont(font);
-    _ui->label03->setFont(font);
-
-    //step descriptions font
-    font = Utils::getFont("Proxima Nova Rg", 29, 0, QFont::Bold);
-
-    _ui->firstStepDescription->setFont(font);
-    _ui->sndStepDescription->setFont(font);
-    _ui->thirdStepDescription->setFont(font);
-
-    //switch language button font
-    _ui->switchLanguageButton->setFont(font);
-
-    //alcogram text
-    _ui->alcogramText->setTextFormat(Qt::RichText);
-    _ui->alcogramText->setText("<html>"
-                               "<head/>"
-                               "<body>"
-                               "<p>"
-                               "<span style=\"font-size:28px; font-weight:600; font-family:Proxima Nova Rg; \">AL</span>"
-                               "<span style=\"font-size:28px; font-weight:600; font-family:Proxima Nova Lt; \">CO</span>"
-                               "<span style=\"font-size:28px; font-family:Proxima Nova Rg; \">GR</span>"
-                               "<span style=\"font-size:28px; font-family:Proxima Nova Lt; \">AM</span>"
-                               "</p>"
-                               "</body>"
-                               "</html>");
 }
 
 StartPageWidget::~StartPageWidget()

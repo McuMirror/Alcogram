@@ -96,8 +96,8 @@
       </property>
       <property name="styleSheet">
        <string notr="true">QLabel {
+	color: rgb(127, 127, 127);
 	background-color: rgba(0, 0, 0, 0);
-	color: rgb(255, 255, 255, 127);
 }</string>
       </property>
       <property name="text">
@@ -190,7 +190,7 @@ border: no;
        </rect>
       </property>
       <property name="currentIndex">
-       <number>1</number>
+       <number>2</number>
       </property>
       <widget class="QWidget" name="takePhotoBottom">
        <widget class="QPushButton" name="takePhotoButton">
@@ -422,40 +422,18 @@ border: no;
           <x>640</x>
           <y>0</y>
           <width>640</width>
-          <height>480</height>
+          <height>100</height>
          </rect>
         </property>
         <property name="styleSheet">
          <string notr="true">QPushButton { 
+	color: rgb(5, 5, 5);
 	background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 #ffdd33, stop:1 #ffb932);
 	border: none;
 }</string>
         </property>
         <property name="text">
-         <string/>
-        </property>
-       </widget>
-       <widget class="QLabel" name="continueText">
-        <property name="geometry">
-         <rect>
-          <x>730</x>
-          <y>30</y>
-          <width>460</width>
-          <height>40</height>
-         </rect>
-        </property>
-        <property name="styleSheet">
-         <string notr="true">QLabel {
-	color: rgb(5, 5, 5);
-	
-	background-color: rgba(0, 0, 0, 0);
-}</string>
-        </property>
-        <property name="text">
          <string>ПРОДОЛЖИТЬ</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignCenter</set>
         </property>
        </widget>
       </widget>

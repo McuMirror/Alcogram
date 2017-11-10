@@ -17,6 +17,7 @@ public:
     ~TakePhotoPageWidget();
 
     void init(MainWindow* mainWindow) override;
+    QString getName() const override;
 
 private:
     void initInterface();

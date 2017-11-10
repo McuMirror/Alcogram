@@ -14,5 +14,6 @@
         <file>fonts/helveticaneueinterface.ttf</file>
         <file>fonts/proximanova_light.ttf</file>
         <file>images/instagram.svg</file>
+        <file>config.conf</file>
     </qresource>
 </RCC>

@@ -5,6 +5,7 @@
 #-------------------------------------------------
 
 QT       += core gui
+QT += xml
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -20,7 +21,9 @@ SOURCES += main.cpp\
     utils.cpp \
     alcoTestPageWidget.cpp \
     photoPrintPageWidget.cpp \
-    circularProgressBar.cpp
+    circularProgressBar.cpp \
+    configManager.cpp \
+    page.cpp
 
 HEADERS  += mainWindow.h \
     startPageWidget.h \
@@ -30,7 +33,8 @@ HEADERS  += mainWindow.h \
     utils.h \
     alcoTestPageWidget.h \
     photoPrintPageWidget.h \
-    circularProgressBar.h
+    circularProgressBar.h \
+    configManager.h
 
 FORMS    += mainWindow.ui \
     startPageWidget.ui \

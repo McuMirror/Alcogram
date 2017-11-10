@@ -18,13 +18,21 @@ PhotoPrintPageWidget::~PhotoPrintPageWidget()
 
 void PhotoPrintPageWidget::init(MainWindow *mainWindow)
 {
+    Page::init(mainWindow);
     initInterface();
     _ui->printPages->setCurrentIndex(1);
+}
+
+QString PhotoPrintPageWidget::getName() const
+{
+    return "print";
 }
 
 
 void PhotoPrintPageWidget::initInterface()
 {
+    updateTexts(_ui->frame);
+
     //preview shadow
     QGraphicsDropShadowEffect* effect = new QGraphicsDropShadowEffect(this);
 
@@ -33,30 +41,4 @@ void PhotoPrintPageWidget::initInterface()
     effect->setOffset(0, 42);
 
     _ui->preview->setGraphicsEffect(effect);
-
-    //steps text font
-    QFont font = Utils::getFont("Proxima Nova Rg", 20, 2, QFont::Bold);
-
-    _ui->stepOne->setFont(font);
-    _ui->stepTwo->setFont(font);
-    _ui->stepThree->setFont(font);
-    _ui->stepFour->setFont(font);
-
-    font = Utils::getFont("Proxima Nova Rg", 52, 0, QFont::Bold);
-    _ui->printingText->setFont(font);
-    _ui->shareText1->setFont(font);
-
-    _ui->shareText2->setFont(Utils::getFont("Proxima Nova Rg", 32, 0, QFont::Bold));
-
-    _ui->shareText3->setTextFormat(Qt::RichText);
-    _ui->shareText3->setText("<html>"
-                             "<head/>"
-                             "<body>"
-                             "<p>"
-                             "<span style=\"font-size:32px; font-weight:600; font-family:Proxima Nova Rg; \">В подарок — </span>"
-                             "<span style=\"font-size:52px; font-weight:600; font-family:Proxima Nova Rg; \">5%</span>"
-                             "<span style=\"font-size:32px; font-weight:600; font-family:Proxima Nova Rg; \"> на коктейли в баре :)</span>"
-                             "</p>"
-                             "</body>"
-                             "</html>");
 }

@@ -17,20 +17,23 @@ TakePhotoPageWidget::~TakePhotoPageWidget()
 }
 
 
-void TakePhotoPageWidget::init(MainWindow* mainWindow) {
+void TakePhotoPageWidget::init(MainWindow* mainWindow)
+{
+    Page::init(mainWindow);
+
     initInterface();
 
     //_ui->mainPanel->setCurrentIndex(1);
 }
 
-void TakePhotoPageWidget::initInterface() {
-    //steps text font
-    QFont font = Utils::getFont("Proxima Nova Rg", 20, 2, QFont::Bold);
+QString TakePhotoPageWidget::getName() const
+{
+    return "take";
+}
 
-    _ui->stepOne->setFont(font);
-    _ui->stepTwo->setFont(font);
-    _ui->stepThree->setFont(font);
-    _ui->stepFour->setFont(font);
+void TakePhotoPageWidget::initInterface()
+{
+    updateTexts(_ui->frame);
 
     //timer font
     _ui->timer->setFont(Utils::getFont("Proxima Nova Rg", 47, 2, QFont::Bold));
@@ -42,11 +45,4 @@ void TakePhotoPageWidget::initInterface() {
     effect->setOffset(0, 42);
 
     _ui->takenPhoto->setGraphicsEffect(effect);
-
-    //retake, continue, take text font
-    font = Utils::getFont("Proxima Nova Rg", 27, 4, QFont::Bold);
-
-    _ui->retakePhototText->setFont(font);
-    _ui->continueText->setFont(font);
-    _ui->takePhotoText->setFont(font);
 }

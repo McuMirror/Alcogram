@@ -17,6 +17,7 @@ public:
     ~PhotoPrintPageWidget();
 
     void init(MainWindow* mainWindow) override;
+    QString getName() const override;
 
 private:
     void initInterface();

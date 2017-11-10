@@ -16,16 +16,16 @@ AlcoTestPageWidget::~AlcoTestPageWidget()
 
 void AlcoTestPageWidget::init(MainWindow* mainWindow)
 {
+    Page::init(mainWindow);
     initInterface();
+}
+
+QString AlcoTestPageWidget::getName() const
+{
+    return "test";
 }
 
 void AlcoTestPageWidget::initInterface()
 {
-    //steps text font
-    QFont font = Utils::getFont("Proxima Nova Rg", 20, 2, QFont::Bold);
-
-    _ui->stepOne->setFont(font);
-    _ui->stepTwo->setFont(font);
-    _ui->stepThree->setFont(font);
-    _ui->stepFour->setFont(font);
+    updateTexts(_ui->frame);
 }

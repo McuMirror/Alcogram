@@ -14,70 +14,58 @@ PayPageWidget::~PayPageWidget()
     delete _ui;
 }
 
-void PayPageWidget::init(MainWindow *mainWindow) {
+void PayPageWidget::init(MainWindow *mainWindow)
+{
+    Page::init(mainWindow);
     initInterface();
 
-    //_ui->payState->setCurrentIndex(1);
+    _ui->payState->setCurrentIndex(1);
+}
+
+QString PayPageWidget::getName() const
+{
+    return "pay";
 }
 
 void PayPageWidget::initInterface() {
-    initPriceLabels(_ui->boldPrices->findChildren<QLabel*>(), "<html>"
-                                                              "<head/>"
-                                                              "<body>"
-                                                              "<p>"
-                                                              "<span style=\"font-size:116px; font-weight:600; font-family:Proxima Nova Rg; \">150 </span>"
-                                                              "<span style=\"font-size:116px; font-family:.Helvetica Neue Interface; \">₽</span>"
-                                                              "</p>"
-                                                              "</body>"
-                                                              "</html>");
+    updateTexts(_ui->frame);
 
-    initPriceLabels(_ui->semiBoldPrices->findChildren<QLabel*>(), "<html>"
-                                                                  "<head/>"
-                                                                  "<body>"
-                                                                  "<p>"
-                                                                  "<span style=\"font-size:116px; font-weight:600; font-family:Proxima Nova Lt; \">150 </span>"
-                                                                  "<span style=\"font-size:116px; font-family:.Helvetica Neue Interface; \">₽</span>"
-                                                                  "</p>"
-                                                                  "</body>"
-                                                                  "</html>");
+    QList<Text> texts = _mainWindow->getConfigManager()->getLanguageIndependentText("pay");
 
-    initPriceLabels(_ui->regularPrices->findChildren<QLabel*>(), "<html>"
-                                                                 "<head/>"
-                                                                 "<body>"
-                                                                 "<p>"
-                                                                 "<span style=\"font-size:116px; font-family:Proxima Nova Rg; \">150 </span>"
-                                                                 "<span style=\"font-size:116px; font-family:.Helvetica Neue Interface; \">₽</span>"
-                                                                 "</p>"
-                                                                 "</body>"
-                                                                 "</html>");
+    for (const Text t : texts) {
+        if (t.name == "boldPrices") {
+            _boldPricesText = t.text;
+        }
 
-    initPriceLabels(_ui->lightPrices->findChildren<QLabel*>(), "<html>"
-                                                               "<head/>"
-                                                               "<body>"
-                                                               "<p>"
-                                                               "<span style=\"font-size:116px; font-family:Proxima Nova Lt; \">150 </span>"
-                                                               "<span style=\"font-size:116px; font-family:.Helvetica Neue Interface; \">₽</span>"
-                                                               "</p>"
-                                                               "</body>"
-                                                               "</html>");
+        if (t.name == "semiBoldPrices") {
+            _semiBoldPricesText = t.text;
+        }
 
-    //steps text font
-    QFont font = Utils::getFont("Proxima Nova Rg", 20, 2, QFont::Bold);
+        if (t.name == "regularPrices") {
+            _regularPricesText = t.text;
+        }
 
-    _ui->stepOne->setFont(font);
-    _ui->stepTwo->setFont(font);
-    _ui->stepThree->setFont(font);
-    _ui->stepFour->setFont(font);
+        if (t.name == "lightPrices") {
+            _lightPricesText = t.text;
+        }
 
-    font = Utils::getFont("Proxima Nova Rg", 52, 0, QFont::Bold);
-    _ui->payCompleteText->setFont(font);
-    _ui->payDescription->setFont(font);
+        if (t.name == "price") {
+            _priceText = t.text;
+        }
+    }
 
-    _ui->nextStepDescription->setFont(Utils::getFont("Proxima Nova Rg", 32, 0, QFont::Bold));
-    _ui->price->setFont(Utils::getFont("Proxima Nova Rg", 104, 0, QFont::Bold));
+    QString price = "150"; //TODO: get rid of it
+
+    initPriceLabels(_ui->boldPrices->findChildren<QLabel*>(), _boldPricesText.replace("@PRICE", price));
+    initPriceLabels(_ui->semiBoldPrices->findChildren<QLabel*>(), _semiBoldPricesText.replace("@PRICE", price));
+    initPriceLabels(_ui->regularPrices->findChildren<QLabel*>(), _regularPricesText.replace("@PRICE", price));
+    initPriceLabels(_ui->lightPrices->findChildren<QLabel*>(), _lightPricesText.replace("@PRICE", price));
+
+    _ui->price->setText(_priceText.replace("@PRICE", price));
 }
 
-void PayPageWidget::initPriceLabels(QList<QLabel*> labels, const QString& richText) {
+void PayPageWidget::initPriceLabels(QList<QLabel*> labels, const QString& richText)
+{
     for (QLabel* label : labels) {
         label->setTextFormat(Qt::RichText);
         label->setText(richText);

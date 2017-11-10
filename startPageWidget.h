@@ -18,6 +18,7 @@ public:
     ~StartPageWidget();
 
     void init(MainWindow* mainWindow) override;
+    QString getName() const override;
 
 private slots:
     void onStartButtonRelease();
@@ -26,5 +27,4 @@ private:
     void initInterface();
 
     Ui::StartPageWidget* _ui;
-    MainWindow* _mainWindow;
 };
