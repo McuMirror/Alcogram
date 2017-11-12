@@ -18,8 +18,7 @@ void StartPageWidget::init(MainWindow* mainWindow)
     Page::init(mainWindow);
 
     initInterface();
-
-    QObject::connect(_ui->startButton, &QPushButton::released, this, &StartPageWidget::onStartButtonRelease);
+    setConnections();
 }
 
 QString StartPageWidget::getName() const
@@ -29,10 +28,16 @@ QString StartPageWidget::getName() const
 
 void StartPageWidget::onStartButtonRelease()
 {
-    _mainWindow->nextPage();
+    //_mainWindow->nextPage();
 }
 
-void StartPageWidget::initInterface() {
+void StartPageWidget::onSwitchLanguageButtonRelease()
+{
+
+}
+
+void StartPageWidget::initInterface()
+{
     updateTexts(_ui->frame);
 
     //startButton shadow
@@ -49,6 +54,11 @@ void StartPageWidget::initInterface() {
     effect->setColor(QColor(0, 0, 0, 127));
     effect->setOffset(0, 42);
     _ui->drunkWomensPhoto->setGraphicsEffect(effect);
+}
+
+void StartPageWidget::setConnections()
+{
+    QObject::connect(_ui->startButton, &QPushButton::released, this, &StartPageWidget::onStartButtonRelease);
 }
 
 StartPageWidget::~StartPageWidget()

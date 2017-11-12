@@ -202,10 +202,10 @@
      <widget class="QPushButton" name="switchLanguageButton">
       <property name="geometry">
        <rect>
-        <x>1145</x>
-        <y>47</y>
-        <width>67</width>
-        <height>29</height>
+        <x>1129</x>
+        <y>17</y>
+        <width>100</width>
+        <height>100</height>
        </rect>
       </property>
       <property name="styleSheet">

@@ -39,8 +39,13 @@
        </sizepolicy>
       </property>
       <property name="currentIndex">
-       <number>4</number>
+       <number>0</number>
       </property>
+      <widget class="NoncriticalErrorPage" name="noncriticalErrorPage"/>
+      <widget class="CriticalErrorPage" name="criticalErrorPage"/>
+      <widget class="SplashScreenNoncriticalError" name="splashScreenNoncriticalError"/>
+      <widget class="SplashScreenEternalSleep" name="splashScreenEternalSleep"/>
+      <widget class="SplashScreen" name="splashScreen"/>
       <widget class="StartPageWidget" name="startPage">
        <property name="styleSheet">
         <string notr="true"/>
@@ -48,8 +53,8 @@
       </widget>
       <widget class="TakePhotoPageWidget" name="takePhotoPage"/>
       <widget class="PayPageWidget" name="payPage"/>
-      <widget class="AlcoTestPageWidget" name="alcoTest"/>
-      <widget class="PhotoPrintPageWidget" name="photoPrint"/>
+      <widget class="AlcoTestPageWidget" name="alcoTestPage"/>
+      <widget class="PhotoPrintPageWidget" name="photoPrintPage"/>
      </widget>
     </item>
    </layout>
@@ -85,6 +90,36 @@
    <class>PhotoPrintPageWidget</class>
    <extends>QWidget</extends>
    <header>photoPrintPageWidget.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>SplashScreen</class>
+   <extends>QWidget</extends>
+   <header>splashScreen.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>SplashScreenEternalSleep</class>
+   <extends>QWidget</extends>
+   <header>splashScreenEternalsleep.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>SplashScreenNoncriticalError</class>
+   <extends>QWidget</extends>
+   <header>splashScreenNoncriticalError.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>CriticalErrorPage</class>
+   <extends>QWidget</extends>
+   <header>criticalErrorPage.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>NoncriticalErrorPage</class>
+   <extends>QWidget</extends>
+   <header>noncriticalErrorPage.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

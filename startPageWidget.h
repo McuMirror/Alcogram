@@ -22,9 +22,11 @@ public:
 
 private slots:
     void onStartButtonRelease();
+    void onSwitchLanguageButtonRelease();
 
 private:
     void initInterface();
+    void setConnections();
 
     Ui::StartPageWidget* _ui;
 };

@@ -29,30 +29,7 @@ QString PayPageWidget::getName() const
 
 void PayPageWidget::initInterface() {
     updateTexts(_ui->frame);
-
-    QList<Text> texts = _mainWindow->getConfigManager()->getLanguageIndependentText("pay");
-
-    for (const Text t : texts) {
-        if (t.name == "boldPrices") {
-            _boldPricesText = t.text;
-        }
-
-        if (t.name == "semiBoldPrices") {
-            _semiBoldPricesText = t.text;
-        }
-
-        if (t.name == "regularPrices") {
-            _regularPricesText = t.text;
-        }
-
-        if (t.name == "lightPrices") {
-            _lightPricesText = t.text;
-        }
-
-        if (t.name == "price") {
-            _priceText = t.text;
-        }
-    }
+    retrieveTextTemplates();
 
     QString price = "150"; //TODO: get rid of it
 
@@ -70,4 +47,32 @@ void PayPageWidget::initPriceLabels(QList<QLabel*> labels, const QString& richTe
         label->setTextFormat(Qt::RichText);
         label->setText(richText);
     }
+}
+
+void PayPageWidget::retrieveTextTemplates()
+{
+    QList<Text> texts = _mainWindow->getConfigManager()->getLanguageIndependentText("pay");
+
+    for (const Text t : texts) {
+        if (t.getName() == "boldPrices") {
+            _boldPricesText = t.getText();
+        }
+
+        if (t.getName() == "semiBoldPrices") {
+            _semiBoldPricesText = t.getText();
+        }
+
+        if (t.getName() == "regularPrices") {
+            _regularPricesText = t.getText();
+        }
+
+        if (t.getName() == "lightPrices") {
+            _lightPricesText = t.getText();
+        }
+
+        if (t.getName() == "price") {
+            _priceText = t.getText();
+        }
+    }
+
 }

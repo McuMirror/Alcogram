@@ -6,8 +6,8 @@
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent)
-    , _configManager(new ConfigManager(this))
     , _ui(new Ui::MainWindow)
+    , _configManager(new ConfigManager(this))
 {
     _ui->setupUi(this);
 
@@ -23,10 +23,9 @@ MainWindow::MainWindow(QWidget *parent) :
     }
 }
 
-void MainWindow::nextPage()
+void MainWindow::setPage(PageName pageName)
 {
-    int currentIndex = _ui->pages->currentIndex();
-    _ui->pages->setCurrentIndex(currentIndex + 1);
+    _ui->pages->setCurrentIndex(pageName);
 }
 
 ConfigManager* MainWindow::getConfigManager() const

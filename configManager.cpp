@@ -2,6 +2,51 @@
 #include <QMap>
 #include "configManager.h"
 
+//Text
+
+Text::Text(const QString &name, const QString &fontFamily, int size
+           , qreal spacing, int weight, const QString &text)
+    : _name(name)
+    , _fontFamily(fontFamily)
+    , _size(size)
+    , _spacing(spacing)
+    , _weight(weight)
+    , _text(text)
+{
+}
+
+QString Text::getName() const
+{
+    return _name;
+}
+
+QString Text::getFontFamily() const
+{
+    return _fontFamily;
+}
+
+int Text::getSize() const
+{
+    return _size;
+}
+
+qreal Text::getSpacing() const
+{
+    return _spacing;
+}
+
+int Text::getWeight() const
+{
+    return _weight;
+}
+
+QString Text::getText() const
+{
+    return _text;
+}
+
+//Config Manager
+
 ConfigManager::ConfigManager(QObject *parent)
     : QObject(parent)
     , _currentLanguage("RU")
@@ -50,7 +95,19 @@ void ConfigManager::load(const QString& fileName)
     }
 
     QDomDocument domDocument;
-    domDocument.setContent(file);
+
+    QString errorMessage;
+    int errorLine;
+    int errorColumn;
+
+    bool error = domDocument.setContent(file, &errorMessage, &errorLine, &errorColumn);
+
+    if (error) {
+        //  TODO: logging, errors described in QXmlParseException class documentation
+        return;
+    }
+
+
     QDomElement topElement = domDocument.documentElement();
     QDomNode domNode = topElement.firstChild();
 
@@ -63,6 +120,8 @@ void ConfigManager::load(const QString& fileName)
 
         domNode = domNode.nextSibling();
     }
+
+    delete file;
 }
 
 void ConfigManager::parsePages(QDomNode page)
@@ -77,7 +136,7 @@ void ConfigManager::parsePages(QDomNode page)
 
         QDomNode pageSet = page.firstChild();
 
-        //iterate by page settings
+        // iterate by page tags
         while (!pageSet.isNull()) {
             QDomElement pageSetElement = pageSet.toElement();
 
@@ -94,22 +153,22 @@ void ConfigManager::parsePages(QDomNode page)
 
 void ConfigManager::parseTexts(QDomNode language, const QString& pageName)
 {
+    // iterate by <language> tags
     while (!language.isNull()) {
         QDomElement languageElement = language.toElement();
         QString languageName = languageElement.attribute("name", "");
         QDomNode text = languageElement.firstChild();
 
+        // iterate by <text> tags
         while (!text.isNull()) {
             QDomElement textElement = text.toElement();
 
-            Text t = Text();
-
-            t.name = textElement.attribute("name", "");
-            t.fontFamily = textElement.attribute("fontFamily", "Proxima Nova Rg");
-            t.size = textElement.attribute("size", "0").toInt();
-            t.spacing = textElement.attribute("spacing", "0").toDouble();
-            t.weight = textElement.attribute("weight", "75").toInt();
-            t.text = textElement.text().remove(QRegExp("[\\n\\t\\r]")).simplified();
+            Text t = Text(textElement.attribute("name", "")
+                          , textElement.attribute("fontFamily", "Proxima Nova Rg")
+                          , textElement.attribute("size", "0").toInt()
+                          , textElement.attribute("spacing", "0").toDouble()
+                          , textElement.attribute("weight", "75").toInt()
+                          , textElement.text().remove(QRegExp("[\\n\\t\\r]")).simplified());
 
             if (languageName == "RU") {
                 _pageTextRU[pageName].append(t);

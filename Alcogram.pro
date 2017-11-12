@@ -23,7 +23,13 @@ SOURCES += main.cpp\
     photoPrintPageWidget.cpp \
     circularProgressBar.cpp \
     configManager.cpp \
-    page.cpp
+    page.cpp \
+    stateMachine.cpp \
+    splashScreen.cpp \
+    splashScreenEternalSleep.cpp \
+    splashScreenNoncriticalError.cpp \
+    criticalErrorPage.cpp \
+    noncriticalErrorPage.cpp
 
 HEADERS  += mainWindow.h \
     startPageWidget.h \
@@ -34,14 +40,25 @@ HEADERS  += mainWindow.h \
     alcoTestPageWidget.h \
     photoPrintPageWidget.h \
     circularProgressBar.h \
-    configManager.h
+    configManager.h \
+    stateMachine.h \
+    splashScreen.h \
+    splashScreenEternalSleep.h \
+    splashScreenNoncriticalError.h \
+    criticalErrorPage.h \
+    noncriticalErrorPage.h
 
 FORMS    += mainWindow.ui \
     startPageWidget.ui \
     takePhotoPageWidget.ui \
     payPageWidget.ui \
     alcoTestPageWidget.ui \
-    photoPrintPageWidget.ui
+    photoPrintPageWidget.ui \
+    splashScreen.ui \
+    splashScreenEternalSleep.ui \
+    splashScreenNoncriticalError.ui \
+    criticalErrorPage.ui \
+    noncriticalErrorPage.ui
 
 RESOURCES += \
     resources.qrc

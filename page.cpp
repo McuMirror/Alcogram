@@ -6,24 +6,28 @@
 
 void Page::setTexts(QWidget* mainWidget, const QList<Text>& texts) {
     for (const Text t : texts) {
-        QWidget* w = mainWidget->findChild<QWidget*>(t.name);
+        QWidget* w = mainWidget->findChild<QWidget*>(t.getName());
 
         if (QLabel* l = dynamic_cast<QLabel*>(w)) {
-            if (t.size != 0) {
-                l->setFont(Utils::getFont(t.fontFamily, t.size, t.spacing, t.weight));
+            if (t.getSize() != 0) {
+                // plain text
+                l->setFont(Utils::getFont(t.getFontFamily(), t.getSize()
+                                          , t.getSpacing(), t.getWeight()));
             } else {
+                // html text
                 l->setTextFormat(Qt::RichText);
             }
 
-            l->setText(t.text);
+            l->setText(t.getText());
         }
 
         if (QPushButton* b = dynamic_cast<QPushButton*>(w)) {
-            if (t.size != 0) {
-                b->setFont(Utils::getFont(t.fontFamily, t.size, t.spacing, t.weight));
+            if (t.getSize() != 0) {
+                b->setFont(Utils::getFont(t.getFontFamily(), t.getSize()
+                                          , t.getSpacing(), t.getWeight()));
             }
 
-            b->setText(t.text);
+            b->setText(t.getText());
         }
     }
 }
