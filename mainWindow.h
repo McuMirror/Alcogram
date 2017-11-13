@@ -3,6 +3,7 @@
 #include <QMainWindow>
 
 #include "configManager.h"
+#include "stateMachine.h"
 
 namespace Ui {
     class MainWindow;
@@ -12,9 +13,9 @@ namespace Ui {
 enum PageName {
     NONCRITICAL_ERROR_PAGE = 0
     , CRITICAL_ERROR_PAGE = 1
-    , SPLASH_SCREEN_NONCRITICAL_ERROR = 2
-    , SPLASH_SCREEN_ETERNAL_SLEEP = 3
-    , SPLASH_SCREEN = 4
+    , SPLASH_SCREEN_NONCRITICAL_ERROR_PAGE = 2
+    , SPLASH_SCREEN_ETERNAL_SLEEP_PAGE = 3
+    , SPLASH_SCREEN_PAGE = 4
     , START_PAGE = 5
     , TAKE_PHOTO_PAGE = 6
     , PAY_PAGE = 7
@@ -32,6 +33,7 @@ public:
 
     void setPage(PageName pageName);
     ConfigManager* getConfigManager() const;
+    void postEvent(Event* event);
 
 private:
     // load fonts from resources
@@ -42,4 +44,5 @@ private:
     Ui::MainWindow*_ui;
     QVector<int> _fonts;
     ConfigManager* _configManager;
+    StateMachine* _stateMachine;
 };

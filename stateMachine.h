@@ -6,10 +6,11 @@
 #include <QState>
 #include <QAbstractTransition>
 #include <QMap>
+#include <functional>
 
-// application states
+// state names
 enum StateName {
-    SPLASH_SCREEN
+    SPLASH_SCREEN = 0
     , START
     , SPLASH_SCREEN_ETERNAL_SLEEP
     , SPLASH_SCREEN_NONCRITICAL_ERROR
@@ -29,7 +30,7 @@ enum StateName {
     , NON_CRITICAL_ERROR
 };
 
-// application state machine transitions
+// state machine transition names
 enum TransitionName {
     TO_SPLASH_SCREEN_0_1 = QEvent::User + 1
     , TO_START_0_2 = QEvent::User + 2
@@ -51,19 +52,36 @@ enum TransitionName {
     , TO_SPLASH_SCREEN_NONCRITICAL_ERROR_0_4 = QEvent::User + 18
 };
 
+// state machine event
 class Event : public QEvent
 {
 public:
-    explicit Event(TransitionName type)
-        : QEvent(QEvent::Type(type)){}
+    // @param
+    explicit Event(TransitionName type, StateName fromState)
+        : QEvent(QEvent::Type(type))
+        , _fromState(fromState)
+    {
+    }
+
+    StateName getFromState() const
+    {
+        return _fromState;
+    }
+
+private:
+    StateName _fromState;
 };
 
+// state machine transition
 class Transition : public QAbstractTransition
 {
 public:
-    explicit Transition(TransitionName transition)
+    // @param transition - transition name
+    // @param callback - function called on transition
+    explicit Transition(TransitionName transition, std::function<void(void)> callback)
     {
         _transition = transition;
+        _callback = callback;
     }
 
     bool eventTest(QEvent *e) override
@@ -71,9 +89,47 @@ public:
         return (e->type() == _transition);
     }
 
+    void onTransition(QEvent *event) override
+    {
+        _callback();
+    }
 
 private:
     TransitionName _transition;
+    std::function<void(void)> _callback;
+};
+
+// used by pages to pass state transition to state machine
+class TransitionPack {
+public:
+    // @param source - name of source state
+    // @param target - name of target state
+    TransitionPack(Transition* transition, StateName source, StateName target)
+    {
+        _transition = transition;
+        _source = source;
+        _target = target;
+    }
+
+    Transition* getTransition() const
+    {
+        return _transition;
+    }
+
+    StateName getSource() const
+    {
+        return _source;
+    }
+
+    StateName getTarget() const
+    {
+        return _target;
+    }
+
+private:
+    Transition* _transition;
+    StateName _source;
+    StateName _target;
 };
 
 // application state machine
@@ -83,9 +139,18 @@ class StateMachine : public QObject
 public:
     explicit StateMachine(QObject *parent = 0);
 
+    // add transitions to state machine
+    void addTransitions(const QList<TransitionPack>& transitions);
+
+    // run state machine
+    void run();
+
+    // post event to state machine
+    void postEvent(Event* event);
+
 private:
     QStateMachine _stateMachine;
-    QMap<StateName, QState*> states; // all application states (no need to delete QState's because _stateMachine
-                                 // takes ownership of this QState's
+    QMap<StateName, QState*> _states; // all application states (no need to delete QState's because _stateMachine
+                                      // takes ownership of this QState's
 };
 

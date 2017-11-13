@@ -18,6 +18,7 @@ public:
 
     void init(MainWindow* mainWindow) override;
     QString getName() const override;
+    QList<TransitionPack> getTransitions() override;
 
 private:
     void initInterface();

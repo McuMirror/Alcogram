@@ -8,6 +8,7 @@ MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent)
     , _ui(new Ui::MainWindow)
     , _configManager(new ConfigManager(this))
+    , _stateMachine(new StateMachine(this))
 {
     _ui->setupUi(this);
 
@@ -20,17 +21,26 @@ MainWindow::MainWindow(QWidget *parent) :
         Page* page = static_cast<Page*>(_ui->pages->widget(i));
 
         page->init(this);
+        _stateMachine->addTransitions(page->getTransitions());
     }
+
+    _stateMachine->run();
 }
 
 void MainWindow::setPage(PageName pageName)
 {
     _ui->pages->setCurrentIndex(pageName);
+    static_cast<Page*>(_ui->pages->currentWidget())->onEntry();
 }
 
 ConfigManager* MainWindow::getConfigManager() const
 {
     return _configManager;
+}
+
+void MainWindow::postEvent(Event *event)
+{
+    _stateMachine->postEvent(event);
 }
 
 void MainWindow::loadFonts()

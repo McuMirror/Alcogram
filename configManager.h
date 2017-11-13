@@ -46,6 +46,8 @@ public:
 
     const QList<Text> getLanguageIndependentText(const QString& page) const;
 
+    int getTimeDuration(const QString& pageName, const QString& durationName) const;
+
 private:
     // parse <page> tag
     void parsePages(QDomNode page);
@@ -53,8 +55,12 @@ private:
     // parse <texts> tag
     void parseTexts(QDomNode language, const QString& pageName);
 
+    // parse <durations> tag
+    void parseDurations(QDomNode duration, const QString& pageName);
+
     QMap<QString, QList<Text>> _pageText; // language independent text
     QMap<QString, QList<Text>> _pageTextRU; // russian text
     QMap<QString, QList<Text>> _pageTextEN; // english text
+    QMap<QString, QMap<QString, int>> _durations; // page time durations
     QString _currentLanguage;
 };

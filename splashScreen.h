@@ -18,7 +18,10 @@ public:
 
     void init(MainWindow* mainWindow) override;
     QString getName() const override;
+    QList<TransitionPack> getTransitions() override;
+
+    void toStartPage();
 
 private:
-    Ui::SplashScreen *ui;
+    Ui::SplashScreen *_ui;
 };

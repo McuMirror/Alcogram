@@ -39,7 +39,7 @@
        </sizepolicy>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>4</number>
       </property>
       <widget class="NoncriticalErrorPage" name="noncriticalErrorPage"/>
       <widget class="CriticalErrorPage" name="criticalErrorPage"/>

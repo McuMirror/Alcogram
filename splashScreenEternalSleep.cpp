@@ -15,7 +15,7 @@ SplashScreenEternalSleep::~SplashScreenEternalSleep()
 
 void SplashScreenEternalSleep::init(MainWindow *mainWindow)
 {
-
+    Page::init(mainWindow);
 }
 
 QString SplashScreenEternalSleep::getName() const

@@ -15,10 +15,10 @@ CriticalErrorPage::~CriticalErrorPage()
 
 void CriticalErrorPage::init(MainWindow *mainWindow)
 {
-
+    Page::init(mainWindow);
 }
 
 QString CriticalErrorPage::getName() const
 {
-    return "cryticalError";
+    return "criticalError";
 }

@@ -15,7 +15,7 @@ SplashScreenNoncriticalError::~SplashScreenNoncriticalError()
 
 void SplashScreenNoncriticalError::init(MainWindow *mainWindow)
 {
-
+    Page::init(mainWindow);
 }
 
 QString SplashScreenNoncriticalError::getName() const

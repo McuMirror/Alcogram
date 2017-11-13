@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QWidget>
+#include <QTimer>
 
 #include "page.h"
 
@@ -19,9 +20,12 @@ public:
 
     void init(MainWindow* mainWindow) override;
     QString getName() const override;
+    QList<TransitionPack> getTransitions() override;
+    void onEntry() override;
+    void toPreparingPhoto();
+    void toSplashScreen();
 
 private slots:
-    void onStartButtonRelease();
     void onSwitchLanguageButtonRelease();
 
 private:
@@ -29,4 +33,5 @@ private:
     void setConnections();
 
     Ui::StartPageWidget* _ui;
+    QTimer timer;
 };

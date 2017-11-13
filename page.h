@@ -5,6 +5,7 @@
 
 #include "mainWindow.h"
 #include "configManager.h"
+#include "stateMachine.h"
 
 // base class for pages
 class Page : public QWidget {
@@ -23,6 +24,18 @@ public:
     virtual QString getName() const
     {
         return "";
+    }
+
+    // get state machine transitions for this page
+    virtual QList<TransitionPack> getTransitions()
+    {
+        return QList<TransitionPack>();
+    }
+
+    // called when page becomes active
+    virtual void onEntry()
+    {
+
     }
 
 private:

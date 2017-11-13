@@ -31,6 +31,11 @@ QString TakePhotoPageWidget::getName() const
     return "take";
 }
 
+QList<TransitionPack> TakePhotoPageWidget::getTransitions()
+{
+    return Page::getTransitions();
+}
+
 void TakePhotoPageWidget::initInterface()
 {
     updateTexts(_ui->frame);

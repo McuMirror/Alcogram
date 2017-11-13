@@ -73,6 +73,8 @@ const QList<Text> ConfigManager::getTexts(const QString& page) const
         }
     }
 
+    // TODO: logging, language dependent page text not found
+
     return QList<Text>();
 }
 
@@ -82,7 +84,28 @@ const QList<Text> ConfigManager::getLanguageIndependentText(const QString& page)
         return _pageText[page];
     }
 
+    // TODO: logging, language independent page text not found
+
     return QList<Text>();
+}
+
+int ConfigManager::getTimeDuration(const QString& pageName, const QString& durationName) const
+{
+    if (_durations.contains(pageName)) {
+        QMap<QString, int> pageDurations = _durations[pageName];
+
+        if (pageDurations.contains(durationName)) {
+            return pageDurations[durationName];
+        }
+
+        // TODO: logging, duration name not found
+
+        return 0;
+    }
+
+    // TODO: logging, page not found
+
+    return 0;
 }
 
 void ConfigManager::load(const QString& fileName)
@@ -100,7 +123,7 @@ void ConfigManager::load(const QString& fileName)
     int errorLine;
     int errorColumn;
 
-    bool error = domDocument.setContent(file, &errorMessage, &errorLine, &errorColumn);
+    bool error = !domDocument.setContent(file, &errorMessage, &errorLine, &errorColumn);
 
     if (error) {
         //  TODO: logging, errors described in QXmlParseException class documentation
@@ -126,6 +149,7 @@ void ConfigManager::load(const QString& fileName)
 
 void ConfigManager::parsePages(QDomNode page)
 {
+    // iterate over <page> tags
     while (!page.isNull()) {
         QDomElement pageElement = page.toElement();
         QString pageName = pageElement.attribute("name", "");
@@ -136,12 +160,16 @@ void ConfigManager::parsePages(QDomNode page)
 
         QDomNode pageSet = page.firstChild();
 
-        // iterate by page tags
+        // iterate over page settings tags
         while (!pageSet.isNull()) {
             QDomElement pageSetElement = pageSet.toElement();
 
             if (pageSetElement.tagName() == "texts") {
                 parseTexts(pageSetElement.firstChild(), pageName);
+            }
+
+            if (pageSetElement.tagName() == "durations") {
+                parseDurations(pageSetElement.firstChild(), pageName);
             }
 
             pageSet = pageSet.nextSibling();
@@ -153,13 +181,13 @@ void ConfigManager::parsePages(QDomNode page)
 
 void ConfigManager::parseTexts(QDomNode language, const QString& pageName)
 {
-    // iterate by <language> tags
+    // iterate over <language> tags
     while (!language.isNull()) {
         QDomElement languageElement = language.toElement();
         QString languageName = languageElement.attribute("name", "");
         QDomNode text = languageElement.firstChild();
 
-        // iterate by <text> tags
+        // iterate over <text> tags
         while (!text.isNull()) {
             QDomElement textElement = text.toElement();
 
@@ -182,5 +210,23 @@ void ConfigManager::parseTexts(QDomNode language, const QString& pageName)
         }
 
         language = language.nextSibling();
+    }
+}
+
+void ConfigManager::parseDurations(QDomNode duration, const QString &pageName)
+{
+    // iterate over <duration> tags
+    while (!duration.isNull()) {
+        QDomElement durationElement = duration.toElement();
+        QString durationName = durationElement.attribute("name", "");
+        int time = durationElement.attribute("value", "0").toInt();
+
+        if (!_durations.contains(pageName)) {
+            _durations.insert(pageName, QMap<QString, int>());
+        }
+
+        _durations[pageName].insert(durationName, time);
+
+        duration = duration.nextSibling();
     }
 }

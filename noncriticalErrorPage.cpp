@@ -15,7 +15,7 @@ NoncriticalErrorPage::~NoncriticalErrorPage()
 
 void NoncriticalErrorPage::init(MainWindow *mainWindow)
 {
-
+    Page::init(mainWindow);
 }
 
 QString NoncriticalErrorPage::getName() const

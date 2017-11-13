@@ -26,9 +26,47 @@ QString StartPageWidget::getName() const
     return "start";
 }
 
-void StartPageWidget::onStartButtonRelease()
+QList<TransitionPack> StartPageWidget::getTransitions()
 {
-    //_mainWindow->nextPage();
+    QList<TransitionPack> transitions;
+
+    // START -> PREPARING_FOR_PHOTO
+    Transition* transition = new Transition(TO_PREPARING_FOR_PHOTO_1_1
+                                            , std::bind(&StartPageWidget::toPreparingPhoto, this));
+
+    transitions.append(TransitionPack(transition, START, PREPARING_FOR_PHOTO));
+
+    // START -> SPLASH_SCREEN
+    transition = new Transition(TO_SPLASH_SCREEN_0_1
+                                            , std::bind(&StartPageWidget::toSplashScreen, this));
+
+    transitions.append(TransitionPack(transition, START, SPLASH_SCREEN));
+
+    return transitions;
+}
+
+void StartPageWidget::toPreparingPhoto()
+{
+    _mainWindow->setPage(TAKE_PHOTO_PAGE);
+}
+
+void StartPageWidget::toSplashScreen()
+{
+    _mainWindow->setPage(SPLASH_SCREEN_PAGE);
+}
+
+void StartPageWidget::onEntry()
+{
+    int timeMs = _mainWindow->getConfigManager()->getTimeDuration(getName(), "inaction") * 1000;
+
+    timer.setInterval(timeMs);
+
+    QObject::disconnect(&timer, &QTimer::timeout, 0, 0);
+    QObject::connect(&timer, &QTimer::timeout, [=]{
+        _mainWindow->postEvent(new Event(TO_SPLASH_SCREEN_0_1, START));
+    });
+
+    timer.start();
 }
 
 void StartPageWidget::onSwitchLanguageButtonRelease()
@@ -58,7 +96,9 @@ void StartPageWidget::initInterface()
 
 void StartPageWidget::setConnections()
 {
-    QObject::connect(_ui->startButton, &QPushButton::released, this, &StartPageWidget::onStartButtonRelease);
+    QObject::connect(_ui->startButton, &QPushButton::released, [=]{
+        _mainWindow->postEvent(new Event(TO_PREPARING_FOR_PHOTO_1_1, START));
+    });
 }
 
 StartPageWidget::~StartPageWidget()
