@@ -10,66 +10,51 @@
 
 // state names
 enum StateName {
-    SPLASH_SCREEN = 0
-    , START
-    , SPLASH_SCREEN_ETERNAL_SLEEP
-    , SPLASH_SCREEN_NONCRITICAL_ERROR
-    , PREPARING_FOR_PHOTO
-    , PHOTO_TIMER
-    , PHOTO_CONFIRMATION
-    , PAY
-    , NOT_ENOUGH_MONEY
-    , MORE_MONEY_THAN_NEED
-    , PAYMENT_CONFIRMED
-    , ALCOTEST
-    , DRUNKENESS_NOT_RECOGNIZED
-    , ALCOTEST_INACTION
-    , FINAL_PHOTO
-    , PHOTO_PRINT
-    , CRITICAL_ERROR
-    , NON_CRITICAL_ERROR
-};
-
-// state machine transition names
-enum TransitionName {
-    TO_SPLASH_SCREEN_0_1 = QEvent::User + 1
-    , TO_START_0_2 = QEvent::User + 2
-    , TO_PREPARING_FOR_PHOTO_1_1 = QEvent::User + 3
-    , TO_PHOTO_TIMER_1_2 = QEvent::User + 4
-    , TO_PHOTO_CONFIRMATION_1_2 = QEvent::User + 5
-    , TO_PAY_2_1 = QEvent::User + 6
-    , TO_NOT_ENOUGH_MONEY_2_1_1 = QEvent::User + 7
-    , TO_MORE_MONEY_THAN_NEED_2_1_2 = QEvent::User + 8
-    , TO_PAYMENT_CONFIRMED_2_2 = QEvent::User + 9
-    , TO_ALCOTEST_3_1 = QEvent::User + 10
-    , TO_DRUNKENESS_NOT_RECOGNIZED_3_1_1 = QEvent::User + 11
-    , TO_ALCOTEST_INACTIVITY_3_1_2 = QEvent::User + 12
-    , TO_FINAL_FOTO_4_1 = QEvent::User + 13
-    , TO_PRINT_PHOTO_4_2 = QEvent::User + 14
-    , TO_CRITICAL_ERROR_5_1 = QEvent::User + 15
-    , TO_NONCRITICAL_ERROR_5_2 = QEvent::User + 16
-    , TO_SPLASH_SCREEN_ETERNAL_SLEEP_0_3 = QEvent::User + 17
-    , TO_SPLASH_SCREEN_NONCRITICAL_ERROR_0_4 = QEvent::User + 18
+    SPLASH_SCREEN = QEvent::User + 1
+    , START = QEvent::User + 2
+    , SPLASH_SCREEN_ETERNAL_SLEEP = QEvent::User + 3
+    , SPLASH_SCREEN_NONCRITICAL_ERROR = QEvent::User + 4
+    , PREPARING_FOR_PHOTO = QEvent::User + 5
+    , PHOTO_TIMER = QEvent::User + 6
+    , PHOTO_CONFIRMATION = QEvent::User + 7
+    , PAY = QEvent::User + 8
+    , NOT_ENOUGH_MONEY = QEvent::User + 9
+    , MORE_MONEY_THAN_NEED = QEvent::User + 10
+    , PAYMENT_CONFIRMED = QEvent::User + 11
+    , ALCOTEST = QEvent::User + 12
+    , DRUNKENESS_NOT_RECOGNIZED = QEvent::User + 13
+    , ALCOTEST_INACTION = QEvent::User + 14
+    , FINAL_PHOTO = QEvent::User + 15
+    , PHOTO_PRINT = QEvent::User + 16
+    , CRITICAL_ERROR = QEvent::User + 17
+    , NON_CRITICAL_ERROR = QEvent::User + 18
+    , NONE = QEvent::User + 19
 };
 
 // state machine event
 class Event : public QEvent
 {
 public:
-    // @param
-    explicit Event(TransitionName type, StateName fromState)
-        : QEvent(QEvent::Type(type))
-        , _fromState(fromState)
+    explicit Event(StateName targetState, StateName sourceState)
+        : QEvent(QEvent::Type(targetState))
+        , _sourceState(sourceState)
+        , _targetState(targetState)
     {
     }
 
-    StateName getFromState() const
+    StateName getTargetState() const
     {
-        return _fromState;
+        return _targetState;
+    }
+
+    StateName getSourceState() const
+    {
+        return _sourceState;
     }
 
 private:
-    StateName _fromState;
+    StateName _sourceState;
+    StateName _targetState;
 };
 
 // state machine transition
@@ -78,58 +63,55 @@ class Transition : public QAbstractTransition
 public:
     // @param transition - transition name
     // @param callback - function called on transition
-    explicit Transition(TransitionName transition, std::function<void(void)> callback)
+    explicit Transition(StateName sourceState, StateName targetState, std::function<void(QEvent*)> callback)
+        : _sourceState(sourceState)
+        , _targetState(targetState)
+        , _callback(callback)
     {
-        _transition = transition;
-        _callback = callback;
     }
 
-    bool eventTest(QEvent *e) override
+    bool eventTest(QEvent* e) override
     {
-        return (e->type() == _transition);
+        return (e->type() == _targetState);
     }
 
-    void onTransition(QEvent *event) override
+    void onTransition(QEvent* event) override
     {
-        _callback();
+        _callback(event);
+    }
+
+    StateName getTargetStateName() const
+    {
+        return _targetState;
+    }
+
+    StateName getSourceStateName() const
+    {
+        return _sourceState;
     }
 
 private:
-    TransitionName _transition;
-    std::function<void(void)> _callback;
+    StateName _sourceState;
+    StateName _targetState;
+    std::function<void(QEvent*)> _callback;
 };
 
-// used by pages to pass state transition to state machine
-class TransitionPack {
+// state
+class State : public QState
+{
 public:
-    // @param source - name of source state
-    // @param target - name of target state
-    TransitionPack(Transition* transition, StateName source, StateName target)
+    State(StateName name)
     {
-        _transition = transition;
-        _source = source;
-        _target = target;
+        _name = name;
     }
 
-    Transition* getTransition() const
+    StateName getName() const
     {
-        return _transition;
-    }
-
-    StateName getSource() const
-    {
-        return _source;
-    }
-
-    StateName getTarget() const
-    {
-        return _target;
+        return _name;
     }
 
 private:
-    Transition* _transition;
-    StateName _source;
-    StateName _target;
+    StateName _name;
 };
 
 // application state machine
@@ -140,7 +122,7 @@ public:
     explicit StateMachine(QObject *parent = 0);
 
     // add transitions to state machine
-    void addTransitions(const QList<TransitionPack>& transitions);
+    void addTransitions(const QList<Transition*>& transitions);
 
     // run state machine
     void run();
@@ -148,9 +130,19 @@ public:
     // post event to state machine
     void postEvent(Event* event);
 
+    StateName getCurrentStateName() const;
+
 private:
+    // adding transitions to critical error and non critical error states
+    void addErrorTransitions(State* state);
+
+    void addErrorStatesTransitions();
+    void handleCriticalError(QEvent* event);
+    void handleNonCriticalError(QEvent* event);
+
     QStateMachine _stateMachine;
     QMap<StateName, QState*> _states; // all application states (no need to delete QState's because _stateMachine
                                       // takes ownership of this QState's
+    StateName _currentState;
 };
 

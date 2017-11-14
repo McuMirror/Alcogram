@@ -14,17 +14,14 @@ PayPageWidget::~PayPageWidget()
     delete _ui;
 }
 
-void PayPageWidget::init(MainWindow *mainWindow)
-{
-    Page::init(mainWindow);
-    initInterface();
-
-    _ui->payState->setCurrentIndex(1);
-}
-
 QString PayPageWidget::getName() const
 {
     return "pay";
+}
+
+void PayPageWidget::onEntry()
+{
+
 }
 
 void PayPageWidget::initInterface() {
@@ -39,6 +36,11 @@ void PayPageWidget::initInterface() {
     initPriceLabels(_ui->lightPrices->findChildren<QLabel*>(), _lightPricesText.replace("@PRICE", price));
 
     _ui->price->setText(_priceText.replace("@PRICE", price));
+}
+
+void PayPageWidget::setConnections()
+{
+
 }
 
 void PayPageWidget::initPriceLabels(QList<QLabel*> labels, const QString& richText)

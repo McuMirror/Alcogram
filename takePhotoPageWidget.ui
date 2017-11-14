@@ -193,6 +193,11 @@ border: no;
        <number>2</number>
       </property>
       <widget class="QWidget" name="takePhotoBottom">
+       <property name="styleSheet">
+        <string notr="true">QWidget  {
+	background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 #ffdd33, stop:1 #ffb932);
+}</string>
+       </property>
        <widget class="QPushButton" name="takePhotoButton">
         <property name="geometry">
          <rect>
@@ -212,7 +217,7 @@ border: no;
         </property>
         <property name="styleSheet">
          <string notr="true">QPushButton { 
-	background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 #ffdd33, stop:1 #ffb932);
+	background-color: rgba(0, 0, 0, 0);
 	border: none;
 }</string>
         </property>
@@ -227,6 +232,9 @@ border: no;
         </property>
        </widget>
        <widget class="QLabel" name="photoIcon">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
         <property name="geometry">
          <rect>
           <x>436</x>
@@ -248,6 +256,9 @@ border: no;
         </property>
        </widget>
        <widget class="QLabel" name="takePhotoText">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
         <property name="geometry">
          <rect>
           <x>527</x>
@@ -262,6 +273,9 @@ border: no;
           <verstretch>0</verstretch>
          </sizepolicy>
         </property>
+        <property name="mouseTracking">
+         <bool>false</bool>
+        </property>
         <property name="styleSheet">
          <string notr="true">QLabel {
 	background-color: rgba(0, 0, 0, 0);
@@ -271,6 +285,9 @@ border: no;
          <string>СДЕЛАТЬ СНИМОК</string>
         </property>
        </widget>
+       <zorder>takePhotoText</zorder>
+       <zorder>photoIcon</zorder>
+       <zorder>takePhotoButton</zorder>
       </widget>
       <widget class="QWidget" name="timerPanel">
        <property name="styleSheet">
@@ -352,6 +369,11 @@ border: no;
        </widget>
       </widget>
       <widget class="QWidget" name="photoTakenBottom">
+       <property name="styleSheet">
+        <string notr="true">QWidget {
+	background-color: rgb(5, 5, 5);
+}</string>
+       </property>
        <widget class="QPushButton" name="retakePhotoButton">
         <property name="geometry">
          <rect>
@@ -363,7 +385,7 @@ border: no;
         </property>
         <property name="styleSheet">
          <string notr="true">QPushButton {
-	background-color: rgb(5, 5, 5);
+	background-color: rgba(0, 0, 0, 0);
 	border: no
 }</string>
         </property>
@@ -436,6 +458,10 @@ border: no;
          <string>ПРОДОЛЖИТЬ</string>
         </property>
        </widget>
+       <zorder>photoIcon1</zorder>
+       <zorder>retakePhototText</zorder>
+       <zorder>retakePhotoButton</zorder>
+       <zorder>continueButton</zorder>
       </widget>
      </widget>
      <widget class="QStackedWidget" name="mainPanel">

@@ -16,11 +16,12 @@ public:
     explicit PhotoPrintPageWidget(QWidget *parent = 0);
     ~PhotoPrintPageWidget();
 
-    void init(MainWindow* mainWindow) override;
     QString getName() const override;
 
+protected:
+    void initInterface() override;
+
 private:
-    void initInterface();
 
     Ui::PhotoPrintPageWidget* _ui;
 };

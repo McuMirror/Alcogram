@@ -16,11 +16,11 @@ public:
     explicit AlcoTestPageWidget(QWidget *parent = 0);
     ~AlcoTestPageWidget();
 
-    void init(MainWindow* mainWindow) override;
     QString getName() const override;
 
-private:
-    void initInterface();
+protected:
+    void initInterface() override;
 
+private:
     Ui::AlcoTestPageWidget* _ui;
 };

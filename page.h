@@ -18,6 +18,9 @@ public:
     virtual void init(MainWindow* mainWindow)
     {
         _mainWindow = mainWindow;
+
+        initInterface();
+        setConnections();
     }
 
     // get page name
@@ -27,9 +30,9 @@ public:
     }
 
     // get state machine transitions for this page
-    virtual QList<TransitionPack> getTransitions()
+    virtual QList<Transition*> getTransitions()
     {
-        return QList<TransitionPack>();
+        return QList<Transition*>();
     }
 
     // called when page becomes active
@@ -48,6 +51,18 @@ protected:
     // @param mainWidget - central page QWidget
     // @param onlyLanguageDependent - update only language dependent text
     void updateTexts(QWidget* mainWidget, bool onlyLanguageDependent = false);
+
+    // init interface widgets if need
+    virtual void initInterface()
+    {
+
+    }
+
+    // set all page signal-slot connections
+    virtual void setConnections()
+    {
+
+    }
 
     MainWindow* _mainWindow;
 };

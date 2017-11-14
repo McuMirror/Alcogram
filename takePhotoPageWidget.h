@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QWidget>
+#include <QTimer>
 
 #include "page.h"
 
@@ -16,12 +17,34 @@ public:
     explicit TakePhotoPageWidget(QWidget *parent = 0);
     ~TakePhotoPageWidget();
 
-    void init(MainWindow* mainWindow) override;
     QString getName() const override;
-    QList<TransitionPack> getTransitions() override;
+    QList<Transition*> getTransitions() override;
+    void onEntry() override;
+
+protected:
+    void initInterface() override;
+    void setConnections() override;
 
 private:
-    void initInterface();
+    // setting photo timer with duration named "timer"
+    void setPhotoTimer();
+
+    // setting inaction timer with duration named durationName
+    void setInactionTimer(const QString& durationName);
+
+    // returns bottomPanel page numbers related to specific state
+    QMap<StateName, int> initBottomPanelPageNumbers() const;
+
+    // returns mainPanel page numbers related to specific state
+    QMap<StateName, int> initMainPanelPageNumbers() const;
+
+    // setting page for bottomPanel and mainPanel by stateName
+    void setSubPage(StateName stateName);
 
     Ui::TakePhotoPageWidget* _ui;
+    QTimer _timer;
+    int _timerTimeLeft; // remaining time for photo timer
+
+    QMap<StateName, int> _bottomPanelPageNumbers; // state -> bottomPanel page number
+    QMap<StateName, int> _mainPanelPageNumbers; // state -> mainPanel page number
 };

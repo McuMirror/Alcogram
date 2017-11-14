@@ -38,9 +38,9 @@ ConfigManager* MainWindow::getConfigManager() const
     return _configManager;
 }
 
-void MainWindow::postEvent(Event *event)
+void MainWindow::postEvent(StateName targetState)
 {
-    _stateMachine->postEvent(event);
+    _stateMachine->postEvent(new Event(targetState, getCurrentStateName()));
 }
 
 void MainWindow::loadFonts()

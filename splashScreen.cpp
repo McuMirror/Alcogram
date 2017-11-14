@@ -4,6 +4,8 @@
 #include "ui_splashScreen.h"
 #include "stateMachine.h"
 
+using namespace std::placeholders;
+
 SplashScreen::SplashScreen(QWidget *parent) :
     Page(parent),
     _ui(new Ui::SplashScreen)
@@ -20,8 +22,8 @@ void SplashScreen::init(MainWindow *mainWindow)
 {
     Page::init(mainWindow);
 
-    QObject::connect(_ui->frameButton, &QPushButton::released, [=]{
-        _mainWindow->postEvent(new Event(TO_START_0_2, SPLASH_SCREEN));
+    QObject::connect(_ui->frameButton, &QPushButton::released, [=] {
+        _mainWindow->postEvent(START);
     });
 }
 
@@ -30,13 +32,11 @@ QString SplashScreen::getName() const
     return "splashScreen";
 }
 
-QList<TransitionPack> SplashScreen::getTransitions()
+QList<Transition*> SplashScreen::getTransitions()
 {
-    Transition* transition = new Transition(TO_START_0_2, std::bind(&SplashScreen::toStartPage, this));
-    return QList<TransitionPack>({TransitionPack(transition, SPLASH_SCREEN, START)});
-}
+    Transition* transition = new Transition(SPLASH_SCREEN, START, [=](QEvent*){
+        _mainWindow->setPage(START_PAGE);
+    });
 
-void SplashScreen::toStartPage()
-{
-    _mainWindow->setPage(START_PAGE);
+    return QList<Transition*>({transition});
 }

@@ -2,6 +2,7 @@
 
 #include <QWidget>
 #include <QLabel>
+#include <QTimer>
 
 #include "page.h"
 
@@ -17,12 +18,14 @@ public:
     explicit PayPageWidget(QWidget *parent = 0);
     ~PayPageWidget();
 
-    void init(MainWindow* mainWindow) override;
     QString getName() const override;
+    void onEntry() override;
+
+protected:
+    void initInterface() override;
+    void setConnections() override;
 
 private:
-    void initInterface();
-
     // init column price QLabel's
     // @param labels - column QLabels
     // @param richText - text to set (html text)
@@ -39,4 +42,6 @@ private:
     QString _lightPricesText; // 4 column
 
     QString _priceText; // template text for QLabel price
+
+    QTimer _timer;
 };

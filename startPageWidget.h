@@ -18,20 +18,19 @@ public:
     explicit StartPageWidget(QWidget *parent = 0);
     ~StartPageWidget();
 
-    void init(MainWindow* mainWindow) override;
     QString getName() const override;
-    QList<TransitionPack> getTransitions() override;
+    QList<Transition*> getTransitions() override;
     void onEntry() override;
-    void toPreparingPhoto();
-    void toSplashScreen();
+
+protected:
+    void initInterface() override;
+    void setConnections() override;
 
 private slots:
     void onSwitchLanguageButtonRelease();
 
 private:
-    void initInterface();
-    void setConnections();
 
     Ui::StartPageWidget* _ui;
-    QTimer timer;
+    QTimer _timer;
 };

@@ -14,12 +14,6 @@ AlcoTestPageWidget::~AlcoTestPageWidget()
     delete _ui;
 }
 
-void AlcoTestPageWidget::init(MainWindow* mainWindow)
-{
-    Page::init(mainWindow);
-    initInterface();
-}
-
 QString AlcoTestPageWidget::getName() const
 {
     return "test";

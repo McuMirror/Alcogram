@@ -33,7 +33,11 @@ public:
 
     void setPage(PageName pageName);
     ConfigManager* getConfigManager() const;
-    void postEvent(Event* event);
+    void postEvent(StateName targetState);
+    StateName getCurrentStateName() const
+    {
+        return _stateMachine->getCurrentStateName();
+    }
 
 private:
     // load fonts from resources

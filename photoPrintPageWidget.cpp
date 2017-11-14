@@ -16,13 +16,6 @@ PhotoPrintPageWidget::~PhotoPrintPageWidget()
     delete _ui;
 }
 
-void PhotoPrintPageWidget::init(MainWindow *mainWindow)
-{
-    Page::init(mainWindow);
-    initInterface();
-    _ui->printPages->setCurrentIndex(1);
-}
-
 QString PhotoPrintPageWidget::getName() const
 {
     return "print";
