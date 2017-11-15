@@ -5,6 +5,7 @@
 #include <QTimer>
 
 #include "page.h"
+#include "deviceInterfaces/posinterface.h"
 
 namespace Ui {
 class PayPageWidget;
@@ -18,7 +19,9 @@ public:
     explicit PayPageWidget(QWidget *parent = 0);
     ~PayPageWidget();
 
+    void init(MainWindow* mainWindow) override;
     QString getName() const override;
+    QList<Transition*> getTransitions() override;
     void onEntry() override;
 
 protected:
@@ -31,7 +34,19 @@ private:
     // @param richText - text to set (html text)
     void initPriceLabels(QList<QLabel*> labels, const QString& richText);
 
+    // setting inaction timer with duration named durationName
+    void setInactionTimer(const QString& durationName);
+
+    void setNotEnoughMoneyInactionTimer();
+
     void retrieveTextTemplates();
+    void retrieveLanguageDependentTemplates();
+
+    // returns payState page numbers related to specific state
+    QMap<StateName, int> initPayStatePageNumbers() const;
+
+    // setting page for payState by stateName
+    void setSubPage(StateName stateName);
 
     Ui::PayPageWidget* _ui;
 
@@ -42,6 +57,13 @@ private:
     QString _lightPricesText; // 4 column
 
     QString _priceText; // template text for QLabel price
+    QString _timerText; // template for NOT_ENOUGH_MONEY timer text
 
     QTimer _timer;
+    POSInterface* _posDevice;
+    int _enteredMoneyAmount;
+    int _price;
+    int _timerTimeLeft;
+
+    QMap<StateName, int> _payStatePageNumber; // state -> payState page number
 };

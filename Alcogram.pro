@@ -31,7 +31,9 @@ SOURCES += main.cpp\
     splashScreenEternalSleep.cpp \
     splashScreenNoncriticalError.cpp \
     criticalErrorPage.cpp \
-    noncriticalErrorPage.cpp
+    noncriticalErrorPage.cpp \
+    devices/posDeviceTest.cpp \
+    devices/deviceManager.cpp
 
 HEADERS  += mainWindow.h \
     startPageWidget.h \
@@ -48,7 +50,12 @@ HEADERS  += mainWindow.h \
     splashScreenEternalSleep.h \
     splashScreenNoncriticalError.h \
     criticalErrorPage.h \
-    noncriticalErrorPage.h
+    noncriticalErrorPage.h \
+    deviceInterfaces/cameraInterface.h \
+    deviceInterfaces/posInterface.h \
+    devices/posDeviceTest.h \
+    devices/deviceManager.h \
+    deviceInterfaces/baseDeviceInterface.h
 
 FORMS    += mainWindow.ui \
     startPageWidget.ui \

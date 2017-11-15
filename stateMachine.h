@@ -77,6 +77,7 @@ public:
 
     void onTransition(QEvent* event) override
     {
+        // TODO: logging
         _callback(event);
     }
 

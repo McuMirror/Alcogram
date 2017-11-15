@@ -120,24 +120,25 @@ void TakePhotoPageWidget::setConnections()
             return;
         }
 
-        _mainWindow->postEvent(targetState);
+        _mainWindow->goToState(targetState);
     });
 
     QObject::connect(_ui->takePhotoButton, &QPushButton::released, [this] {
-        _mainWindow->postEvent(PHOTO_TIMER);
+        _mainWindow->goToState(PHOTO_TIMER);
     });
 
     QObject::connect(_ui->retakePhotoButton, &QPushButton::released, [this] {
-        _mainWindow->postEvent(PREPARING_FOR_PHOTO);
+        _mainWindow->goToState(PREPARING_FOR_PHOTO);
     });
 
     QObject::connect(_ui->continueButton, &QPushButton::released, [this] {
-        _mainWindow->postEvent(PAY);
+        _mainWindow->goToState(PAY);
     });
 }
 
 void TakePhotoPageWidget::setPhotoTimer()
 {
+    // update timer label with start time
     _timerTimeLeft = _mainWindow->getConfigManager()->getTimeDuration(getName(), "timer") * 1000;
     QString timerText = QDateTime::fromMSecsSinceEpoch(_timerTimeLeft).toString("mm:ss:zzz");
     timerText.chop(1);
@@ -157,7 +158,7 @@ void TakePhotoPageWidget::setPhotoTimer()
 
         if (_timerTimeLeft < 0) {
             _timer.stop();
-            _mainWindow->postEvent(PHOTO_CONFIRMATION);
+            _mainWindow->goToState(PHOTO_CONFIRMATION);
         };
     });
 
@@ -172,7 +173,7 @@ void TakePhotoPageWidget::setInactionTimer(const QString& durationName)
 
     QObject::disconnect(&_timer, &QTimer::timeout, 0, 0);
     QObject::connect(&_timer, &QTimer::timeout, [=]{
-        _mainWindow->postEvent(SPLASH_SCREEN);
+        _mainWindow->goToState(SPLASH_SCREEN);
         _timer.stop();
     });
 

@@ -50,7 +50,7 @@ void StartPageWidget::onEntry()
     QObject::disconnect(&_timer, &QTimer::timeout, 0, 0);
     QObject::connect(&_timer, &QTimer::timeout, [=]{
         _timer.stop();
-        _mainWindow->postEvent(SPLASH_SCREEN);
+        _mainWindow->goToState(SPLASH_SCREEN);
     });
 
     _timer.start();
@@ -85,7 +85,7 @@ void StartPageWidget::setConnections()
 {
     QObject::connect(_ui->startButton, &QPushButton::released, [=]{
         _timer.stop();
-        _mainWindow->postEvent(PREPARING_FOR_PHOTO);
+        _mainWindow->goToState(PREPARING_FOR_PHOTO);
     });
 
     QObject::connect(_ui->switchLanguageButton, &QPushButton::released, this

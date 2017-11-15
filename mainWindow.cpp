@@ -9,6 +9,7 @@ MainWindow::MainWindow(QWidget *parent) :
     , _ui(new Ui::MainWindow)
     , _configManager(new ConfigManager(this))
     , _stateMachine(new StateMachine(this))
+    , _deviceManager(new DeviceManager(this))
 {
     _ui->setupUi(this);
 
@@ -38,7 +39,12 @@ ConfigManager* MainWindow::getConfigManager() const
     return _configManager;
 }
 
-void MainWindow::postEvent(StateName targetState)
+DeviceManager* MainWindow::getDeviceManager() const
+{
+    return _deviceManager;
+}
+
+void MainWindow::goToState(StateName targetState)
 {
     _stateMachine->postEvent(new Event(targetState, getCurrentStateName()));
 }

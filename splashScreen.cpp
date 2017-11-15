@@ -23,7 +23,7 @@ void SplashScreen::init(MainWindow *mainWindow)
     Page::init(mainWindow);
 
     QObject::connect(_ui->frameButton, &QPushButton::released, [=] {
-        _mainWindow->postEvent(START);
+        _mainWindow->goToState(START);
     });
 }
 

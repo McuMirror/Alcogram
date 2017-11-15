@@ -4,6 +4,7 @@
 
 #include "configManager.h"
 #include "stateMachine.h"
+#include "devices/deviceManager.h"
 
 namespace Ui {
     class MainWindow;
@@ -33,7 +34,8 @@ public:
 
     void setPage(PageName pageName);
     ConfigManager* getConfigManager() const;
-    void postEvent(StateName targetState);
+    DeviceManager* getDeviceManager() const;
+    void goToState(StateName targetState);
     StateName getCurrentStateName() const
     {
         return _stateMachine->getCurrentStateName();
@@ -49,4 +51,5 @@ private:
     QVector<int> _fonts;
     ConfigManager* _configManager;
     StateMachine* _stateMachine;
+    DeviceManager* _deviceManager;
 };

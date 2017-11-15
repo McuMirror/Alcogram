@@ -81,7 +81,7 @@
       <height>1024</height>
      </rect>
     </property>
-    <widget class="QWidget" name="payRequest">
+    <widget class="QWidget" name="paymentRequest">
      <property name="styleSheet">
       <string notr="true">QWidget  {
 	background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 #161616, stop:1 #424242);
@@ -154,7 +154,87 @@
       </widget>
      </widget>
     </widget>
-    <widget class="QWidget" name="payComplete">
+    <widget class="QWidget" name="notEnoughMoney">
+     <property name="styleSheet">
+      <string notr="true">QWidget  {
+	background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 #161616, stop:1 #424242);
+}</string>
+     </property>
+     <widget class="QLabel" name="notEnoughMoneywarningText">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>175</y>
+        <width>1280</width>
+        <height>64</height>
+       </rect>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">QLabel {
+	color: rgb(255, 255, 255);
+	background-color: rgba(0, 0, 0, 0);
+}</string>
+      </property>
+      <property name="text">
+       <string>Пожалуйста внесите &lt;S-X&gt; Р.</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+     </widget>
+     <widget class="QLabel" name="timerText">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>239</y>
+        <width>1280</width>
+        <height>64</height>
+       </rect>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">QLabel {
+	color: rgb(255, 255, 255);
+	background-color: rgba(0, 0, 0, 0);
+}</string>
+      </property>
+      <property name="text">
+       <string>У вас осталось &lt;Y&gt; минут.</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+     </widget>
+    </widget>
+    <widget class="QWidget" name="moreThanNeedMoney">
+     <property name="styleSheet">
+      <string notr="true">QWidget  {
+	background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 #161616, stop:1 #424242);
+}</string>
+     </property>
+     <widget class="QLabel" name="moreThanNeedMoneyWarningText">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>175</y>
+        <width>1280</width>
+        <height>64</height>
+       </rect>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">QLabel {
+	color: rgb(255, 255, 255);
+	background-color: rgba(0, 0, 0, 0);
+}</string>
+      </property>
+      <property name="text">
+       <string>Внесено больше чем нужно</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+     </widget>
+    </widget>
+    <widget class="QWidget" name="paymentCompleted">
      <property name="styleSheet">
       <string notr="true">QWidget  {
 	background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 #161616, stop:1 #424242);
