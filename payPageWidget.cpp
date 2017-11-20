@@ -42,18 +42,21 @@ QList<Transition*> PayPageWidget::getTransitions()
 
     // PAY -> NOT_ENOUGH_MONEY
     transitions.append(new Transition(PAY, NOT_ENOUGH_MONEY, [this](QEvent*) {
+        _ui->continueButton->show();
         setNotEnoughMoneyInactionTimer();
         setSubPage(NOT_ENOUGH_MONEY);
     }));
 
     // PAY -> MORE_MONEY_THAN_NEED
     transitions.append(new Transition(PAY, MORE_MONEY_THAN_NEED, [this](QEvent*) {
-        setInactionTimer("inactionMoreMoneyThanNeed");
+        _ui->continueButton->show();
         setSubPage(MORE_MONEY_THAN_NEED);
+        setInactionTimer("inactionMoreMoneyThanNeed");
     }));
 
     // PAY -> PAYMENT_CONFIRMED
     transitions.append(new Transition(PAY, PAYMENT_CONFIRMED, [this](QEvent*) {
+        _ui->cancelButton->hide();
         setSubPage(PAYMENT_CONFIRMED);
         setInactionTimer("paymentConfirmed");
     }));
@@ -65,13 +68,17 @@ QList<Transition*> PayPageWidget::getTransitions()
 
     // NOT_ENOUGH_MONEY -> PAY
     transitions.append(new Transition(NOT_ENOUGH_MONEY, PAY, [this](QEvent*) {
+        _ui->continueButton->hide();
         setInactionTimer("inactionPayMoneyNonZero");
         setSubPage(PAY);
     }));
 
     // MORE_MONEY_THAN_NEED -> PAYMENT_CONFIRMED
     transitions.append(new Transition(MORE_MONEY_THAN_NEED, PAYMENT_CONFIRMED, [this](QEvent*) {
+        _ui->continueButton->hide();
+        _ui->cancelButton->hide();
         setSubPage(PAYMENT_CONFIRMED);
+        setInactionTimer("paymentConfirmed");
     }));
 
     // PAYMENT_CONFIRMED -> ALCOTEST
@@ -84,11 +91,15 @@ QList<Transition*> PayPageWidget::getTransitions()
 
 void PayPageWidget::onEntry()
 {
+    _ui->continueButton->hide();
+    _ui->cancelButton->show();
+
     setSubPage(PAY);
     setInactionTimer("inactionPayMoneyZero");
 
-    _price = 150; // TODO: use formula 50 * N instead of 150
+    _price = _mainWindow->getFaceDetector()->facesNumber() * 50; // TODO: 50 to xml
     _ui->price->setText(QString(_priceText).replace("@PRICE", QString::number(_price)));
+    setPriceToPriceLabels(_price);
 
     _enteredMoneyAmount = 0;
 
@@ -97,8 +108,7 @@ void PayPageWidget::onEntry()
         // while the test values are used
         if (statusCode == OK) {
             _posDevice->getPaymentResponce([=](int statusCode, int totalMoneyAmount) {
-                if (_enteredMoneyAmount == 0 && totalMoneyAmount < _price) {
-                    _timer.stop();
+                if (totalMoneyAmount < _price) {
                     setInactionTimer("inactionPayMoneyNonZero");
                 }
 
@@ -119,25 +129,38 @@ void PayPageWidget::onEntry()
 void PayPageWidget::initInterface() {
     updateTexts(_ui->frame);
     retrieveTextTemplates();
-
-    QString price = "150"; //TODO: get rid of it
-
-    initPriceLabels(_ui->boldPrices->findChildren<QLabel*>()
-                    , QString(_boldPricesText).replace("@PRICE", price));
-    initPriceLabels(_ui->semiBoldPrices->findChildren<QLabel*>()
-                    , QString(_semiBoldPricesText).replace("@PRICE", price));
-    initPriceLabels(_ui->regularPrices->findChildren<QLabel*>()
-                    , QString(_regularPricesText).replace("@PRICE", price));
-    initPriceLabels(_ui->lightPrices->findChildren<QLabel*>()
-                    , QString(_lightPricesText).replace("@PRICE", price));
 }
 
 void PayPageWidget::setConnections()
 {
+    QObject::connect(_ui->continueButton, &QPushButton::released, [this] {
+        _mainWindow->goToState(_mainWindow->getCurrentStateName() == NOT_ENOUGH_MONEY
+                               ? PAY : PAYMENT_CONFIRMED);
+    });
 
+    QObject::connect(_ui->cancelButton, &QPushButton::released, [this] {
+        StateName targetState;
+
+        switch (_mainWindow->getCurrentStateName()) {
+        case NOT_ENOUGH_MONEY:
+            targetState = PAY;
+            break;
+        case MORE_MONEY_THAN_NEED:
+            targetState = PAYMENT_CONFIRMED;
+            break;
+        case PAY:
+            targetState = SPLASH_SCREEN;
+            break;
+        default:
+            // TODO: wrong state
+            return;
+        }
+
+        _mainWindow->goToState(targetState);
+    });
 }
 
-void PayPageWidget::initPriceLabels(QList<QLabel*> labels, const QString& richText)
+void PayPageWidget::setPriceLabelsText(QList<QLabel*> labels, const QString& richText)
 {
     for (QLabel* label : labels) {
         label->setTextFormat(Qt::RichText);
@@ -145,8 +168,24 @@ void PayPageWidget::initPriceLabels(QList<QLabel*> labels, const QString& richTe
     }
 }
 
+void PayPageWidget::setPriceToPriceLabels(int price)
+{
+    QString priceText = QString::number(price);
+
+    setPriceLabelsText(_ui->boldPrices->findChildren<QLabel*>()
+                    , QString(_boldPricesText).replace("@PRICE", priceText));
+    setPriceLabelsText(_ui->semiBoldPrices->findChildren<QLabel*>()
+                    , QString(_semiBoldPricesText).replace("@PRICE", priceText));
+    setPriceLabelsText(_ui->regularPrices->findChildren<QLabel*>()
+                    , QString(_regularPricesText).replace("@PRICE", priceText));
+    setPriceLabelsText(_ui->lightPrices->findChildren<QLabel*>()
+                    , QString(_lightPricesText).replace("@PRICE", priceText));
+}
+
 void PayPageWidget::setInactionTimer(const QString& durationName)
 {
+    _timer.stop();
+
     int timeMs = _mainWindow->getConfigManager()->getTimeDuration(getName(), durationName) * 1000;
 
     _timer.setInterval(timeMs);
@@ -155,12 +194,52 @@ void PayPageWidget::setInactionTimer(const QString& durationName)
     QObject::connect(&_timer, &QTimer::timeout, [this]{
         _timer.stop();
 
+        StateName state = _mainWindow->getCurrentStateName();
+
         if (_enteredMoneyAmount == 0) {
-            _mainWindow->goToState(SPLASH_SCREEN);
-        } else if (_enteredMoneyAmount > 0 && _enteredMoneyAmount < _price) {
-            _mainWindow->goToState(NOT_ENOUGH_MONEY);
-        } else {
-            _mainWindow->goToState(PAYMENT_CONFIRMED);
+            switch (state) {
+                case PAY:
+                    _mainWindow->goToState(SPLASH_SCREEN);
+                break;
+                default:
+                    // TODO: handle
+                    break;
+            }
+            return;
+        }
+
+        if (_enteredMoneyAmount > 0 && _enteredMoneyAmount < _price) {
+            if (state == PAY) {
+                _mainWindow->goToState(NOT_ENOUGH_MONEY);
+            }
+
+            switch (state) {
+                case PAY:
+                    _mainWindow->goToState(NOT_ENOUGH_MONEY);
+                    break;
+                case NOT_ENOUGH_MONEY:
+                    _mainWindow->goToState(SPLASH_SCREEN);
+                    break;
+                default:
+                    // TODO: handle
+                    break;
+            }
+
+            return;
+        }
+
+        if (_enteredMoneyAmount >= _price) {
+            switch (state) {
+                case MORE_MONEY_THAN_NEED:
+                    _mainWindow->goToState(PAYMENT_CONFIRMED);
+                    break;
+                case PAYMENT_CONFIRMED:
+                    _mainWindow->goToState(ALCOTEST);
+                    break;
+                default:
+                    // TODO: handle
+                    break;
+            }
         }
     });
 
@@ -169,6 +248,8 @@ void PayPageWidget::setInactionTimer(const QString& durationName)
 
 void PayPageWidget::setNotEnoughMoneyInactionTimer()
 {
+    _timer.stop();
+
     int timeMs = _mainWindow->getConfigManager()->getTimeDuration(getName(), "inactionNotEnoughMoney") * 1000;
     _timerTimeLeft = timeMs;
     QString timerText = QDateTime::fromMSecsSinceEpoch(_timerTimeLeft).toString("mm:ss");

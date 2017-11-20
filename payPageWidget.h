@@ -32,7 +32,9 @@ private:
     // init column price QLabel's
     // @param labels - column QLabels
     // @param richText - text to set (html text)
-    void initPriceLabels(QList<QLabel*> labels, const QString& richText);
+    void setPriceLabelsText(QList<QLabel*> labels, const QString& richText);
+
+    void setPriceToPriceLabels(int price);
 
     // setting inaction timer with duration named durationName
     void setInactionTimer(const QString& durationName);

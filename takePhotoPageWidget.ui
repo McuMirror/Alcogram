@@ -474,7 +474,7 @@ border: no;
        </rect>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="takePhotoMain">
        <property name="styleSheet">
@@ -482,21 +482,6 @@ border: no;
 	background-color: rgb(5, 5, 5);
 }</string>
        </property>
-       <widget class="QWidget" name="cameraOutput" native="true">
-        <property name="geometry">
-         <rect>
-          <x>0</x>
-          <y>70</y>
-          <width>1280</width>
-          <height>854</height>
-         </rect>
-        </property>
-        <property name="styleSheet">
-         <string notr="true">QWidget {
-	background-color: rgb(255, 0, 0);
-}</string>
-        </property>
-       </widget>
        <widget class="QFrame" name="topGradient">
         <property name="geometry">
          <rect>
@@ -519,6 +504,33 @@ border: no;
          <enum>QFrame::Raised</enum>
         </property>
        </widget>
+       <widget class="QLabel" name="cameraOutput">
+        <property name="geometry">
+         <rect>
+          <x>0</x>
+          <y>70</y>
+          <width>1280</width>
+          <height>854</height>
+         </rect>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">QLabel {
+	
+	color: rgb(255, 255, 255);
+}</string>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+        <property name="scaledContents">
+         <bool>false</bool>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
+       <zorder>cameraOutput</zorder>
+       <zorder>topGradient</zorder>
       </widget>
       <widget class="QWidget" name="photoTakenMain">
        <property name="styleSheet">
@@ -526,6 +538,22 @@ border: no;
 	background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 #161616, stop:1 #424242);
 }</string>
        </property>
+       <widget class="QFrame" name="takenPhotoFrame">
+        <property name="geometry">
+         <rect>
+          <x>160</x>
+          <y>144</y>
+          <width>960</width>
+          <height>640</height>
+         </rect>
+        </property>
+        <property name="frameShape">
+         <enum>QFrame::StyledPanel</enum>
+        </property>
+        <property name="frameShadow">
+         <enum>QFrame::Raised</enum>
+        </property>
+       </widget>
        <widget class="QLabel" name="takenPhoto">
         <property name="geometry">
          <rect>
@@ -537,11 +565,15 @@ border: no;
         </property>
         <property name="styleSheet">
          <string notr="true">QLabel {
-	background-color: rgb(255, 0, 0);
+	
+	color: rgb(255, 255, 255);
 }</string>
         </property>
         <property name="text">
          <string/>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
         </property>
        </widget>
       </widget>

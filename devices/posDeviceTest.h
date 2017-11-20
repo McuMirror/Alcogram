@@ -5,10 +5,6 @@
 
 #include "deviceInterfaces/posinterface.h"
 
-// test status codes
-const int OK = 0;
-const int ERROR = 1;
-
 class POSDeviceTest : public QObject
                     , public POSInterface
 {
@@ -22,6 +18,7 @@ public:
     void sendPrice(int price, DeviceCallback callback) override;
     void getPaymentResponce(PayCallback payCallback) override;
     void abortPayment(DeviceCallback callback) override;
+    void reset() override;
 
 private:
     int _price;

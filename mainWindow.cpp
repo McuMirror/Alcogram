@@ -3,6 +3,7 @@
 
 #include "mainWindow.h"
 #include "ui_mainWindow.h"
+#include "faceDetector.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent)
@@ -10,6 +11,7 @@ MainWindow::MainWindow(QWidget *parent) :
     , _configManager(new ConfigManager(this))
     , _stateMachine(new StateMachine(this))
     , _deviceManager(new DeviceManager(this))
+    , _faceDetector(new FaceDetector(this))
 {
     _ui->setupUi(this);
 
@@ -42,6 +44,11 @@ ConfigManager* MainWindow::getConfigManager() const
 DeviceManager* MainWindow::getDeviceManager() const
 {
     return _deviceManager;
+}
+
+FaceDetectionInterface* MainWindow::getFaceDetector() const
+{
+    return _faceDetector;
 }
 
 void MainWindow::goToState(StateName targetState)

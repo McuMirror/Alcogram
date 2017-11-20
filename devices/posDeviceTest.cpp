@@ -6,7 +6,6 @@
 POSDeviceTest::POSDeviceTest(QObject *parent)
     : QObject(parent)
 {
-
 }
 
 void POSDeviceTest::turnOn(DeviceCallback callback)
@@ -40,6 +39,7 @@ void POSDeviceTest::getPaymentResponce(PayCallback payCallback)
 
         payCallback(OK, 50);//_enteredAmount);
 
+        _timer.stop();
         /*if (_enteredAmount >= _price) {
             _timer.stop();
         }*/
@@ -48,6 +48,11 @@ void POSDeviceTest::getPaymentResponce(PayCallback payCallback)
 }
 
 void POSDeviceTest::abortPayment(DeviceCallback callback)
+{
+    _timer.stop();
+}
+
+void POSDeviceTest::reset()
 {
 
 }

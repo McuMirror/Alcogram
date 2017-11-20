@@ -1,15 +1,25 @@
 #include <QGraphicsDropShadowEffect>
 #include <QDateTime>
+#include <QPixmap>
+#include <QRgb>
+#include <QPainter>
+#include <QColor>
+
+#include <opencv2\imgproc.hpp>
 
 #include "takePhotoPageWidget.h"
 #include "ui_takePhotoPageWidget.h"
 #include "utils.h"
+#include "deviceInterfaces/cameraInterface.h"
+#include "faceDetector.h"
+
 
 TakePhotoPageWidget::TakePhotoPageWidget(QWidget *parent)
     : Page(parent)
     , _ui(new Ui::TakePhotoPageWidget)
     , _bottomPanelPageNumbers(initBottomPanelPageNumbers())
     , _mainPanelPageNumbers(initMainPanelPageNumbers())
+    , _faceDetectorTest(new VideoFaceDetector("E:/Alcogram/haarcascade_frontalface_default.xml"))
 {
     _ui->setupUi(this);
 }
@@ -17,6 +27,59 @@ TakePhotoPageWidget::TakePhotoPageWidget(QWidget *parent)
 TakePhotoPageWidget::~TakePhotoPageWidget()
 {
     delete _ui;
+    delete _faceDetectorTest;
+}
+
+void TakePhotoPageWidget::init(MainWindow* mainWindow) {
+    Page::init(mainWindow);
+
+    _faceDetector = _mainWindow->getFaceDetector();
+    _camera = _mainWindow->getDeviceManager()->getCameraDevice();
+
+    _camera->setImageCaptureCallback([this] (int statusCode, const QImage& image) {
+        StateName state = _mainWindow->getCurrentStateName();
+
+        if (!(state == PREPARING_FOR_PHOTO || state == PHOTO_TIMER
+                || state == PHOTO_CONFIRMATION && statusCode == CAMERA_IMAGE_CAPTURE)) {
+            return;
+        }
+
+        switch (statusCode) {
+            case CAMERA_STREAM:
+            {
+                QImage mirroredImage = image.mirrored();
+                QPixmap pixmap = QPixmap::fromImage(mirroredImage);
+
+                _faceDetector->detect(mirroredImage);
+
+                if (_faceDetector->facesNumber() > 0) {
+                    for (const QRect& faceRect : _faceDetector->faceRects()) {
+                        QPainter p(&pixmap);
+                        QPen pen(QColor(255, 0, 0));
+                        pen.setWidth(2);
+                        p.setPen(pen);
+
+                        p.drawRect(faceRect);
+                    }
+                }
+
+                int w = _ui->cameraOutput->width();
+                int h = _ui->cameraOutput->height();
+
+                _ui->cameraOutput->setPixmap(pixmap.scaled(w, h, Qt::KeepAspectRatioByExpanding));
+                break;
+            }
+            case CAMERA_IMAGE_CAPTURE:
+            {
+                _mainWindow->goToState(PHOTO_CONFIRMATION);
+                break;
+            }
+        }
+    });
+
+    _camera->turnOn([this](int statusCode) {
+        // TODO: handle
+    });
 }
 
 QString TakePhotoPageWidget::getName() const
@@ -54,8 +117,12 @@ QList<Transition*> TakePhotoPageWidget::getTransitions()
 
     // PHOTO_TIMER -> PHOTO_CONFIRMATION
     transitions.append(new Transition(PHOTO_TIMER, PHOTO_CONFIRMATION, [=] (QEvent*) {
-        // TODO: take photo
         setSubPage(PHOTO_CONFIRMATION);
+        int w = _ui->takenPhoto->width();
+        int h = _ui->takenPhoto->height();
+
+        _ui->takenPhoto->setPixmap(QPixmap::fromImage(_camera->getCapturedImage())
+                                   .scaled(w, h, Qt::KeepAspectRatioByExpanding));
         setInactionTimer("inactionPhotoConfirmation");
     }));
 
@@ -72,6 +139,7 @@ QList<Transition*> TakePhotoPageWidget::getTransitions()
 
     //PHOTO_CONFIRMATION -> PAY
     transitions.append(new Transition(PHOTO_CONFIRMATION, PAY, [=](QEvent*) {
+        _timer.stop();
         _mainWindow->setPage(PAY_PAGE);
     }));
 
@@ -91,13 +159,13 @@ void TakePhotoPageWidget::initInterface()
     //timer font
     _ui->timer->setFont(Utils::getFont("Proxima Nova Rg", 47, 2, QFont::Bold));
 
-    //takenPhoto shadow
+    //takenPhotoFrame shadow
     QGraphicsDropShadowEffect* effect = new QGraphicsDropShadowEffect(this);
     effect->setBlurRadius(128);
     effect->setColor(QColor(0, 0, 0, 127));
     effect->setOffset(0, 42);
 
-    _ui->takenPhoto->setGraphicsEffect(effect);
+    _ui->takenPhotoFrame->setGraphicsEffect(effect);
 }
 
 void TakePhotoPageWidget::setConnections()
@@ -128,6 +196,7 @@ void TakePhotoPageWidget::setConnections()
     });
 
     QObject::connect(_ui->retakePhotoButton, &QPushButton::released, [this] {
+        _camera->reset();
         _mainWindow->goToState(PREPARING_FOR_PHOTO);
     });
 
@@ -158,7 +227,8 @@ void TakePhotoPageWidget::setPhotoTimer()
 
         if (_timerTimeLeft < 0) {
             _timer.stop();
-            _mainWindow->goToState(PHOTO_CONFIRMATION);
+            _camera->captureImage();
+            //_mainWindow->goToState(PHOTO_CONFIRMATION);
         };
     });
 

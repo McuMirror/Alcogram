@@ -5,6 +5,7 @@
 #include "configManager.h"
 #include "stateMachine.h"
 #include "devices/deviceManager.h"
+#include "interfaces/faceDetectionInterface.h"
 
 namespace Ui {
     class MainWindow;
@@ -35,6 +36,7 @@ public:
     void setPage(PageName pageName);
     ConfigManager* getConfigManager() const;
     DeviceManager* getDeviceManager() const;
+    FaceDetectionInterface* getFaceDetector() const;
     void goToState(StateName targetState);
     StateName getCurrentStateName() const
     {
@@ -52,4 +54,5 @@ private:
     ConfigManager* _configManager;
     StateMachine* _stateMachine;
     DeviceManager* _deviceManager;
+    FaceDetectionInterface* _faceDetector;
 };

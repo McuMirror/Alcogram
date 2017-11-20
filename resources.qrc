@@ -15,5 +15,6 @@
         <file>fonts/proximanova_light.ttf</file>
         <file>images/instagram.svg</file>
         <file>config.conf</file>
+        <file>haarcascade_frontalface_default.xml</file>
     </qresource>
 </RCC>

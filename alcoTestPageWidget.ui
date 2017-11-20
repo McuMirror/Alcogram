@@ -53,21 +53,6 @@
      <enum>QFrame::Raised</enum>
     </property>
    </widget>
-   <widget class="QWidget" name="photo" native="true">
-    <property name="geometry">
-     <rect>
-      <x>0</x>
-      <y>124</y>
-      <width>1280</width>
-      <height>900</height>
-     </rect>
-    </property>
-    <property name="styleSheet">
-     <string notr="true">QWidget {
-	background-color: rgb(255, 0, 0);
-}</string>
-    </property>
-   </widget>
    <widget class="QFrame" name="topGradient">
     <property name="geometry">
      <rect>
@@ -198,6 +183,30 @@
      <set>Qt::AlignCenter</set>
     </property>
    </widget>
+   <widget class="QLabel" name="photo">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>124</y>
+      <width>1280</width>
+      <height>900</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
+   <zorder>top</zorder>
+   <zorder>stepFour</zorder>
+   <zorder>stepTwo</zorder>
+   <zorder>stepThree</zorder>
+   <zorder>logo</zorder>
+   <zorder>stepOne</zorder>
+   <zorder>photo</zorder>
+   <zorder>topGradient</zorder>
   </widget>
  </widget>
  <resources>

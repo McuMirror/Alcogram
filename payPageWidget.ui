@@ -1198,6 +1198,42 @@ border: no;
      </size>
     </property>
    </widget>
+   <widget class="QPushButton" name="continueButton">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>924</y>
+      <width>1280</width>
+      <height>100</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Proxima Nova Rg</family>
+      <pointsize>8</pointsize>
+      <weight>50</weight>
+      <bold>false</bold>
+     </font>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QPushButton { 
+	background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 #ffdd33, stop:1 #ffb932);
+	border: none;
+}</string>
+    </property>
+    <property name="text">
+     <string>Продолжить</string>
+    </property>
+    <property name="iconSize">
+     <size>
+      <width>67</width>
+      <height>62</height>
+     </size>
+    </property>
+    <property name="flat">
+     <bool>false</bool>
+    </property>
+   </widget>
    <zorder>payState</zorder>
    <zorder>stepFour</zorder>
    <zorder>stepThree</zorder>
@@ -1205,6 +1241,7 @@ border: no;
    <zorder>cancelButton</zorder>
    <zorder>stepTwo</zorder>
    <zorder>stepOne</zorder>
+   <zorder>continueButton</zorder>
   </widget>
  </widget>
  <resources>
