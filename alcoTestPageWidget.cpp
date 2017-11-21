@@ -23,7 +23,7 @@ void AlcoTestPageWidget::init(MainWindow *mainWindow)
 {
     Page::init(mainWindow);
 
-    _alcotester = _mainWindow->getDeviceManager()->getAlcotester();
+    _alcotester = _mainWindow->getDeviceManager()->getAlcotesterDevice();
     _camera = _mainWindow->getDeviceManager()->getCameraDevice();
     _faceDetector = _mainWindow->getFaceDetector();
 }
@@ -37,6 +37,12 @@ QList<Transition*> AlcoTestPageWidget::getTransitions()
 {
     QList<Transition*> transitions;
 
+    // ALCOTEST -> ALCOTEST
+    transitions.append(new Transition(ALCOTEST, ALCOTEST, [this](QEvent*) {
+        circleCurrentPerson();
+        setTimer("recognized");
+    }));
+
     // ALCOTEST -> ALCOTEST_INACTION
     transitions.append(new Transition(ALCOTEST, ALCOTEST_INACTION, [this](QEvent*) {
         // TODO: to inaction warning
@@ -44,7 +50,8 @@ QList<Transition*> AlcoTestPageWidget::getTransitions()
 
     // ALCOTEST -> DRUNKENESS_NOT_RECOGNIZED
     transitions.append(new Transition(ALCOTEST, DRUNKENESS_NOT_RECOGNIZED, [this](QEvent*) {
-        // TODO: show drunkeness not recognized message
+        circleCurrentPerson();
+        setTimer("drunkenessNotRecognized");
     }));
 
     // ALCOTEST -> FINAL_PHOTO
@@ -64,7 +71,7 @@ QList<Transition*> AlcoTestPageWidget::getTransitions()
 
     // DRUNKENESS_NOT_RECOGNIZED -> ALCOTEST
     transitions.append(new Transition(DRUNKENESS_NOT_RECOGNIZED, ALCOTEST, [this](QEvent*) {
-        // TODO: show regular message
+        test(_currentPerson);
     }));
 
     return transitions;
@@ -72,8 +79,6 @@ QList<Transition*> AlcoTestPageWidget::getTransitions()
 
 void AlcoTestPageWidget::onEntry()
 {
-    setTimer("inactionAlcotest");
-
     test(0);
 }
 
@@ -96,7 +101,14 @@ void AlcoTestPageWidget::setTimer(const QString& durationName)
 
         switch (_mainWindow->getCurrentStateName()) {
             case ALCOTEST:
-                _mainWindow->goToState(ALCOTEST_INACTION);
+                switch (_circleState) {
+                    case TEST:
+                        _mainWindow->goToState(ALCOTEST_INACTION);
+                        break;
+                    case SUCCESS:
+                        test(_currentPerson + 1);
+                        break;
+                }
                 break;
             case ALCOTEST_INACTION:
                 _mainWindow->goToState(SPLASH_SCREEN);
@@ -121,30 +133,33 @@ void AlcoTestPageWidget::test(int i)
     }
 
     _circleState = TEST;
+    _currentPerson = i;
 
-    circleCurrentPerson(i);
+    circleCurrentPerson();
 
     _alcotester->test([=](int statusCode, double value) {
         switch (statusCode) {
             case OK:
                 _circleState = SUCCESS;
                 _lastPersonValue = value;
-                circleCurrentPerson(i);
+                _mainWindow->goToState(ALCOTEST);
                 break;
             case NOT_RECOGNIZED:
                 _circleState = FAIL;
-                circleCurrentPerson(i);
+                _mainWindow->goToState(DRUNKENESS_NOT_RECOGNIZED);
                 break;
             case ERROR:
                 break;
         }
     });
+
+    setTimer("inactionAlcotest");
 }
 
-void AlcoTestPageWidget::circleCurrentPerson(int i)
+void AlcoTestPageWidget::circleCurrentPerson()
 {
     QPixmap image = QPixmap::fromImage(_camera->getCapturedImage());
-    QRect faceRect = _faceDetector->faceRects().at(i);
+    QRect faceRect = _faceDetector->faceRects().at(_currentPerson);
     int radius = std::max(faceRect.width(), faceRect.height()) / 2;
 
     QPainter p(&image);
@@ -167,6 +182,7 @@ void AlcoTestPageWidget::circleCurrentPerson(int i)
         case SUCCESS:
         {
             pen = QPen(QColor("#71b732"));
+            pen.setWidth(radius * 0.2);
             break;
         }
     }
@@ -188,6 +204,20 @@ void AlcoTestPageWidget::circleCurrentPerson(int i)
             p.setPen(pen);
             p.drawEllipse(upperCircleCenter, upperCircleRadius, upperCircleRadius);
             break;
+        }
+
+        case SUCCESS:
+        {
+            p.setBrush(QBrush(QColor("#71b732")));
+            p.drawEllipse(upperCircleCenter, upperCircleRadius, upperCircleRadius);
+            break;
+        }
+
+        case FAIL:
+        {
+            pen.setWidth(5);
+            p.setPen(pen);
+            p.drawEllipse(upperCircleCenter, upperCircleRadius, upperCircleRadius);
         }
     }
 

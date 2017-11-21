@@ -7,11 +7,13 @@
 #include "deviceInterfaces/posinterface.h"
 #include "deviceInterfaces/cameraInterface.h"
 #include "deviceInterfaces/alcotesterinterface.h"
+#include "deviceInterfaces/printerinterface.h"
 
 enum DeviceName {
     POS
     , CAMERA
     , ALCOTESTER
+    , PRINTER
 };
 
 class DeviceManager : public QObject
@@ -22,7 +24,8 @@ public:
 
     POSInterface* getPOSDevice() const;
     CameraInterface* getCameraDevice() const;
-    AlcotesterInterface* getAlcotester() const;
+    AlcotesterInterface* getAlcotesterDevice() const;
+    PrinterInterface* getPrinterDevice() const;
 
 private:
     QMap<DeviceName, BaseDeviceInterface*> _devices;

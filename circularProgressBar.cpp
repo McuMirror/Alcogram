@@ -3,7 +3,8 @@
 
 #include "circularProgressBar.h"
 
-CircularProgressBar::CircularProgressBar(QWidget *parent) : QWidget(parent)
+CircularProgressBar::CircularProgressBar(QWidget *parent)
+    : QWidget(parent)
 {
 
 }

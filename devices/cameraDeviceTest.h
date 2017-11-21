@@ -3,7 +3,7 @@
 #include <QObject>
 #include <QCamera>
 #include <QMediaRecorder>
-#include <QScopedPointer>
+#include <QSharedPointer>
 
 #include "deviceInterfaces/cameraInterface.h"
 #include "cameraFrameGrabber.h"
@@ -29,5 +29,5 @@ private:
 
     ImageCaptureCallback _callback = nullptr;
     int _captureMode = CAMERA_STREAM;
-    QScopedPointer<QImage> _capturedImage;
+    QSharedPointer<QImage> _capturedImage;
 };

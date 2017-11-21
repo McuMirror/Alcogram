@@ -37,7 +37,7 @@ protected:
 private:
     void setTimer(const QString& durationName);
     void test(int i);
-    void circleCurrentPerson(int i);
+    void circleCurrentPerson();
 
     Ui::AlcoTestPageWidget* _ui;
     QTimer _timer;
@@ -47,4 +47,5 @@ private:
 
     AlcotestCircleState _circleState = TEST;
     double _lastPersonValue;
+    int _currentPerson;
 };

@@ -1,3 +1,5 @@
+#include <QTimer>
+
 #include "alcotesterDeviceTest.h"
 
 AlcotesterDeviceTest::AlcotesterDeviceTest(QObject *parent)
@@ -23,7 +25,9 @@ void AlcotesterDeviceTest::reset()
 
 void AlcotesterDeviceTest::test(AlcoTestCallback callback)
 {
-    //callback(OK, 1.5);
+    QTimer::singleShot(1000, [=] {
+        callback(OK, 1.5);
+    });
 }
 
 void AlcotesterDeviceTest::abort(DeviceCallback callback)

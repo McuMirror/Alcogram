@@ -37,7 +37,7 @@ void POSDeviceTest::getPaymentResponce(PayCallback payCallback)
 
         _enteredAmount += _denominations[i];
 
-        payCallback(OK, 50);//_enteredAmount);
+        payCallback(OK, 100);//_enteredAmount);
 
         _timer.stop();
         /*if (_enteredAmount >= _price) {

@@ -3,12 +3,15 @@
 #include <QWidget>
 #include <QTimer>
 #include <QImage>
+#include <QThread>
+#include <QSharedPointer>
 
 #include "page.h"
 
 #include "videoFaceDetector.h"
 #include "interfaces/faceDetectionInterface.h"
 #include "deviceInterfaces/cameraInterface.h"
+#include "cameraImageHandler.h"
 
 namespace Ui {
     class TakePhotoPageWidget;
@@ -26,6 +29,9 @@ public:
     QString getName() const override;
     QList<Transition*> getTransitions() override;
     void onEntry() override;
+
+signals:
+    void startImageHandle();
 
 protected:
     void initInterface() override;
@@ -58,4 +64,9 @@ private:
 
     FaceDetectionInterface* _faceDetector;
     CameraInterface* _camera;
+    ImageCaptureCallback _cameraStreamCallback;
+    QSharedPointer<QThread> _imageProcessingThread;
+    QSharedPointer<CameraImageHandler> _cameraImageHandler;
+
+    bool _isImageHandling = false;
 };

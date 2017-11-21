@@ -39,7 +39,9 @@ SOURCES += main.cpp\
     devices/cameraFrameGrabber.cpp \
     videoFaceDetector.cpp \
     faceDetector.cpp \
-    devices/alcoTesterDeviceTest.cpp
+    devices/alcoTesterDeviceTest.cpp \
+    cameraImageHandler.cpp \
+    devices/printerDeviceTest.cpp
 
 HEADERS  += mainWindow.h \
     startPageWidget.h \
@@ -68,7 +70,10 @@ HEADERS  += mainWindow.h \
     interfaces/faceDetectionInterface.h \
     faceDetector.h \
     deviceInterfaces/alcotesterInterface.h \
-    devices/alcotesterDeviceTest.h
+    devices/alcotesterDeviceTest.h \
+    cameraImageHandler.h \
+    deviceInterfaces/printerinterface.h \
+    devices/printerDeviceTest.h
 
 FORMS    += mainWindow.ui \
     startPageWidget.ui \

@@ -1,6 +1,8 @@
 #include <QCameraInfo>
+#include <QSharedPointer>
 
 #include "cameraDeviceTest.h"
+
 
 CameraDeviceTest::CameraDeviceTest(QObject *parent)
     : QObject(parent)
@@ -12,14 +14,16 @@ CameraDeviceTest::CameraDeviceTest(QObject *parent)
     _camera->setViewfinder(_cameraFrameGrabber);
 
     QObject::connect(_cameraFrameGrabber, &CameraFrameGrabber::frameAvailable, [this] (QImage frame) {
-       if (_callback != nullptr) {
-           _callback(_captureMode, frame);
-
-           if (_captureMode == CAMERA_IMAGE_CAPTURE) {
-               _capturedImage.reset(new QImage(frame.mirrored()));
-               _captureMode = CAMERA_STREAM;
-           }
-       }
+        if (_callback != nullptr) {
+            if (_captureMode == CAMERA_IMAGE_CAPTURE) {
+                _capturedImage = QSharedPointer<QImage>(new QImage(frame.mirrored()));
+                _callback(_captureMode, _capturedImage);
+                _callback = nullptr;
+                _captureMode = CAMERA_STREAM;
+            } else {
+                _callback(_captureMode, QSharedPointer<QImage>(new QImage(frame.mirrored())));
+            }
+        }
     });
 }
 
@@ -54,7 +58,7 @@ void CameraDeviceTest::captureImage()
 
 const QImage& CameraDeviceTest::getCapturedImage()
 {
-    return *_capturedImage.data();
+    return *_capturedImage;
 }
 
 void CameraDeviceTest::reset()

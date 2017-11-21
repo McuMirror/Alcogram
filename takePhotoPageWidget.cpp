@@ -4,6 +4,7 @@
 #include <QRgb>
 #include <QPainter>
 #include <QColor>
+#include <QThread>
 
 #include <opencv2\imgproc.hpp>
 
@@ -36,46 +37,47 @@ void TakePhotoPageWidget::init(MainWindow* mainWindow) {
     _faceDetector = _mainWindow->getFaceDetector();
     _camera = _mainWindow->getDeviceManager()->getCameraDevice();
 
-    _camera->setImageCaptureCallback([this] (int statusCode, const QImage& image) {
-        StateName state = _mainWindow->getCurrentStateName();
+    _imageProcessingThread.reset(new QThread());
+    _cameraImageHandler.reset(new CameraImageHandler(_faceDetector));
 
-        if (!(state == PREPARING_FOR_PHOTO || state == PHOTO_TIMER
-                || state == PHOTO_CONFIRMATION && statusCode == CAMERA_IMAGE_CAPTURE)) {
-            return;
-        }
+    _cameraImageHandler->moveToThread(_imageProcessingThread.data());
+    QObject::connect(_cameraImageHandler.data(), &CameraImageHandler::processed
+                     , [=](QPixmap proccessedImage) {
+        _ui->cameraOutput->setPixmap(proccessedImage);
+        _ui->cameraOutput->update();
+        _isImageHandling = false;
+    });
 
+    QObject::connect(this, &TakePhotoPageWidget::startImageHandle
+                     , _cameraImageHandler.data(), &CameraImageHandler::process);
+
+    _imageProcessingThread->start();
+
+    _cameraStreamCallback = [this] (int statusCode, QSharedPointer<QImage> image) {
+        //_ui->cameraOutput->setPixmap(QPixmap::fromImage(*image));
         switch (statusCode) {
             case CAMERA_STREAM:
             {
-                QImage mirroredImage = image.mirrored();
-                QPixmap pixmap = QPixmap::fromImage(mirroredImage);
-
-                _faceDetector->detect(mirroredImage);
-
-                if (_faceDetector->facesNumber() > 0) {
-                    for (const QRect& faceRect : _faceDetector->faceRects()) {
-                        QPainter p(&pixmap);
-                        QPen pen(QColor(255, 0, 0));
-                        pen.setWidth(2);
-                        p.setPen(pen);
-
-                        p.drawRect(faceRect);
-                    }
-                }
-
+                // TODO: image processing in another thread
+                /*if (!_isImageHandling) {
+                    _isImageHandling = true;
+                    _cameraImageHandler->setImageToProcess(image);
+                    emit startImageHandle();
+                }*/
                 int w = _ui->cameraOutput->width();
                 int h = _ui->cameraOutput->height();
 
-                _ui->cameraOutput->setPixmap(pixmap.scaled(w, h, Qt::KeepAspectRatioByExpanding));
+                _ui->cameraOutput->setPixmap(QPixmap::fromImage(*image).scaled(w, h, Qt::KeepAspectRatioByExpanding));
                 break;
             }
+
             case CAMERA_IMAGE_CAPTURE:
             {
                 _mainWindow->goToState(PHOTO_CONFIRMATION);
                 break;
             }
         }
-    });
+    };
 
     _camera->turnOn([this](int statusCode) {
         // TODO: handle
@@ -150,6 +152,8 @@ void TakePhotoPageWidget::onEntry()
 {
     setSubPage(PREPARING_FOR_PHOTO);
     setInactionTimer("inactionPreparingPhoto");
+
+    _camera->setImageCaptureCallback(_cameraStreamCallback);
 }
 
 void TakePhotoPageWidget::initInterface()
@@ -197,6 +201,7 @@ void TakePhotoPageWidget::setConnections()
 
     QObject::connect(_ui->retakePhotoButton, &QPushButton::released, [this] {
         _camera->reset();
+        _camera->setImageCaptureCallback(_cameraStreamCallback);
         _mainWindow->goToState(PREPARING_FOR_PHOTO);
     });
 
@@ -223,9 +228,11 @@ void TakePhotoPageWidget::setPhotoTimer()
         // update timer label
         QString timerText = QDateTime::fromMSecsSinceEpoch(_timerTimeLeft).toString("mm:ss:zzz");
         timerText.chop(1);
-        _ui->timer->setText(timerText);
 
-        if (_timerTimeLeft < 0) {
+        _ui->timer->setText(timerText);
+        _ui->timer->update();
+
+        if (_timerTimeLeft <= 0) {
             _timer.stop();
             _camera->captureImage();
             //_mainWindow->goToState(PHOTO_CONFIRMATION);
