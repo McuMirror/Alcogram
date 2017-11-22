@@ -21,14 +21,27 @@ TakePhotoPageWidget::TakePhotoPageWidget(QWidget *parent)
     , _bottomPanelPageNumbers(initBottomPanelPageNumbers())
     , _mainPanelPageNumbers(initMainPanelPageNumbers())
     , _faceDetectorTest(new VideoFaceDetector("E:/Alcogram/haarcascade_frontalface_default.xml"))
+    , _imageProcessingThread(this)
 {
     _ui->setupUi(this);
 }
 
 TakePhotoPageWidget::~TakePhotoPageWidget()
 {
+    _imageProcessingThread.quit();
+
     delete _ui;
     delete _faceDetectorTest;
+}
+
+void TakePhotoPageWidget::updateCameraOutput(QPixmap processedImage)
+{
+    int w = _ui->cameraOutput->width();
+    int h = _ui->cameraOutput->height();
+
+    _ui->cameraOutput->setPixmap(processedImage.scaled(w, h, Qt::KeepAspectRatioByExpanding));
+    _ui->cameraOutput->update();
+    _isImageHandling = false;
 }
 
 void TakePhotoPageWidget::init(MainWindow* mainWindow) {
@@ -37,37 +50,35 @@ void TakePhotoPageWidget::init(MainWindow* mainWindow) {
     _faceDetector = _mainWindow->getFaceDetector();
     _camera = _mainWindow->getDeviceManager()->getCameraDevice();
 
-    _imageProcessingThread.reset(new QThread());
-    _cameraImageHandler.reset(new CameraImageHandler(_faceDetector));
+    _cameraImageHandler.setFaceDetector(_faceDetector);
 
-    _cameraImageHandler->moveToThread(_imageProcessingThread.data());
-    QObject::connect(_cameraImageHandler.data(), &CameraImageHandler::processed
-                     , [=](QPixmap proccessedImage) {
-        _ui->cameraOutput->setPixmap(proccessedImage);
+    _cameraImageHandler.moveToThread(&_imageProcessingThread);
+
+    QObject::connect(&_cameraImageHandler, &CameraImageHandler::processed, this
+                     , &TakePhotoPageWidget::updateCameraOutput, Qt::QueuedConnection);
+                    /* , [this](QPixmap proccessedImage) {
+        int w = _ui->cameraOutput->width();
+        int h = _ui->cameraOutput->height();
+
+        _ui->cameraOutput->setPixmap(proccessedImage.scaled(w, h, Qt::KeepAspectRatioByExpanding));
         _ui->cameraOutput->update();
         _isImageHandling = false;
-    });
+    });*/
 
     QObject::connect(this, &TakePhotoPageWidget::startImageHandle
-                     , _cameraImageHandler.data(), &CameraImageHandler::process);
+                     , &_cameraImageHandler, &CameraImageHandler::process, Qt::QueuedConnection);
 
-    _imageProcessingThread->start();
+    _imageProcessingThread.start();
 
     _cameraStreamCallback = [this] (int statusCode, QSharedPointer<QImage> image) {
-        //_ui->cameraOutput->setPixmap(QPixmap::fromImage(*image));
         switch (statusCode) {
             case CAMERA_STREAM:
             {
-                // TODO: image processing in another thread
-                /*if (!_isImageHandling) {
+                if (!_isImageHandling) {
                     _isImageHandling = true;
-                    _cameraImageHandler->setImageToProcess(image);
+                    _cameraImageHandler.setImageToProcess(image);
                     emit startImageHandle();
-                }*/
-                int w = _ui->cameraOutput->width();
-                int h = _ui->cameraOutput->height();
-
-                _ui->cameraOutput->setPixmap(QPixmap::fromImage(*image).scaled(w, h, Qt::KeepAspectRatioByExpanding));
+                }
                 break;
             }
 
@@ -106,7 +117,6 @@ QList<Transition*> TakePhotoPageWidget::getTransitions()
 
     // PREPARING_FOR_PHOTO -> PHOTO_TIMER
     transitions.append(new Transition(PREPARING_FOR_PHOTO, PHOTO_TIMER, [=](QEvent*) {
-        _timer.stop();
         setSubPage(PHOTO_TIMER);
         setPhotoTimer();
     }));
@@ -136,6 +146,8 @@ QList<Transition*> TakePhotoPageWidget::getTransitions()
     // PHOTO_CONFIRMATION -> PREPARING_FOR_PHOTO
     transitions.append(new Transition(PHOTO_CONFIRMATION, PREPARING_FOR_PHOTO, [=] (QEvent*) {
         _timer.stop();
+        _camera->reset();
+        _camera->setImageCaptureCallback(_cameraStreamCallback);
         setSubPage(PREPARING_FOR_PHOTO);
     }));
 
@@ -200,8 +212,6 @@ void TakePhotoPageWidget::setConnections()
     });
 
     QObject::connect(_ui->retakePhotoButton, &QPushButton::released, [this] {
-        _camera->reset();
-        _camera->setImageCaptureCallback(_cameraStreamCallback);
         _mainWindow->goToState(PREPARING_FOR_PHOTO);
     });
 
@@ -212,18 +222,19 @@ void TakePhotoPageWidget::setConnections()
 
 void TakePhotoPageWidget::setPhotoTimer()
 {
+    _timer.stop();
+
     // update timer label with start time
     _timerTimeLeft = _mainWindow->getConfigManager()->getTimeDuration(getName(), "timer") * 1000;
     QString timerText = QDateTime::fromMSecsSinceEpoch(_timerTimeLeft).toString("mm:ss:zzz");
     timerText.chop(1);
     _ui->timer->setText(timerText);
 
-    _timer.stop();
-    _timer.setInterval(10); // each 10 ms
+    _timer.setInterval(50); // each 50 ms
 
     QObject::disconnect(&_timer, &QTimer::timeout, 0, 0);
     QObject::connect(&_timer, &QTimer::timeout, [this]{
-        _timerTimeLeft -= 10;
+        _timerTimeLeft -= 50;
 
         // update timer label
         QString timerText = QDateTime::fromMSecsSinceEpoch(_timerTimeLeft).toString("mm:ss:zzz");
@@ -244,14 +255,16 @@ void TakePhotoPageWidget::setPhotoTimer()
 
 void TakePhotoPageWidget::setInactionTimer(const QString& durationName)
 {
+    _timer.stop();
+
     int timeMs = _mainWindow->getConfigManager()->getTimeDuration(getName(), durationName) * 1000;
 
     _timer.setInterval(timeMs);
 
     QObject::disconnect(&_timer, &QTimer::timeout, 0, 0);
     QObject::connect(&_timer, &QTimer::timeout, [=]{
-        _mainWindow->goToState(SPLASH_SCREEN);
         _timer.stop();
+        _mainWindow->goToState(SPLASH_SCREEN);
     });
 
     _timer.start();

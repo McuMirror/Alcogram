@@ -7,9 +7,10 @@
 #include "ui_alcoTestPageWidget.h"
 #include "utils.h"
 
-AlcoTestPageWidget::AlcoTestPageWidget(QWidget *parent) :
-    Page(parent),
-    _ui(new Ui::AlcoTestPageWidget)
+AlcoTestPageWidget::AlcoTestPageWidget(QWidget *parent)
+    : Page(parent)
+    , _ui(new Ui::AlcoTestPageWidget)
+    , _repeatIcon(":/images/repeat.svg")
 {
     _ui->setupUi(this);
 }
@@ -158,15 +159,26 @@ void AlcoTestPageWidget::test(int i)
 
 void AlcoTestPageWidget::circleCurrentPerson()
 {
-    QPixmap image = QPixmap::fromImage(_camera->getCapturedImage());
+    int w = _ui->photo->width();
+    int h = _ui->photo->height();
+
+    QPixmap notScaledImage = QPixmap::fromImage(_camera->getCapturedImage());
+
+    // scale photo to QLabel "photo" size
+    QPixmap image = notScaledImage.scaled(w, h, Qt::KeepAspectRatioByExpanding);
+    float scale = std::min((float)image.width() / notScaledImage.width(), (float)image.height() / notScaledImage.height());
+
     QRect faceRect = _faceDetector->faceRects().at(_currentPerson);
-    int radius = std::max(faceRect.width(), faceRect.height()) / 2;
+
+    // scale radius of main circle
+    int radius = scale * std::max(faceRect.width(), faceRect.height()) / 2;
 
     QPainter p(&image);
     p.setRenderHint(QPainter::Antialiasing);
 
     QPen pen;
 
+    // draw main circle
     switch (_circleState) {
         case TEST:
         case FAIL:
@@ -190,39 +202,62 @@ void AlcoTestPageWidget::circleCurrentPerson()
 
     p.setPen(pen);
 
-    QPoint center = faceRect.center();
+    QPoint center = faceRect.center() * scale;
 
     p.drawEllipse(center, radius, radius);
 
+    //draw upper circle
     QPoint upperCircleCenter(center.x() + radius * 1.2, center.y() - radius * 1.2);
     int upperCircleRadius = radius * 0.23;
+    QRect upperCircleRect(upperCircleCenter.x() - upperCircleRadius, upperCircleCenter.y() - upperCircleRadius
+                           , upperCircleRadius * 2, upperCircleRadius * 2);
 
     switch (_circleState) {
         case TEST:
         {
             pen.setWidth(5);
             p.setPen(pen);
-            p.drawEllipse(upperCircleCenter, upperCircleRadius, upperCircleRadius);
+            p.drawEllipse(upperCircleRect);
             break;
         }
 
         case SUCCESS:
         {
             p.setBrush(QBrush(QColor("#71b732")));
-            p.drawEllipse(upperCircleCenter, upperCircleRadius, upperCircleRadius);
+            p.drawEllipse(upperCircleRect);
+
+            // draw alcovalue inside uppercircle
+            p.setFont(Utils::getFont("Proxima Nova Rg", upperCircleRadius, 0, QFont::Bold));
+            QString valueText = QString::number(_lastPersonValue);
+
+            p.setPen(QColor(255, 255, 255));
+            p.drawText(upperCircleRect, Qt::AlignCenter, valueText);
+
+            //
+            /*QFont textFont = Utils::getFont("Proxima Nova Rg", upperCircleRadius, 0, QFont::Bold);
+            QFontMetrics fm(textFont);
+            int tw = fm.width("ХОРОООШ))))))");
+            int th = fm.height();
+            QRectF textRect(center.x() - tw / 2, center.y() + radius - th / 2, tw, th);
+
+            QLinearGradient gradient(textRect.x(), textRect.y(), textRect.right(), textRect.bottom());
+            gradient.setColorAt(0, QColor("#ffc714"));
+            gradient.setColorAt(1, QColor("#ff3c3c"));
+
+            //p.setBrush(gradient);
+            //p.drawRect(textRect);
+            p.setPen(QPen(gradient, 0));
+
+            p.setFont(textFont);
+            p.drawText(textRect, Qt::AlignCenter, "ХОРОООШ))))))");*/
             break;
         }
 
         case FAIL:
         {
-            pen.setWidth(5);
-            p.setPen(pen);
-            p.drawEllipse(upperCircleCenter, upperCircleRadius, upperCircleRadius);
+            p.drawPixmap(upperCircleRect, _repeatIcon);
         }
     }
 
-    int w = _ui->photo->width();
-    int h = _ui->photo->height();
-
-    _ui->photo->setPixmap(image.scaled(w, h, Qt::KeepAspectRatioByExpanding));
+    _ui->photo->setPixmap(image);
 }

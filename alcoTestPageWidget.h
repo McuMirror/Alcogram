@@ -2,6 +2,7 @@
 
 #include <QWidget>
 #include <QTimer>
+#include <QPixmap>
 
 #include "page.h"
 #include "deviceInterfaces/alcotesterinterface.h"
@@ -44,6 +45,8 @@ private:
     AlcotesterInterface* _alcotester;
     FaceDetectionInterface* _faceDetector;
     CameraInterface* _camera;
+
+    QPixmap _repeatIcon;
 
     AlcotestCircleState _circleState = TEST;
     double _lastPersonValue;

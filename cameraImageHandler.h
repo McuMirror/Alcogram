@@ -11,8 +11,10 @@ class CameraImageHandler : public QObject
 {
     Q_OBJECT
 public:
+    CameraImageHandler();
     CameraImageHandler(FaceDetectionInterface* faceDetector);
 
+    void setFaceDetector(FaceDetectionInterface* faceDetector);
     void setImageToProcess(QSharedPointer<QImage> imageToProcess);
     bool isRunning() const;
 

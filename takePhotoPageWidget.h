@@ -38,6 +38,8 @@ protected:
     void setConnections() override;
 
 private:
+    void updateCameraOutput(QPixmap processedImage);
+
     // setting photo timer with duration named "timer"
     void setPhotoTimer();
 
@@ -65,8 +67,8 @@ private:
     FaceDetectionInterface* _faceDetector;
     CameraInterface* _camera;
     ImageCaptureCallback _cameraStreamCallback;
-    QSharedPointer<QThread> _imageProcessingThread;
-    QSharedPointer<CameraImageHandler> _cameraImageHandler;
+    QThread _imageProcessingThread;
+    CameraImageHandler _cameraImageHandler;
 
     bool _isImageHandling = false;
 };
