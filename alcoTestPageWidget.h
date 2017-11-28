@@ -3,6 +3,8 @@
 #include <QWidget>
 #include <QTimer>
 #include <QPixmap>
+#include <QPainter>
+#include <QMap>
 
 #include "page.h"
 #include "deviceInterfaces/alcotesterinterface.h"
@@ -39,6 +41,8 @@ private:
     void setTimer(const QString& durationName);
     void test(int i);
     void circleCurrentPerson();
+    void drawSuccesText(QPainter &p, int textSize, QPoint pos);
+    QString getAlcoLevelName() const;
 
     Ui::AlcoTestPageWidget* _ui;
     QTimer _timer;
@@ -51,4 +55,6 @@ private:
     AlcotestCircleState _circleState = TEST;
     double _lastPersonValue;
     int _currentPerson;
+
+    QMap<QString, QPair<float, float>> _alcoLevelIntervals;
 };

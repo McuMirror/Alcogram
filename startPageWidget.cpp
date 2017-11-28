@@ -1,10 +1,12 @@
 #include <QGraphicsDropShadowEffect>
 #include <QFontDatabase>
+#include <QDebug>
 
 #include "startPageWidget.h"
 #include "ui_startPageWidget.h"
 #include "utils.h"
 #include "configManager.h"
+#include "logger.h"
 
 StartPageWidget::StartPageWidget(QWidget *parent)
     : Page(parent)
@@ -50,15 +52,20 @@ void StartPageWidget::onEntry()
     QObject::disconnect(&_timer, &QTimer::timeout, 0, 0);
     QObject::connect(&_timer, &QTimer::timeout, [=]{
         _timer.stop();
+
+        qDebug().noquote() << Logger::instance()->buildSystemEventLog(Logger::USER_TIMER_STOP, Logger::NONE, "inaction");
+
         _mainWindow->goToState(SPLASH_SCREEN);
     });
 
     _timer.start();
+    qDebug().noquote() << Logger::instance()->buildSystemEventLog(Logger::USER_TIMER_START, Logger::NONE, "inaction");
 }
 
 void StartPageWidget::onSwitchLanguageButtonRelease()
 {
-
+    qDebug().noquote() << Logger::instance()->buildUserActionLog(Logger::BUTTON_RELEASE
+                                                                 , Logger::BUTTON, _ui->switchLanguageButton->objectName());
 }
 
 void StartPageWidget::initInterface()
@@ -84,7 +91,13 @@ void StartPageWidget::initInterface()
 void StartPageWidget::setConnections()
 {
     QObject::connect(_ui->startButton, &QPushButton::released, [=]{
+        qDebug().noquote() << Logger::instance()->buildUserActionLog(Logger::BUTTON_RELEASE
+            , Logger::BUTTON, _ui->startButton->objectName());
+
         _timer.stop();
+
+        qDebug().noquote() << Logger::instance()->buildSystemEventLog(Logger::USER_TIMER_STOP, Logger::NONE, "inaction");
+
         _mainWindow->goToState(PREPARING_FOR_PHOTO);
     });
 

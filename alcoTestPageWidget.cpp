@@ -27,6 +27,14 @@ void AlcoTestPageWidget::init(MainWindow *mainWindow)
     _alcotester = _mainWindow->getDeviceManager()->getAlcotesterDevice();
     _camera = _mainWindow->getDeviceManager()->getCameraDevice();
     _faceDetector = _mainWindow->getFaceDetector();
+
+    ConfigManager* configManager = _mainWindow->getConfigManager();
+
+    _alcoLevelIntervals.insert("level1", configManager->getInterval(getName(), "level1"));
+    _alcoLevelIntervals.insert("level2", configManager->getInterval(getName(), "level2"));
+    _alcoLevelIntervals.insert("level3", configManager->getInterval(getName(), "level3"));
+    _alcoLevelIntervals.insert("level4", configManager->getInterval(getName(), "level4"));
+    _alcoLevelIntervals.insert("level5", configManager->getInterval(getName(), "level5"));
 }
 
 QString AlcoTestPageWidget::getName() const
@@ -149,7 +157,7 @@ void AlcoTestPageWidget::test(int i)
                 _circleState = FAIL;
                 _mainWindow->goToState(DRUNKENESS_NOT_RECOGNIZED);
                 break;
-            case ERROR:
+            case DEVICE_ERROR:
                 break;
         }
     });
@@ -172,6 +180,7 @@ void AlcoTestPageWidget::circleCurrentPerson()
 
     // scale radius of main circle
     int radius = scale * std::max(faceRect.width(), faceRect.height()) / 2;
+    QPoint center = faceRect.center() * scale;
 
     QPainter p(&image);
     p.setRenderHint(QPainter::Antialiasing);
@@ -183,7 +192,8 @@ void AlcoTestPageWidget::circleCurrentPerson()
         case TEST:
         case FAIL:
         {
-            QLinearGradient gradient;
+            QLinearGradient gradient(center.x() - radius, center.y() - radius
+                                     , center.x() + radius, center.y() + radius);
             gradient.setColorAt(0, QColor("#ffdd33"));
             gradient.setColorAt(1, QColor("#ffb932"));
 
@@ -201,8 +211,6 @@ void AlcoTestPageWidget::circleCurrentPerson()
 
 
     p.setPen(pen);
-
-    QPoint center = faceRect.center() * scale;
 
     p.drawEllipse(center, radius, radius);
 
@@ -233,23 +241,7 @@ void AlcoTestPageWidget::circleCurrentPerson()
             p.setPen(QColor(255, 255, 255));
             p.drawText(upperCircleRect, Qt::AlignCenter, valueText);
 
-            //
-            /*QFont textFont = Utils::getFont("Proxima Nova Rg", upperCircleRadius, 0, QFont::Bold);
-            QFontMetrics fm(textFont);
-            int tw = fm.width("ХОРОООШ))))))");
-            int th = fm.height();
-            QRectF textRect(center.x() - tw / 2, center.y() + radius - th / 2, tw, th);
-
-            QLinearGradient gradient(textRect.x(), textRect.y(), textRect.right(), textRect.bottom());
-            gradient.setColorAt(0, QColor("#ffc714"));
-            gradient.setColorAt(1, QColor("#ff3c3c"));
-
-            //p.setBrush(gradient);
-            //p.drawRect(textRect);
-            p.setPen(QPen(gradient, 0));
-
-            p.setFont(textFont);
-            p.drawText(textRect, Qt::AlignCenter, "ХОРОООШ))))))");*/
+            drawSuccesText(p, radius * 0.35, QPoint(center.x(), center.y() + radius));
             break;
         }
 
@@ -260,4 +252,45 @@ void AlcoTestPageWidget::circleCurrentPerson()
     }
 
     _ui->photo->setPixmap(image);
+}
+
+void AlcoTestPageWidget::drawSuccesText(QPainter& p, int textSize, QPoint pos)
+{
+    const QString levelName = getAlcoLevelName();
+
+    if (levelName.isEmpty()) {
+        // TODO: error alcolevel not found
+        return;
+    }
+
+    const QString levelText = _mainWindow->getConfigManager()->getText(getName(), levelName).getText();
+    const QPair<QColor, QColor> gradientColors = _mainWindow->getConfigManager()->getGradient(getName(), levelName);
+
+    QFont textFont = Utils::getFont("Proxima Nova Rg", textSize, 0, QFont::Bold);
+    QFontMetrics fm(textFont);
+    int tw = fm.width(levelText);
+    int th = fm.height();
+    QRectF textRect(pos.x() - tw / 2, pos.y() + th / 2, tw, th);
+
+    QLinearGradient gradient(textRect.x(), textRect.y(), textRect.right(), textRect.bottom());
+    gradient.setColorAt(0, gradientColors.first);
+    gradient.setColorAt(1, gradientColors.second);
+
+    p.setPen(QPen(gradient, 0));
+
+    p.setFont(textFont);
+    p.drawText(textRect, Qt::AlignCenter, levelText);
+}
+
+QString AlcoTestPageWidget::getAlcoLevelName() const
+{
+    for (QString name : _alcoLevelIntervals.keys()) {
+        QPair<float, float> i = _alcoLevelIntervals[name];
+
+        if (_lastPersonValue >= i.first && _lastPersonValue < i.second) {
+            return name;
+        }
+    }
+
+    return "";
 }

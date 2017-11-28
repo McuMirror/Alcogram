@@ -72,4 +72,49 @@ namespace Utils {
 
       return cv::Mat();
     }
+
+    QString getStateNameNumber(StateName stateName)
+    {
+        // TODO: use static array instead
+        switch (stateName) {
+            case SPLASH_SCREEN:
+                return "0.1";
+            case START:
+                return "0.2";
+            case SPLASH_SCREEN_ETERNAL_SLEEP:
+                return "0.3";
+            case SPLASH_SCREEN_NONCRITICAL_ERROR:
+                return "0.4";
+            case PREPARING_FOR_PHOTO:
+                return "1.1";
+            case PHOTO_TIMER:
+                return "1.2";
+            case PHOTO_CONFIRMATION:
+                return "1.3";
+            case PAY:
+                return "2.1";
+            case NOT_ENOUGH_MONEY:
+                return "2.1.1";
+            case MORE_MONEY_THAN_NEED:
+                return "2.1.2";
+            case PAYMENT_CONFIRMED:
+                return "2.2";
+            case ALCOTEST:
+                return "3.1";
+            case DRUNKENESS_NOT_RECOGNIZED:
+                return "3.1.1";
+            case ALCOTEST_INACTION:
+                return "3.1.2";
+            case FINAL_PHOTO:
+                return "4.1";
+            case PHOTO_PRINT:
+                return "4.2";
+            case CRITICAL_ERROR:
+                return "5.1";
+            case NON_CRITICAL_ERROR:
+                return "5.2";
+        }
+
+        return "";
+    }
 }

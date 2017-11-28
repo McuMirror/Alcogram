@@ -6,6 +6,7 @@
 
 QT       += core gui
 QT += xml
+QT += sql
 
 CONFIG += c++11
 
@@ -41,7 +42,8 @@ SOURCES += main.cpp\
     faceDetector.cpp \
     devices/alcoTesterDeviceTest.cpp \
     cameraImageHandler.cpp \
-    devices/printerDeviceTest.cpp
+    devices/printerDeviceTest.cpp \
+    logger.cpp
 
 HEADERS  += mainWindow.h \
     startPageWidget.h \
@@ -73,7 +75,9 @@ HEADERS  += mainWindow.h \
     devices/alcotesterDeviceTest.h \
     cameraImageHandler.h \
     deviceInterfaces/printerinterface.h \
-    devices/printerDeviceTest.h
+    devices/printerDeviceTest.h \
+    logger.h \
+    interfaces/mainWindowInterface.h
 
 FORMS    += mainWindow.ui \
     startPageWidget.ui \

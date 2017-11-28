@@ -38,6 +38,9 @@ protected:
     void setConnections() override;
 
 private:
+    void startTimer(const QString &timerName);
+    void stopTimer();
+
     void updateCameraOutput(QPixmap processedImage);
 
     // setting photo timer with duration named "timer"
@@ -69,6 +72,7 @@ private:
     ImageCaptureCallback _cameraStreamCallback;
     QThread _imageProcessingThread;
     CameraImageHandler _cameraImageHandler;
+    QString _currentTimerName = "";
 
     bool _isImageHandling = false;
 };

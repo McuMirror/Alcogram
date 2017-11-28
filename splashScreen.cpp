@@ -1,8 +1,11 @@
 #include <functional>
+#include <QDebug>
 
 #include "splashScreen.h"
 #include "ui_splashScreen.h"
 #include "stateMachine.h"
+
+#include "logger.h"
 
 using namespace std::placeholders;
 

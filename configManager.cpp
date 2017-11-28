@@ -1,8 +1,21 @@
 #include <QFile>
 #include <QMap>
+#include <QFont>
+
 #include "configManager.h"
 
 //Text
+
+Text::Text()
+    : _name("")
+    , _fontFamily("Proxima Nova Rg")
+    , _size(1)
+    , _spacing(0)
+    , _weight(QFont::Normal)
+    , _text("")
+{
+
+}
 
 Text::Text(const QString &name, const QString &fontFamily, int size
            , qreal spacing, int weight, const QString &text)
@@ -45,43 +58,104 @@ QString Text::getText() const
     return _text;
 }
 
-//Config Manager
+// Interval
 
-ConfigManager::ConfigManager(QObject *parent)
-    : QObject(parent)
-    , _currentLanguage("RU")
+Interval::Interval()
 {
 
 }
 
-QString ConfigManager::getCurrentLanguage() const
+Interval::Interval(float start, float stop)
+    : _start(start)
+    , _stop(stop)
+    , _startNotLimited(false)
+    , _stopNotLimited(false)
+{
+
+}
+
+float Interval::getStart() const
+{
+    return _start;
+}
+
+float Interval::getStop() const
+{
+    return _stop;
+}
+
+bool Interval::isStartNotLimited() const
+{
+    return _start == -1;
+}
+
+// Config Manager
+
+ConfigManager::ConfigManager(QObject *parent)
+    : QObject(parent)
+    , _currentLanguage(RU)
+    , _defaultInterval(std::numeric_limits<float>::min(), std::numeric_limits<float>::max())
+    , _defaultGradient(QColor(Qt::white), QColor(Qt::black))
+{
+
+}
+
+ConfigManager::TextLanguage ConfigManager::getCurrentLanguage() const
 {
     return _currentLanguage;
 }
 
 const QList<Text> ConfigManager::getTexts(const QString& page) const
 {
-    if (_currentLanguage == "RU") {
-        if (_pageTextRU.contains(page)) {
-            return _pageTextRU[page];
-        }
-    }
-
-    if (_currentLanguage == "EN") {
-        if (_pageTextEN.contains(page)) {
-            return _pageTextEN[page];
-        }
+    switch (_currentLanguage) {
+        case RU:
+            if (_pageTextRU.contains(page)) {
+                return _pageTextRU[page].values();
+            }
+        break;
+        case EN:
+            if (_pageTextEN.contains(page)) {
+                return _pageTextEN[page].values();
+            }
+            break;
     }
 
     // TODO: logging, language dependent page text not found
-
     return QList<Text>();
+}
+
+Text ConfigManager::getText(const QString& pageName, const QString& textName, TextLanguage language) const
+{
+    switch (language) {
+        case NOT_SPECIFIED:
+            return getPageText(_pageText, pageName, textName);
+        case RU:
+            return getPageText(_pageTextRU, pageName, textName);
+        case EN:
+            return getPageText(_pageTextEN, pageName, textName);
+        case CURRENT:
+            return getText(pageName, textName, _currentLanguage);
+    }
+
+    return _defaultText;
+}
+
+Text ConfigManager::getPageText(const QMap<QString, QMap<QString, Text> >& pageTexts, const QString& pageName
+                                   , const QString& textName) const
+{
+    if (pageTexts.contains(pageName)) {
+        if (pageTexts[pageName].contains(textName)) {
+            return pageTexts[pageName].value(textName);
+        }
+    }
+
+    return _defaultText;
 }
 
 const QList<Text> ConfigManager::getLanguageIndependentText(const QString& page) const
 {
     if (_pageText.contains(page)) {
-        return _pageText[page];
+        return _pageText[page].values();
     }
 
     // TODO: logging, language independent page text not found
@@ -106,6 +180,28 @@ int ConfigManager::getTimeDuration(const QString& pageName, const QString& durat
     // TODO: logging, page not found
 
     return 0;
+}
+
+QPair<float, float> ConfigManager::getInterval(const QString& pageName, const QString& intervalName) const
+{
+    if (_intervals.contains(pageName)) {
+        if (_intervals[pageName].contains(intervalName)) {
+            return _intervals[pageName].value(intervalName);
+        }
+    }
+
+    return _defaultInterval;
+}
+
+QPair<QColor, QColor> ConfigManager::getGradient(const QString& pageName, const QString& gradientName) const
+{
+    if (_gradients.contains(pageName)) {
+        if (_gradients[pageName].contains(gradientName)) {
+            return _gradients[pageName].value(gradientName);
+        }
+    }
+
+    return _defaultGradient;
 }
 
 void ConfigManager::load(const QString& fileName)
@@ -154,9 +250,9 @@ void ConfigManager::parsePages(QDomNode page)
         QDomElement pageElement = page.toElement();
         QString pageName = pageElement.attribute("name", "");
 
-        _pageTextRU.insert(pageName, QList<Text>());
-        _pageTextEN.insert(pageName, QList<Text>());
-        _pageText.insert(pageName, QList<Text>());
+        _pageTextRU.insert(pageName, QMap<QString, Text>());
+        _pageTextEN.insert(pageName, QMap<QString, Text>());
+        _pageText.insert(pageName, QMap<QString, Text>());
 
         QDomNode pageSet = page.firstChild();
 
@@ -170,6 +266,14 @@ void ConfigManager::parsePages(QDomNode page)
 
             if (pageSetElement.tagName() == "durations") {
                 parseDurations(pageSetElement.firstChild(), pageName);
+            }
+
+            if (pageSetElement.tagName() == "intervals") {
+                parseIntervals(pageSetElement.firstChild(), pageName);
+            }
+
+            if (pageSetElement.tagName() == "colors") {
+                parseColors(pageSetElement.firstChild(), pageName);
             }
 
             pageSet = pageSet.nextSibling();
@@ -193,17 +297,17 @@ void ConfigManager::parseTexts(QDomNode language, const QString& pageName)
 
             Text t = Text(textElement.attribute("name", "")
                           , textElement.attribute("fontFamily", "Proxima Nova Rg")
-                          , textElement.attribute("size", "0").toInt()
+                          , textElement.attribute("size", "1").toInt()
                           , textElement.attribute("spacing", "0").toDouble()
                           , textElement.attribute("weight", "75").toInt()
                           , textElement.text().remove(QRegExp("[\\n\\t\\r]")).simplified());
 
             if (languageName == "RU") {
-                _pageTextRU[pageName].append(t);
+                _pageTextRU[pageName].insert(t.getName(), t);
             } else if (languageName == "EN") {
-                _pageTextEN[pageName].append(t);
+                _pageTextEN[pageName].insert(t.getName(), t);
             } else {
-                _pageText[pageName].append(t);
+                _pageText[pageName].insert(t.getName(), t);
             }
 
             text = text.nextSibling();
@@ -228,5 +332,56 @@ void ConfigManager::parseDurations(QDomNode duration, const QString &pageName)
         _durations[pageName].insert(durationName, time);
 
         duration = duration.nextSibling();
+    }
+}
+
+void ConfigManager::parseIntervals(QDomNode interval, const QString& pageName)
+{
+    // iterate over <interval> tags
+    while (!interval.isNull()) {
+        QDomElement intervalElement = interval.toElement();
+        QString intervalName = intervalElement.attribute("name", "");
+        QString start = intervalElement.attribute("start", "");
+        QString stop = intervalElement.attribute("stop", "");
+        bool ok = true;
+        float startValue = start.isEmpty() ? std::numeric_limits<float>::min() : start.toFloat(&ok);
+
+        if (!ok) {
+            startValue = std::numeric_limits<float>::min();
+        }
+
+        float stopValue = stop.isEmpty() ? std::numeric_limits<float>::max() : stop.toFloat(&ok);
+
+        if (!ok) {
+            stopValue = std::numeric_limits<float>::max();
+        }
+
+        if (!_intervals.contains(pageName)) {
+            _intervals.insert(pageName, QMap<QString, QPair<float, float>>());
+        }
+
+        _intervals[pageName].insert(intervalName, QPair<float, float>(startValue, stopValue));
+
+        interval = interval.nextSibling();
+    }
+}
+
+void ConfigManager::parseColors(QDomNode color, const QString& pageName)
+{
+    while (!color.isNull()) {
+        QDomElement colorElement = color.toElement();
+
+        if (colorElement.tagName() == "gradient") {
+            QString gradientName = colorElement.attribute("name", "");
+            QString color1 = colorElement.attribute("color1", "");
+            QString color2 = colorElement.attribute("color2", "");
+
+            if (!_gradients.contains(pageName)) {
+                _gradients.insert(pageName, QMap<QString, QPair<QColor, QColor>>());
+            }
+            _gradients[pageName].insert(gradientName, QPair<QColor, QColor>(QColor(color1), QColor(color2)));
+        }
+
+        color = color.nextSibling();
     }
 }

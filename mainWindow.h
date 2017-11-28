@@ -1,31 +1,17 @@
 #pragma once
 
 #include <QMainWindow>
+#include <QMap>
 
-#include "configManager.h"
-#include "stateMachine.h"
-#include "devices/deviceManager.h"
-#include "interfaces/faceDetectionInterface.h"
+#include "interfaces/mainwindowinterface.h"
+#include "logger.h"
 
 namespace Ui {
     class MainWindow;
 }
 
-
-enum PageName {
-    NONCRITICAL_ERROR_PAGE = 0
-    , CRITICAL_ERROR_PAGE = 1
-    , SPLASH_SCREEN_NONCRITICAL_ERROR_PAGE = 2
-    , SPLASH_SCREEN_ETERNAL_SLEEP_PAGE = 3
-    , SPLASH_SCREEN_PAGE = 4
-    , START_PAGE = 5
-    , TAKE_PHOTO_PAGE = 6
-    , PAY_PAGE = 7
-    , ALCOTEST_PAGE = 8
-    , PHOTO_PRINT_PAGE = 9
-};
-
 class MainWindow : public QMainWindow
+                , public MainWindowInterface
 {
     Q_OBJECT
 
@@ -33,15 +19,19 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
-    void setPage(PageName pageName);
-    ConfigManager* getConfigManager() const;
-    DeviceManager* getDeviceManager() const;
-    FaceDetectionInterface* getFaceDetector() const;
-    void goToState(StateName targetState);
-    StateName getCurrentStateName() const
+    void setPage(PageName pageName) override;
+
+    ConfigManager* getConfigManager() const override;
+    DeviceManager* getDeviceManager() const override;
+
+    FaceDetectionInterface* getFaceDetector() const override;
+    void goToState(StateName targetState) override;
+    StateName getCurrentStateName() const override
     {
         return _stateMachine->getCurrentStateName();
     }
+
+    void mouseReleaseEvent(QMouseEvent* event) override;
 
 private:
     // load fonts from resources

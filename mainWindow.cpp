@@ -1,9 +1,12 @@
 #include <QFontDatabase>
 #include <QDir>
+#include <QDebug>
+#include <QMouseEvent>
 
 #include "mainWindow.h"
 #include "ui_mainWindow.h"
 #include "faceDetector.h"
+#include "logger.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent)
@@ -14,6 +17,8 @@ MainWindow::MainWindow(QWidget *parent) :
     , _faceDetector(new FaceDetector(this))
 {
     _ui->setupUi(this);
+
+    Logger::instance()->setMainWindow(this);
 
     _configManager->load(":/config.conf");
 
@@ -54,6 +59,11 @@ FaceDetectionInterface* MainWindow::getFaceDetector() const
 void MainWindow::goToState(StateName targetState)
 {
     _stateMachine->postEvent(new Event(targetState, getCurrentStateName()));
+}
+
+void MainWindow::mouseReleaseEvent(QMouseEvent* event)
+{
+    qDebug().noquote() << Logger::instance()->buildTapLog(event->x(), event->y());
 }
 
 void MainWindow::loadFonts()
