@@ -32,9 +32,9 @@ public:
     void init(MainWindow* mainWindow) override;
     QString getName() const override;
     QList<Transition*> getTransitions() override;
-    void onEntry() override;
 
 protected:
+    void onEntry() override;
     void initInterface() override;
 
 private:
@@ -45,7 +45,6 @@ private:
     QString getAlcoLevelName() const;
 
     Ui::AlcoTestPageWidget* _ui;
-    QTimer _timer;
     AlcotesterInterface* _alcotester;
     FaceDetectionInterface* _faceDetector;
     CameraInterface* _camera;

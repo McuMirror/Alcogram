@@ -18,7 +18,7 @@ const QString Logger::_userActionLogTemplate = "INSERT INTO userAction "
 const QString Logger::_systemEventLogTemplate = "INSERT INTO systemEvent "
                                                 "(machine_id, date_time, state, event_type, device, timer_name, "
                                                 "event_id, error_code, level@EXTRA_FIELDS) "
-                                                "VALUES ('@machine_id', '@time', '@state', '@event_type', "
+                                                "VALUES ('@machine_id', '@date_time', '@state', '@event_type', "
                                                 "'@device', '@timer_name', @event_id, @error_code, '@level'"
                                                 "@EXTRA_VALUES)";
 
@@ -34,7 +34,15 @@ const QString Logger::_generalLogTemplate = "INSERT INTO general "
 const QString Logger::_actionNames[] = {"BUTTON RELEASE"};
 const QString Logger::_deviceNames[] = {"", "BUTTON", "ALCOTESTER", "CAMERA", "POS", "PRINTER"};
 const QString Logger::_eventNames[] = {"SYSTEM CHECK", "USER TIMER START", "USER TIMER STOP"
-                                      , "SYSTEM TIMER START", "SYSTEM TIMER STOP", "ERROR"};
+                                      , "SYSTEM TIMER START", "SYSTEM TIMER STOP", "ERROR", "INITIALIZATION START"
+                                      , "INITIALIZATION FINISH", "CONFIG LOAD START", "CONFIG LOAD FINISH"
+                                      , "STATE TRANSITION BEGIN", "STATE TRANSITION END", "STATE CHANGED"
+                                      , "STATE MACHINE START", "ALCOGRAM START", "ALCOGRAM FINISH"
+                                      , "PAGE ENTRANCE START", "PAGE ENTRANCE END"
+                                      , "ALCOTEST START", "ALCOTEST END", "PERSON ALCOTEST INIT START"
+                                      , "PERSON ALCOTEST INIT END", "ALCOTEST SUCCESS", "ALCOTEST FAIL"
+                                      , "PRINTING PHOTOS START", "PRINTING PHOTOS END", "PHOTO PRINT SUCCESS"
+                                      , "PHOTO PRINT FAIL"};
 
 Logger* Logger::_instance = NULL;
 
@@ -227,7 +235,7 @@ QString Logger::buildSystemEventLog(Event event, Device device, const QString& t
     QString query(_systemEventLogTemplate);
 
     query.replace("@machine_id", "123"); // TODO: get machineId from ConfigManager
-    query.replace("@time", QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss.zzz"));
+    query.replace("@date_time", QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss.zzz"));
     query.replace("@state", Utils::getStateNameNumber(_mainWindow->getCurrentStateName()));
     query.replace("@event_type", _eventNames[event]);
     query.replace("@device", _deviceNames[device]);
@@ -242,6 +250,16 @@ QString Logger::buildSystemEventLog(Event event, Device device, const QString& t
     query.replace("@EXTRA_VALUES", extraFieldValues);
 
     return query;
+}
+
+QString Logger::buildSystemEventLog(Event event, int errorCode, int level, const QStringList &strings) const
+{
+    return buildSystemEventLog(event, NONE, "", errorCode, level, QList<double>(), strings);
+}
+
+QString Logger::buildSystemEventLog(Event event, int errorCode, int level, const QList<double> &values) const
+{
+    return buildSystemEventLog(event, NONE, "", errorCode, level, values, QStringList());
 }
 
 QString Logger::buildHardwareInteractionLog(const QString& functionName, const QList<double>& values

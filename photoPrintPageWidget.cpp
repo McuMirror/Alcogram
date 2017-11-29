@@ -1,10 +1,12 @@
 #include <QGraphicsDropShadowEffect>
 #include <QPixmap>
 #include <QTimer>
+#include <QDebug>
 
 #include "photoPrintPageWidget.h"
 #include "ui_photoPrintPageWidget.h"
 #include "utils.h"
+#include "logger.h"
 
 PhotoPrintPageWidget::PhotoPrintPageWidget(QWidget *parent) :
     Page(parent),
@@ -45,18 +47,30 @@ QList<Transition*> PhotoPrintPageWidget::getTransitions()
 
         _ui->progressBar->setProgress(0);
 
+        qDebug().noquote() << Logger::instance()->buildSystemEventLog(Logger::PRINTING_PHOTOS_START, 0, 0
+            , QList<double>({_faceDetector->facesNumber()}));
+
         // TODO: final photo
         _printer->print(_camera->getCapturedImage(), /*_faceDetector->facesNumber()*/ 6, [=](int statusCode, int printed){
             switch (statusCode) {
                 case OK:
+                    qDebug().noquote() << Logger::instance()->buildSystemEventLog(Logger::PHOTO_PRINT_SUCCESS
+                        , 0, 0, QList<double>({printed, _faceDetector->facesNumber()}));
+
                     _ui->progressBar->setProgress(100 * printed / 6/*_faceDetector->facesNumber()*/);
                     break;
+               case DEVICE_ERROR:
+                    qDebug().noquote() << Logger::instance()->buildSystemEventLog(Logger::PHOTO_PRINT_FAIL
+                        , 1, 0, QList<double>());
+                    // TODO: handle this case
+                    break;
                case PRINT_COMPLETE:
+                    qDebug().noquote() << Logger::instance()->buildSystemEventLog(Logger::PRINTING_PHOTOS_END
+                                   , 0, 0, QList<double>({printed, _faceDetector->facesNumber()}));
+
                     _ui->progressBar->setProgress(100);
-                    int timeMs = _mainWindow->getConfigManager()->getTimeDuration(getName(), "photoPrint") * 1000;
-                    QTimer::singleShot(timeMs, [=] {
-                       _mainWindow->goToState(START);
-                    });
+
+                    setTimer("photoPrint");
                     break;
             }
         });
@@ -88,11 +102,7 @@ void PhotoPrintPageWidget::onEntry()
 
     _ui->previewPhoto->setPixmap(image.scaled(w, h, Qt::KeepAspectRatioByExpanding));
 
-    int timeMs = _mainWindow->getConfigManager()->getTimeDuration(getName(), "finalPhoto") * 1000;
-
-    QTimer::singleShot(timeMs, [=]{
-        _mainWindow->goToState(PHOTO_PRINT);
-    });
+    setTimer("finalPhoto");
 }
 
 void PhotoPrintPageWidget::initInterface()
@@ -107,4 +117,29 @@ void PhotoPrintPageWidget::initInterface()
     effect->setOffset(0, 42);
 
     _ui->preview->setGraphicsEffect(effect);
+}
+
+void PhotoPrintPageWidget::setTimer(const QString& durationName)
+{
+    stopTimer();
+
+    int timeMs = _mainWindow->getConfigManager()->getTimeDuration(getName(), durationName) * 1000;
+
+    _timer.setInterval(timeMs);
+
+    QObject::disconnect(&_timer, &QTimer::timeout, 0, 0);
+    QObject::connect(&_timer, &QTimer::timeout, [this]{
+        stopTimer();
+
+        switch (_mainWindow->getCurrentStateName()) {
+            case FINAL_PHOTO:
+                _mainWindow->goToState(PHOTO_PRINT);
+                break;
+            case PHOTO_PRINT:
+                _mainWindow->goToState(START);
+                break;
+        }
+    });
+
+    startTimer(durationName, timeMs / 1000);
 }

@@ -17,18 +17,23 @@ public:
     Text(const QString& name, const QString& fontFamily
             , int size, qreal spacing, int weight, const QString& text);
 
+    // returns name of text constant (usually name of widget
     QString getName() const;
+
     QString getFontFamily() const;
+
     int getSize() const;
+
     qreal getSpacing() const;
+
     int getWeight() const;
     QString getText() const;
 
 private:
     QString _name; // name of interface element (eg QLabel, QPushButton)
     QString _fontFamily;
-    int _size;
-    qreal _spacing;
+    int _size; // text size
+    qreal _spacing; // spacing between characters
     int _weight; // thickness (enum QFont::Weight)
     QString _text;
 };
@@ -56,10 +61,10 @@ class ConfigManager : public QObject
     Q_OBJECT
 public:
     enum TextLanguage {
-        NOT_SPECIFIED
+        NOT_SPECIFIED // language independent
         , RU
         , EN
-        , CURRENT
+        , CURRENT // current language
     };
 
     explicit ConfigManager(QObject *parent = 0);
@@ -72,6 +77,7 @@ public:
     // get language dependent text
     const QList<Text> getTexts(const QString& page) const;
 
+    // get Text by page name, text name language
     Text getText(const QString& pageName, const QString& textName, TextLanguage language = CURRENT) const;
 
     const QList<Text> getLanguageIndependentText(const QString& page) const;
@@ -107,8 +113,8 @@ private:
     QMap<QString, QMap<QString, QPair<float, float>>> _intervals; // page intervals
     QMap<QString, QMap<QString, QPair<QColor, QColor>>> _gradients; // page gradients
 
-    TextLanguage _currentLanguage;
-    Text _defaultText;
-    QPair<float, float> _defaultInterval;
-    QPair<QColor, QColor> _defaultGradient;
+    TextLanguage _currentLanguage; // current interface language
+    Text _defaultText; // default value for getText() function
+    QPair<float, float> _defaultInterval; // default value for getInterval() function
+    QPair<QColor, QColor> _defaultGradient; // default value for getGradient() function
 };

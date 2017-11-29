@@ -20,9 +20,9 @@ public:
 
     QString getName() const override;
     QList<Transition*> getTransitions() override;
-    void onEntry() override;
 
 protected:
+    void onEntry() override;
     void initInterface() override;
     void setConnections() override;
 
@@ -30,7 +30,5 @@ private slots:
     void onSwitchLanguageButtonRelease();
 
 private:
-
     Ui::StartPageWidget* _ui;
-    QTimer _timer;
 };

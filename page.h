@@ -2,6 +2,7 @@
 
 #include <QWidget>
 #include <QList>
+#include <QTimer>
 
 #include "mainWindow.h"
 #include "configManager.h"
@@ -36,10 +37,7 @@ public:
     }
 
     // called when page becomes active
-    virtual void onEntry()
-    {
-
-    }
+    void enter();
 
 private:
     // set page interface elements texts
@@ -47,6 +45,17 @@ private:
     void setTexts(QWidget* mainWidget, const QList<Text>& texts);
 
 protected:
+    // @param timerName - used for logging
+    // @param timeS - timer duration in seconds, used for logging
+    void startTimer(const QString &timerName, int timeS);
+    void stopTimer();
+
+    // called from enter()
+    virtual void onEntry()
+    {
+
+    }
+
     // update page interface elements texts
     // @param mainWidget - central page QWidget
     // @param onlyLanguageDependent - update only language dependent text
@@ -65,4 +74,6 @@ protected:
     }
 
     MainWindow* _mainWindow;
+    QString _currentTimerName = "";
+    QTimer _timer;
 };

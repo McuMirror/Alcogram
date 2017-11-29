@@ -1,6 +1,77 @@
+#include <QDebug>
+
 #include "stateMachine.h"
+#include "logger.h"
+#include "utils.h"
 
 using namespace std::placeholders;
+
+// Event
+
+Event::Event(StateName targetState, StateName sourceState)
+    : QEvent(QEvent::Type(targetState))
+    , _sourceState(sourceState)
+    , _targetState(targetState)
+{
+}
+
+StateName Event::getTargetState() const
+{
+    return _targetState;
+}
+
+StateName Event::getSourceState() const
+{
+    return _sourceState;
+}
+
+// Transition
+
+Transition::Transition(StateName sourceState, StateName targetState, std::function<void (QEvent *)> callback)
+    : _sourceState(sourceState)
+    , _targetState(targetState)
+    , _callback(callback)
+{
+}
+
+bool Transition::eventTest(QEvent* e)
+{
+    return (e->type() == _targetState);
+}
+
+void Transition::onTransition(QEvent* event)
+{
+    qDebug().noquote() << Logger::instance()->buildSystemEventLog(Logger::STATE_TRANSITION_BEGIN, 0, 0
+        , QStringList({Utils::getStateNameNumber(_sourceState), Utils::getStateNameNumber(_targetState)}));
+
+    _callback(event);
+
+    qDebug().noquote() << Logger::instance()->buildSystemEventLog(Logger::STATE_TRANSITION_END);
+}
+
+StateName Transition::getTargetStateName() const
+{
+    return _targetState;
+}
+
+StateName Transition::getSourceStateName() const
+{
+    return _sourceState;
+}
+
+// State
+
+State::State(StateName name)
+    : _name(name)
+{
+}
+
+StateName State::getName() const
+{
+    return _name;
+}
+
+// StateMachine
 
 StateMachine::StateMachine(QObject *parent)
     : QObject(parent)
@@ -13,6 +84,9 @@ StateMachine::StateMachine(QObject *parent)
         _states.insert(name, state);
         QObject::connect(state, QState::entered, [=]{
             _currentState = state->getName();
+
+            qDebug().noquote() << Logger::instance()->buildSystemEventLog(Logger::STATE_CHANGED, 0, 0
+                , QStringList({Utils::getStateNameNumber(_currentState)}));
         });
     }
 
@@ -41,6 +115,9 @@ void StateMachine::addTransitions(const QList<Transition*>& transitions)
 void StateMachine::run()
 {
     _currentState = NONE;
+
+    qDebug().noquote() << Logger::instance()->buildSystemEventLog(Logger::STATE_MACHINE_START);
+
     _stateMachine.start();
 }
 

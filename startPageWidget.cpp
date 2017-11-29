@@ -51,15 +51,12 @@ void StartPageWidget::onEntry()
 
     QObject::disconnect(&_timer, &QTimer::timeout, 0, 0);
     QObject::connect(&_timer, &QTimer::timeout, [=]{
-        _timer.stop();
-
-        qDebug().noquote() << Logger::instance()->buildSystemEventLog(Logger::USER_TIMER_STOP, Logger::NONE, "inaction");
+        stopTimer();
 
         _mainWindow->goToState(SPLASH_SCREEN);
     });
 
-    _timer.start();
-    qDebug().noquote() << Logger::instance()->buildSystemEventLog(Logger::USER_TIMER_START, Logger::NONE, "inaction");
+    startTimer("inaction", timeMs / 1000);
 }
 
 void StartPageWidget::onSwitchLanguageButtonRelease()

@@ -28,19 +28,16 @@ public:
     void init(MainWindow* mainWindow) override;
     QString getName() const override;
     QList<Transition*> getTransitions() override;
-    void onEntry() override;
 
 signals:
     void startImageHandle();
 
 protected:
+    void onEntry() override;
     void initInterface() override;
     void setConnections() override;
 
 private:
-    void startTimer(const QString &timerName);
-    void stopTimer();
-
     void updateCameraOutput(QPixmap processedImage);
 
     // setting photo timer with duration named "timer"
@@ -59,7 +56,6 @@ private:
     void setSubPage(StateName stateName);
 
     Ui::TakePhotoPageWidget* _ui;
-    QTimer _timer;
     int _timerTimeLeft; // remaining time for photo timer
 
     QMap<StateName, int> _bottomPanelPageNumbers; // state -> bottomPanel page number
@@ -72,7 +68,6 @@ private:
     ImageCaptureCallback _cameraStreamCallback;
     QThread _imageProcessingThread;
     CameraImageHandler _cameraImageHandler;
-    QString _currentTimerName = "";
 
     bool _isImageHandling = false;
 };

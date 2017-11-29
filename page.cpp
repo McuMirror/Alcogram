@@ -1,8 +1,21 @@
 #include <QLabel>
 #include <QPushButton>
+#include <QDebug>
 
 #include "page.h"
 #include "utils.h"
+#include "logger.h"
+
+void Page::enter() {
+    qDebug().noquote() << Logger::instance()->buildSystemEventLog(Logger::PAGE_ENTRANCE_START, 0, 0
+        , QStringList({getName()}));
+
+    onEntry();
+
+    qDebug().noquote() << Logger::instance()->buildSystemEventLog(Logger::PAGE_ENTRANCE_END, 0, 0
+        , QStringList({getName()}));
+
+}
 
 void Page::setTexts(QWidget* mainWidget, const QList<Text>& texts) {
     for (const Text t : texts) {
@@ -30,6 +43,27 @@ void Page::setTexts(QWidget* mainWidget, const QList<Text>& texts) {
             b->setText(t.getText());
         }
     }
+}
+
+void Page::startTimer(const QString& timerName, int timeS)
+{
+    _timer.start();
+    _currentTimerName = timerName;
+
+    qDebug().noquote() << Logger::instance()->buildSystemEventLog(Logger::USER_TIMER_START, Logger::NONE
+        , _currentTimerName, 0, 0, QList<double>({timeS}));
+}
+
+void Page::stopTimer()
+{
+    _timer.stop();
+
+    if (!_currentTimerName.isEmpty()) {
+        qDebug().noquote() << Logger::instance()->buildSystemEventLog(Logger::USER_TIMER_STOP, Logger::NONE
+            , _currentTimerName);
+    }
+
+    _currentTimerName = "";
 }
 
 

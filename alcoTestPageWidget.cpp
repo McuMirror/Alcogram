@@ -2,10 +2,12 @@
 #include <QPainter>
 #include <QPen>
 #include <QLinearGradient>
+#include <QDebug>
 
 #include "alcoTestPageWidget.h"
 #include "ui_alcoTestPageWidget.h"
 #include "utils.h"
+#include "logger.h"
 
 AlcoTestPageWidget::AlcoTestPageWidget(QWidget *parent)
     : Page(parent)
@@ -88,6 +90,9 @@ QList<Transition*> AlcoTestPageWidget::getTransitions()
 
 void AlcoTestPageWidget::onEntry()
 {
+    qDebug().noquote() << Logger::instance()->buildSystemEventLog(Logger::ALCOTEST_START, 0, 0
+        , QList<double>({_faceDetector->facesNumber()}));
+
     test(0);
 }
 
@@ -98,7 +103,7 @@ void AlcoTestPageWidget::initInterface()
 
 void AlcoTestPageWidget::setTimer(const QString& durationName)
 {
-    _timer.stop();
+    stopTimer();
 
     int timeMs = _mainWindow->getConfigManager()->getTimeDuration(getName(), durationName) * 1000;
 
@@ -106,7 +111,7 @@ void AlcoTestPageWidget::setTimer(const QString& durationName)
 
     QObject::disconnect(&_timer, &QTimer::timeout, 0, 0);
     QObject::connect(&_timer, &QTimer::timeout, [this]{
-        _timer.stop();
+        stopTimer();
 
         switch (_mainWindow->getCurrentStateName()) {
             case ALCOTEST:
@@ -120,6 +125,9 @@ void AlcoTestPageWidget::setTimer(const QString& durationName)
                 }
                 break;
             case ALCOTEST_INACTION:
+                qDebug().noquote() << Logger::instance()->buildSystemEventLog(Logger::ALCOTEST_END, 0, 0
+                    , QList<double>({_currentPerson}));
+
                 _mainWindow->goToState(SPLASH_SCREEN);
                 break;
             case DRUNKENESS_NOT_RECOGNIZED:
@@ -131,18 +139,25 @@ void AlcoTestPageWidget::setTimer(const QString& durationName)
         }
     });
 
-    _timer.start();
+    startTimer(durationName, timeMs / 1000);
 }
 
 void AlcoTestPageWidget::test(int i)
 {
     if (i == _faceDetector->facesNumber()) {
+        qDebug().noquote() << Logger::instance()->buildSystemEventLog(Logger::ALCOTEST_END, 0, 0
+            , QList<double>({i}));
+
         _mainWindow->goToState(FINAL_PHOTO);
         return;
     }
 
     _circleState = TEST;
     _currentPerson = i;
+
+    QRect faceRect = _faceDetector->faceRects().at(_currentPerson);
+    qDebug().noquote() << Logger::instance()->buildSystemEventLog(Logger::PERSON_ALCOTEST_INIT_START, 0, 0
+        , QList<double>({_currentPerson + 1, faceRect.top(), faceRect.left(), faceRect.right(), faceRect.bottom()}));
 
     circleCurrentPerson();
 
@@ -151,16 +166,27 @@ void AlcoTestPageWidget::test(int i)
             case OK:
                 _circleState = SUCCESS;
                 _lastPersonValue = value;
+
+                qDebug().noquote() << Logger::instance()->buildSystemEventLog(Logger::ALCOTEST_SUCCESS, 0, 0
+                    , QList<double>({_currentPerson + 1, value}));
+
                 _mainWindow->goToState(ALCOTEST);
                 break;
             case NOT_RECOGNIZED:
                 _circleState = FAIL;
+
+                qDebug().noquote() << Logger::instance()->buildSystemEventLog(Logger::ALCOTEST_FAIL, 0, 0
+                    , QList<double>({_currentPerson + 1}));
+
                 _mainWindow->goToState(DRUNKENESS_NOT_RECOGNIZED);
                 break;
             case DEVICE_ERROR:
                 break;
         }
     });
+
+    qDebug().noquote() << Logger::instance()->buildSystemEventLog(Logger::PERSON_ALCOTEST_INIT_END, 0, 0
+                                                                  , QList<double>({_currentPerson + 1}));
 
     setTimer("inactionAlcotest");
 }

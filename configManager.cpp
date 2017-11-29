@@ -1,8 +1,10 @@
 #include <QFile>
 #include <QMap>
 #include <QFont>
+#include <QDebug>
 
 #include "configManager.h"
+#include "logger.h"
 
 //Text
 
@@ -206,6 +208,8 @@ QPair<QColor, QColor> ConfigManager::getGradient(const QString& pageName, const 
 
 void ConfigManager::load(const QString& fileName)
 {
+    qDebug().noquote() << Logger::instance()->buildSystemEventLog(Logger::CONFIG_LOAD_START, 0, 0, QStringList({fileName}));
+
     QFile* file = new QFile(fileName);
 
     if (!file->open(QIODevice::ReadOnly | QIODevice::Text)) {
@@ -241,6 +245,8 @@ void ConfigManager::load(const QString& fileName)
     }
 
     delete file;
+
+    qDebug().noquote() << Logger::instance()->buildSystemEventLog(Logger::CONFIG_LOAD_FINISH);
 }
 
 void ConfigManager::parsePages(QDomNode page)

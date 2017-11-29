@@ -4,7 +4,6 @@
 #include <QMap>
 
 #include "interfaces/mainwindowinterface.h"
-#include "logger.h"
 
 namespace Ui {
     class MainWindow;

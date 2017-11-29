@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QWidget>
+#include <QTimer>
 
 #include "page.h"
 #include "deviceInterfaces/printerinterface.h"
@@ -24,12 +25,13 @@ public:
     void init(MainWindow* mainWindow) override;
     QString getName() const override;
     QList<Transition*> getTransitions() override;
-    void onEntry() override;
 
 protected:
+    void onEntry() override;
     void initInterface() override;
 
 private:
+    void setTimer(const QString& durationName);
 
     Ui::PhotoPrintPageWidget* _ui;
     PrinterInterface* _printer;

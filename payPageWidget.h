@@ -22,9 +22,9 @@ public:
     void init(MainWindow* mainWindow) override;
     QString getName() const override;
     QList<Transition*> getTransitions() override;
-    void onEntry() override;
 
 protected:
+    void onEntry() override;
     void initInterface() override;
     void setConnections() override;
 
@@ -61,7 +61,6 @@ private:
     QString _priceText; // template text for QLabel price
     QString _timerText; // template for NOT_ENOUGH_MONEY timer text
 
-    QTimer _timer;
     POSInterface* _posDevice;
     int _enteredMoneyAmount;
     int _price;

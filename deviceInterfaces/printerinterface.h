@@ -11,5 +11,5 @@ typedef std::function<void(int, int)> PrinterCallback; // _1 - status code, _2 -
 class PrinterInterface : public BaseDeviceInterface
 {
 public:
-    virtual void print(const QImage& image, int amount, PrinterCallback callback) = 0;
+    virtual void print(const QImage& image, int amount, PrinterCallback callback) = 0; // TODO: logging
 };

@@ -20,6 +20,9 @@ MainWindow::MainWindow(QWidget *parent) :
 
     Logger::instance()->setMainWindow(this);
 
+    qDebug().noquote() << Logger::instance()->buildSystemEventLog(Logger::ALCOGRAM_START);
+    qDebug().noquote() << Logger::instance()->buildSystemEventLog(Logger::INITIALIZATION_START);
+
     _configManager->load(":/config.conf");
 
     loadFonts();
@@ -32,13 +35,15 @@ MainWindow::MainWindow(QWidget *parent) :
         _stateMachine->addTransitions(page->getTransitions());
     }
 
+    qDebug().noquote() << Logger::instance()->buildSystemEventLog(Logger::INITIALIZATION_FINISH);
+
     _stateMachine->run();
 }
 
 void MainWindow::setPage(PageName pageName)
 {
     _ui->pages->setCurrentIndex(pageName);
-    static_cast<Page*>(_ui->pages->currentWidget())->onEntry();
+    static_cast<Page*>(_ui->pages->currentWidget())->enter();
 }
 
 ConfigManager* MainWindow::getConfigManager() const
@@ -91,4 +96,8 @@ MainWindow::~MainWindow()
     delete _ui;
 
     removeFonts();
+
+    qDebug().noquote() << Logger::instance()->buildSystemEventLog(Logger::ALCOGRAM_FINISH);
+
+    Logger::instance()->resetInstance();
 }

@@ -36,27 +36,6 @@ TakePhotoPageWidget::~TakePhotoPageWidget()
     delete _faceDetectorTest;
 }
 
-void TakePhotoPageWidget::startTimer(const QString& timerName)
-{
-    _timer.start();
-    _currentTimerName = timerName;
-
-    qDebug().noquote() << Logger::instance()->buildSystemEventLog(Logger::USER_TIMER_START, Logger::NONE
-        , _currentTimerName);
-}
-
-void TakePhotoPageWidget::stopTimer()
-{
-    _timer.stop();
-
-    if (!_currentTimerName.isEmpty()) {
-        qDebug().noquote() << Logger::instance()->buildSystemEventLog(Logger::USER_TIMER_STOP, Logger::NONE
-            , _currentTimerName);
-    }
-
-    _currentTimerName = "";
-}
-
 void TakePhotoPageWidget::updateCameraOutput(QPixmap processedImage)
 {
     int w = _ui->cameraOutput->width();
@@ -147,7 +126,7 @@ QList<Transition*> TakePhotoPageWidget::getTransitions()
 
     // PHOTO_TIMER -> PREPARING_FOR_PHOTO
     transitions.append(new Transition(PHOTO_TIMER, PREPARING_FOR_PHOTO, [=] (QEvent*) {
-        stopTimer();
+        setInactionTimer("inactionPreparingPhoto");
         setSubPage(PREPARING_FOR_PHOTO);
     }));
 
@@ -164,12 +143,13 @@ QList<Transition*> TakePhotoPageWidget::getTransitions()
 
     // PHOTO_CONFIRMATION -> SPLASH_SCREEN
     transitions.append(new Transition(PHOTO_CONFIRMATION, SPLASH_SCREEN, [=](QEvent*) {
+        stopTimer();
         _mainWindow->setPage(SPLASH_SCREEN_PAGE);
     }));
 
     // PHOTO_CONFIRMATION -> PREPARING_FOR_PHOTO
     transitions.append(new Transition(PHOTO_CONFIRMATION, PREPARING_FOR_PHOTO, [=] (QEvent*) {
-        stopTimer();
+        setInactionTimer("inactionPreparingPhoto");
         _camera->reset();
         _camera->setImageCaptureCallback(_cameraStreamCallback);
         setSubPage(PREPARING_FOR_PHOTO);
@@ -231,6 +211,10 @@ void TakePhotoPageWidget::setConnections()
             return;
         }
 
+        qDebug().noquote() << Logger::instance()->buildUserActionLog(Logger::BUTTON_RELEASE, Logger::BUTTON
+            , _ui->cancelButton->objectName(), QList<double>()
+            , QStringList({Utils::getStateNameNumber(targetState)}));
+
         _mainWindow->goToState(targetState);
     });
 
@@ -286,7 +270,7 @@ void TakePhotoPageWidget::setPhotoTimer()
         };
     });
 
-    startTimer("timer");
+    startTimer("timer", _timerTimeLeft / 1000);
 }
 
 void TakePhotoPageWidget::setInactionTimer(const QString& durationName)
@@ -304,7 +288,7 @@ void TakePhotoPageWidget::setInactionTimer(const QString& durationName)
         _mainWindow->goToState(SPLASH_SCREEN);
     });
 
-    startTimer(durationName);
+    startTimer(durationName, timeMs / 1000);
 }
 
 QMap<StateName, int> TakePhotoPageWidget::initBottomPanelPageNumbers() const

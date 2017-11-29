@@ -1,9 +1,12 @@
 #include <QDateTime>
+#include <QDebug>
+#include <functional>
 
 #include "payPageWidget.h"
 #include "ui_payPageWidget.h"
 #include "utils.h"
-#include <functional>
+#include "logger.h"
+
 
 PayPageWidget::PayPageWidget(QWidget *parent)
     : Page(parent)
@@ -37,6 +40,7 @@ QList<Transition*> PayPageWidget::getTransitions()
     // PAY -> SPLASH_SCREEN
     transitions.append(new Transition(PAY, SPLASH_SCREEN, [this](QEvent*) {
         // TODO: reset save image and data
+        stopTimer();
         _mainWindow->setPage(SPLASH_SCREEN_PAGE);
     }));
 
@@ -83,6 +87,7 @@ QList<Transition*> PayPageWidget::getTransitions()
 
     // PAYMENT_CONFIRMED -> ALCOTEST
     transitions.append(new Transition(PAYMENT_CONFIRMED, ALCOTEST, [this](QEvent*) {
+        stopTimer();
         _mainWindow->setPage(ALCOTEST_PAGE);
     }));
 
@@ -134,6 +139,10 @@ void PayPageWidget::initInterface() {
 void PayPageWidget::setConnections()
 {
     QObject::connect(_ui->continueButton, &QPushButton::released, [this] {
+        qDebug().noquote() << Logger::instance()->buildUserActionLog(Logger::BUTTON_RELEASE, Logger::BUTTON
+            , _ui->continueButton->objectName());
+
+
         _mainWindow->goToState(_mainWindow->getCurrentStateName() == NOT_ENOUGH_MONEY
                                ? PAY : PAYMENT_CONFIRMED);
     });
@@ -155,6 +164,10 @@ void PayPageWidget::setConnections()
             // TODO: wrong state
             return;
         }
+
+        qDebug().noquote() << Logger::instance()->buildUserActionLog(Logger::BUTTON_RELEASE, Logger::BUTTON
+            , _ui->cancelButton->objectName(), QList<double>()
+            , QStringList({Utils::getStateNameNumber(targetState)}));
 
         _mainWindow->goToState(targetState);
     });
@@ -184,7 +197,7 @@ void PayPageWidget::setPriceToPriceLabels(int price)
 
 void PayPageWidget::setInactionTimer(const QString& durationName)
 {
-    _timer.stop();
+    stopTimer();
 
     int timeMs = _mainWindow->getConfigManager()->getTimeDuration(getName(), durationName) * 1000;
 
@@ -243,12 +256,12 @@ void PayPageWidget::setInactionTimer(const QString& durationName)
         }
     });
 
-    _timer.start();
+    startTimer(durationName, timeMs / 1000);
 }
 
 void PayPageWidget::setNotEnoughMoneyInactionTimer()
 {
-    _timer.stop();
+    stopTimer();
 
     int timeMs = _mainWindow->getConfigManager()->getTimeDuration(getName(), "inactionNotEnoughMoney") * 1000;
     _timerTimeLeft = timeMs;
@@ -264,12 +277,12 @@ void PayPageWidget::setNotEnoughMoneyInactionTimer()
         _ui->timerText->setText(QString(_timerText).replace("@TIME", timerText));
 
         if (_timerTimeLeft <= 0) {
-            _timer.stop();
+            stopTimer();
             _mainWindow->goToState(SPLASH_SCREEN);
         }
     });
 
-    _timer.start();
+    startTimer("inactionNotEnoughMoney", timeMs / 1000);
 }
 
 void PayPageWidget::retrieveTextTemplates()

@@ -35,22 +35,11 @@ enum StateName {
 class Event : public QEvent
 {
 public:
-    explicit Event(StateName targetState, StateName sourceState)
-        : QEvent(QEvent::Type(targetState))
-        , _sourceState(sourceState)
-        , _targetState(targetState)
-    {
-    }
+    explicit Event(StateName targetState, StateName sourceState);
 
-    StateName getTargetState() const
-    {
-        return _targetState;
-    }
+    StateName getTargetState() const;
 
-    StateName getSourceState() const
-    {
-        return _sourceState;
-    }
+    StateName getSourceState() const;
 
 private:
     StateName _sourceState;
@@ -63,33 +52,15 @@ class Transition : public QAbstractTransition
 public:
     // @param transition - transition name
     // @param callback - function called on transition
-    explicit Transition(StateName sourceState, StateName targetState, std::function<void(QEvent*)> callback)
-        : _sourceState(sourceState)
-        , _targetState(targetState)
-        , _callback(callback)
-    {
-    }
+    explicit Transition(StateName sourceState, StateName targetState, std::function<void(QEvent*)> callback);
 
-    bool eventTest(QEvent* e) override
-    {
-        return (e->type() == _targetState);
-    }
+    bool eventTest(QEvent* e) override;
 
-    void onTransition(QEvent* event) override
-    {
-        // TODO: logging
-        _callback(event);
-    }
+    void onTransition(QEvent* event) override;
 
-    StateName getTargetStateName() const
-    {
-        return _targetState;
-    }
+    StateName getTargetStateName() const;
 
-    StateName getSourceStateName() const
-    {
-        return _sourceState;
-    }
+    StateName getSourceStateName() const;
 
 private:
     StateName _sourceState;
@@ -101,15 +72,9 @@ private:
 class State : public QState
 {
 public:
-    State(StateName name)
-    {
-        _name = name;
-    }
+    State(StateName name);
 
-    StateName getName() const
-    {
-        return _name;
-    }
+    StateName getName() const;
 
 private:
     StateName _name;
