@@ -13,7 +13,7 @@ typedef std::function<void(int, QSharedPointer<QImage>)> ImageCaptureCallback;
 class CameraInterface : public BaseDeviceInterface
 {
 public:
-    virtual void setImageCaptureCallback(ImageCaptureCallback callback) = 0;
-    virtual void captureImage() = 0;
+    virtual void setImageCaptureCallback(ImageCaptureCallback callback) = 0; // TODO: logging
+    virtual void captureImage() = 0; // TODO: logging
     virtual const QImage& getCapturedImage() = 0;
 };

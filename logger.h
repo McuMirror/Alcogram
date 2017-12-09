@@ -31,7 +31,7 @@ public:
         , USER_TIMER_STOP
         , SYSTEM_TIMER_START
         , SYSTEM_TIMER_STOP
-        , ERROR
+        , ERROR_EVENT
         , INITIALIZATION_START
         , INITIALIZATION_FINISH
         , CONFIG_LOAD_START

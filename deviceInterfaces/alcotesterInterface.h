@@ -11,7 +11,7 @@ typedef std::function<void(int, double)> AlcoTestCallback; // _1 - status code, 
 class AlcotesterInterface : public BaseDeviceInterface
 {
 public:
-    virtual void test(AlcoTestCallback callback) = 0;
-    virtual void abort(DeviceCallback callback) = 0;
+    virtual void test(AlcoTestCallback callback) = 0; // TODO: logging
+    virtual void abort(DeviceCallback callback) = 0; // TODO: logging
     virtual QList<double> getPersonsValues() const = 0;
 };

@@ -96,6 +96,7 @@ FORMS    += mainWindow.ui \
 RESOURCES += \
     resources.qrc
 
+INCLUDEPATH += "C:/Program Files (x86)/dlib/include"
 INCLUDEPATH += E:/opencv_build/install/include
 DEPENDPATH += E:/opencv_build/install/include
 
@@ -106,3 +107,4 @@ LIBS += E:/opencv_build/bin/libopencv_imgproc320d.dll
 LIBS += E:/opencv_build/bin/libopencv_features2d320d.dll
 LIBS += E:/opencv_build/bin/libopencv_calib3d320d.dll
 LIBS += E:/opencv_build/bin/libopencv_objdetect320d.dll
+LIBS += -L"C:/Program Files (x86)/dlib/lib" -ldlib

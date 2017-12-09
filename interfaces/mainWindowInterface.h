@@ -26,6 +26,10 @@ public:
     virtual DeviceManager* getDeviceManager() const = 0;
 
     virtual FaceDetectionInterface* getFaceDetector() const = 0;
+
+    // sets state machine state
     virtual void goToState(StateName targetState) = 0;
+
+    // returns current state machine state
     virtual StateName getCurrentStateName() const = 0;
 };
