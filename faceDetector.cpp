@@ -10,6 +10,9 @@ FaceDetector::FaceDetector(QObject *parent)
     : QObject(parent)
 {
     deserialize("E:\\mmod_human_face_detector.dat") >> _net;
+    //_rects = QList<QRect>();
+    //_rects.append(QRect(200, 100, 150, 150));
+    //_rects.append(QRect(370, 100, 150, 150));
 }
 
 void FaceDetector::detect(const QImage& image)
@@ -36,13 +39,13 @@ void FaceDetector::detect(const QImage& image)
 
     assign_image(dlibImage, cv_image<bgr_pixel>(mat));
 
-    int start = clock();
+    //int start = clock();
 
     std::vector<mmod_rect> dets = _net(dlibImage);
 
-    int stop = clock();
+    //int stop = clock();
 
-    int time = (stop-start)/double(CLOCKS_PER_SEC) * 1000;
+    //int time = (stop-start)/double(CLOCKS_PER_SEC) * 1000;
 
     _rects = QList<QRect>();
 
@@ -50,6 +53,8 @@ void FaceDetector::detect(const QImage& image)
         rectangle r = d.rect;
         _rects.append(QRect(r.left(), r.top(), r.width(), r.height()));
     }
+
+    //_rects.append(QRect(200, 100, 150, 150));
 }
 
 int FaceDetector::facesNumber() const

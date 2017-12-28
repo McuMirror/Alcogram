@@ -32,10 +32,15 @@ protected:
 
 private:
     void setTimer(const QString& durationName);
+    QPixmap generateFinalPhoto(int w, int h);
+    void drawLoser(QPainter& p, const QRect& faceRect, double value);
+    void drawChampion(QPainter& p, const QRect& faceRect, double value);
+    QColor getAlcoLevelColor(double value) const;
 
     Ui::PhotoPrintPageWidget* _ui;
     PrinterInterface* _printer;
     CameraInterface* _camera;
     AlcotesterInterface* _alcotester;
     FaceDetectionInterface* _faceDetector;
+    QMap<QString, QPair<float, float>> _alcoLevelIntervals;
 };

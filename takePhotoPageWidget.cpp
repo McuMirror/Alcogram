@@ -44,6 +44,11 @@ void TakePhotoPageWidget::updateCameraOutput(QPixmap processedImage)
     _ui->cameraOutput->setPixmap(processedImage.scaled(w, h, Qt::KeepAspectRatioByExpanding));
     _ui->cameraOutput->update();
     _isImageHandling = false;
+
+    if (_captureImage) {
+        _mainWindow->goToState(PHOTO_CONFIRMATION);
+        _captureImage = false;
+    }
 }
 
 void TakePhotoPageWidget::init(MainWindow* mainWindow) {
@@ -86,7 +91,7 @@ void TakePhotoPageWidget::init(MainWindow* mainWindow) {
 
             case CAMERA_IMAGE_CAPTURE:
             {
-                _mainWindow->goToState(PHOTO_CONFIRMATION);
+                _captureImage = true;
                 break;
             }
         }
@@ -169,6 +174,7 @@ void TakePhotoPageWidget::onEntry()
     setSubPage(PREPARING_FOR_PHOTO);
     setInactionTimer("inactionPreparingPhoto");
 
+    _captureImage = false;
     _camera->setImageCaptureCallback(_cameraStreamCallback);
 }
 

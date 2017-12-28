@@ -41,8 +41,10 @@ private:
     void setTimer(const QString& durationName);
     void test(int i);
     void circleCurrentPerson();
+    void drawPreviousPersonValues(QPainter& p, float scale);
     void drawSuccesText(QPainter &p, int textSize, QPoint pos);
     QString getAlcoLevelName() const;
+    QColor getAlcoLevelColor(double value) const;
 
     Ui::AlcoTestPageWidget* _ui;
     AlcotesterInterface* _alcotester;

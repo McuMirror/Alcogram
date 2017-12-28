@@ -70,4 +70,5 @@ private:
     CameraImageHandler _cameraImageHandler;
 
     bool _isImageHandling = false;
+    bool _captureImage = false;
 };
