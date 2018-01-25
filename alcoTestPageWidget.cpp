@@ -264,9 +264,17 @@ void AlcoTestPageWidget::circleCurrentPerson()
 
     //draw upper circle
     QPoint upperCircleCenter(center.x() + radius * 1.2, center.y() - radius * 1.2);
+
+    //upperCircleCenter = Utils::rotatePoint(center.x(), center.y(), -90, upperCircleCenter);
+
     int upperCircleRadius = radius * 0.23;
+
+    upperCircleCenter = Utils::movePointInRect(target.rect(), upperCircleCenter, center, upperCircleRadius);
+
+
     QRect upperCircleRect(upperCircleCenter.x() - upperCircleRadius, upperCircleCenter.y() - upperCircleRadius
                            , upperCircleRadius * 2, upperCircleRadius * 2);
+
 
     switch (_circleState) {
         case TEST:

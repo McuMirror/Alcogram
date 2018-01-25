@@ -1,6 +1,6 @@
 #include <dlib/image_processing.h>
-#include <dlib/opencv.h>
-#include <opencv2/imgproc.hpp>
+//#include <dlib/opencv.h>
+//#include <opencv2/imgproc.hpp>
 #include <ctime>
 
 #include "faceDetector.h"
@@ -17,31 +17,29 @@ FaceDetector::FaceDetector(QObject *parent)
 
 void FaceDetector::detect(const QImage& image)
 {
-    cv::Mat mat = Utils::qImageToCvMat(image);
-    matrix<rgb_pixel> dlibImage;
+    //cv::Mat mat = Utils::qImageToCvMat(image);
+    //matrix<rgb_pixel> dlibImage;
 
-    /*if (_dlibImage.size() == 0) {
+    if (_dlibImage.size() == 0) {
         _dlibImage.set_size(image.height(), image.width());
     }
 
     for (int j = 0; j < image.height(); j++) {
-        const uchar* l = image.scanLine(j);
-
-        int k = 0;
+        const QRgb* l = (QRgb*) image.scanLine(j);
 
         for (int i = 0; i < image.width(); i++) {
-            _dlibImage(j, i).red = l[k + 2];
-            _dlibImage(j, i).green = l[k + 1];
-            _dlibImage(j, i).blue = l[k];
-            k += 3;
+            QRgb c = l[i];
+            _dlibImage(j, i).red = qRed(c);
+            _dlibImage(j, i).green = qGreen(c);
+            _dlibImage(j, i).blue = qBlue(c);
         }
-    }*/
+    }
 
-    assign_image(dlibImage, cv_image<bgr_pixel>(mat));
+    //assign_image(dlibImage, cv_image<bgr_pixel>(mat));
 
     //int start = clock();
 
-    std::vector<mmod_rect> dets = _net(dlibImage);
+    std::vector<mmod_rect> dets = _net(_dlibImage);
 
     //int stop = clock();
 

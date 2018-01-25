@@ -8,7 +8,7 @@
 
 #include "page.h"
 
-#include "videoFaceDetector.h"
+//#include "videoFaceDetector.h"
 #include "interfaces/faceDetectionInterface.h"
 #include "deviceInterfaces/cameraInterface.h"
 #include "cameraImageHandler.h"
@@ -60,8 +60,6 @@ private:
 
     QMap<StateName, int> _bottomPanelPageNumbers; // state -> bottomPanel page number
     QMap<StateName, int> _mainPanelPageNumbers; // state -> mainPanel page number
-
-    VideoFaceDetector* _faceDetectorTest;
 
     FaceDetectionInterface* _faceDetector;
     CameraInterface* _camera;

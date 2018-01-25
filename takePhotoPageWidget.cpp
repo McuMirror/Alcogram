@@ -7,7 +7,7 @@
 #include <QThread>
 #include <QDebug>
 
-#include <opencv2\imgproc.hpp>
+//#include <opencv2\imgproc.hpp>
 
 #include "takePhotoPageWidget.h"
 #include "ui_takePhotoPageWidget.h"
@@ -22,7 +22,6 @@ TakePhotoPageWidget::TakePhotoPageWidget(QWidget *parent)
     , _ui(new Ui::TakePhotoPageWidget)
     , _bottomPanelPageNumbers(initBottomPanelPageNumbers())
     , _mainPanelPageNumbers(initMainPanelPageNumbers())
-    , _faceDetectorTest(new VideoFaceDetector("E:/Alcogram/haarcascade_frontalface_default.xml"))
     , _imageProcessingThread(this)
 {
     _ui->setupUi(this);
@@ -33,15 +32,19 @@ TakePhotoPageWidget::~TakePhotoPageWidget()
     _imageProcessingThread.quit();
 
     delete _ui;
-    delete _faceDetectorTest;
 }
 
 void TakePhotoPageWidget::updateCameraOutput(QPixmap processedImage)
 {
     int w = _ui->cameraOutput->width();
     int h = _ui->cameraOutput->height();
+    int x = (int) (0.1 * processedImage.width());
+    int y = (int) (0.1 * processedImage.height());
 
-    _ui->cameraOutput->setPixmap(processedImage.scaled(w, h, Qt::KeepAspectRatioByExpanding));
+    QRect rect(x, y, processedImage.width() - x, processedImage.height() - y);
+    QPixmap f = processedImage.copy(rect);
+
+    _ui->cameraOutput->setPixmap(f.scaled(w, h, Qt::KeepAspectRatioByExpanding));
     _ui->cameraOutput->update();
     _isImageHandling = false;
 

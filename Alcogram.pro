@@ -38,7 +38,6 @@ SOURCES += main.cpp\
     devices/deviceManager.cpp \
     devices/cameraDeviceTest.cpp \
     devices/cameraFrameGrabber.cpp \
-    videoFaceDetector.cpp \
     faceDetector.cpp \
     devices/alcoTesterDeviceTest.cpp \
     cameraImageHandler.cpp \
@@ -68,7 +67,6 @@ HEADERS  += mainWindow.h \
     deviceInterfaces/baseDeviceInterface.h \
     devices/cameraDeviceTest.h \
     devices/cameraFrameGrabber.h \
-    videoFaceDetector.h \
     interfaces/faceDetectionInterface.h \
     faceDetector.h \
     deviceInterfaces/alcotesterInterface.h \
@@ -77,7 +75,8 @@ HEADERS  += mainWindow.h \
     deviceInterfaces/printerinterface.h \
     devices/printerDeviceTest.h \
     logger.h \
-    interfaces/mainWindowInterface.h
+    interfaces/mainWindowInterface.h \
+    deviceInterfaces/status.h
 
 FORMS    += mainWindow.ui \
     startPageWidget.ui \
@@ -97,14 +96,4 @@ RESOURCES += \
     resources.qrc
 
 INCLUDEPATH += "C:/Program Files (x86)/dlib/include"
-INCLUDEPATH += E:/opencv_build/install/include
-DEPENDPATH += E:/opencv_build/install/include
-
-LIBS += E:/opencv_build/bin/libopencv_core320d.dll
-LIBS += E:/opencv_build/bin/libopencv_highgui320d.dll
-LIBS += E:/opencv_build/bin/libopencv_imgcodecs320d.dll
-LIBS += E:/opencv_build/bin/libopencv_imgproc320d.dll
-LIBS += E:/opencv_build/bin/libopencv_features2d320d.dll
-LIBS += E:/opencv_build/bin/libopencv_calib3d320d.dll
-LIBS += E:/opencv_build/bin/libopencv_objdetect320d.dll
 LIBS += -L"C:/Program Files (x86)/dlib/lib" -ldlib

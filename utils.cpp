@@ -11,7 +11,7 @@ namespace Utils {
         return font;
     }
 
-    cv::Mat qImageToCvMat( const QImage &inImage, bool inCloneImageData)
+    /*cv::Mat qImageToCvMat( const QImage &inImage, bool inCloneImageData)
     {
       switch ( inImage.format() )
       {
@@ -71,7 +71,7 @@ namespace Utils {
       }
 
       return cv::Mat();
-    }
+    }*/
 
     QString getStateNameNumber(StateName stateName)
     {
@@ -116,5 +116,45 @@ namespace Utils {
         }
 
         return "";
+    }
+
+    QPoint rotatePoint(float cx, float cy, float angle, const QPoint& p)
+    {
+        float a = (angle * M_PI) / 180;
+        float s = sin(a);
+        float c = cos(a);
+
+        int x = p.x();
+        int y = p.y();
+
+        // translate point back to origin:
+        x -= cx;
+        y -= cy;
+
+        // rotate point
+        float xnew = x * c - y * s;
+        float ynew = x * s + y * c;
+
+        // translate point back:
+        x = xnew + cx;
+        y = ynew + cy;
+
+        return QPoint(x, y);
+    }
+
+    QPoint movePointInRect(const QRect& rect, const QPoint& point, const QPoint& center, float radius)
+    {
+        QPoint p(point);
+        QRect pRect(p.x() - radius, p.y() - radius, 2 * radius, 2 * radius);
+
+        while (!rect.contains(pRect)) {
+            if (p.x() + radius > rect.right()) {
+                p = rotatePoint(center.x(), center.y(), -5, p);
+            }
+
+            pRect = QRect(p.x() - radius, p.y() - radius, 2 * radius, 2 * radius);
+        }
+
+        return p;
     }
 }
