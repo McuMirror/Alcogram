@@ -28,11 +28,11 @@ void PhotoPrintPageWidget::init(MainWindow* mainWindow)
 {
     Page::init(mainWindow);
 
-    DeviceManager* deviceManager = _mainWindow->getDeviceManager();
+    //DeviceManager* deviceManager = _mainWindow->getDeviceManager();
 
-    _printer = deviceManager->getPrinterDevice();
-    _camera = deviceManager->getCameraDevice();
-    _alcotester = deviceManager->getAlcotesterDevice();
+    //_printer = deviceManager->getPrinterDevice();
+    //_camera = deviceManager->getCameraDevice();
+    //_alcotester = deviceManager->getAlcotesterDevice();
     _faceDetector = _mainWindow->getFaceDetector();
 
     ConfigManager* configManager = _mainWindow->getConfigManager();
@@ -63,34 +63,14 @@ QList<Transition*> PhotoPrintPageWidget::getTransitions()
         qDebug().noquote() << Logger::instance()->buildSystemEventLog(Logger::PRINTING_PHOTOS_START, 0, 0
             , QList<double>({_faceDetector->facesNumber()}));
 
-        // TODO: final photo
-        _printer->print(_camera->getCapturedImage(), _faceDetector->facesNumber(), [=](int statusCode, int printed){
-            switch (statusCode) {
-                case OK:
-                    qDebug().noquote() << Logger::instance()->buildSystemEventLog(Logger::PHOTO_PRINT_SUCCESS
-                        , 0, 0, QList<double>({printed, _faceDetector->facesNumber()}));
+        _printedPhotos = 0;
 
-                    _ui->progressBar->setProgress(100 * printed / _faceDetector->facesNumber());
-                    break;
-               case DEVICE_ERROR:
-                    qDebug().noquote() << Logger::instance()->buildSystemEventLog(Logger::PHOTO_PRINT_FAIL
-                        , 1, 0, QList<double>());
-                    // TODO: handle this case
-                    break;
-               case PRINT_COMPLETE:
-                    qDebug().noquote() << Logger::instance()->buildSystemEventLog(Logger::PRINTING_PHOTOS_END
-                                   , 0, 0, QList<double>({printed, _faceDetector->facesNumber()}));
-
-                    _ui->progressBar->setProgress(100);
-
-                    setTimer("photoPrint");
-                    break;
-            }
-        });
+        _mainWindow->getMachinery()->printImage(*_mainWindow->getSessionData().getImage());
     }));
 
     // PHOTO_PRINT -> START
     transitions.append(new Transition(PHOTO_PRINT, START, [this](QEvent*) {
+        _mainWindow->getSessionData().reset();
         _mainWindow->setPage(START_PAGE);
     }));
 
@@ -132,9 +112,15 @@ void PhotoPrintPageWidget::initInterface()
     _ui->preview->setGraphicsEffect(effect);
 }
 
+void PhotoPrintPageWidget::setConnections()
+{
+    QObject::connect(_mainWindow->getMachinery(), &Machinery::imagePrinted
+                     , this, &PhotoPrintPageWidget::onImagePrinted);
+}
+
 QPixmap PhotoPrintPageWidget::generateFinalPhoto(int w, int h)
 {
-    QImage notScaledImage = _camera->getCapturedImage();
+    QImage notScaledImage = *_mainWindow->getSessionData().getImage();
     QPixmap image = QPixmap::fromImage(notScaledImage)
                             .scaled(w, h, Qt::KeepAspectRatioByExpanding);
     float scale = std::min((float)image.width() / notScaledImage.width(), (float)image.height() / notScaledImage.height());
@@ -144,7 +130,7 @@ QPixmap PhotoPrintPageWidget::generateFinalPhoto(int w, int h)
     p.setRenderHint(QPainter::Antialiasing);
     p.drawPixmap(0, 0, image);
 
-    QList<double> values = _alcotester->getPersonsValues();
+    QList<double> values = _mainWindow->getSessionData().getAlcoValues();
     QList<QRect> rects = _faceDetector->faceRects();
     int maxValueIndex = 0;
     double maxValue = 0;
@@ -281,6 +267,26 @@ QColor PhotoPrintPageWidget::getAlcoLevelColor(double value) const
     }
 
     return Qt::black;
+}
+
+void PhotoPrintPageWidget::onImagePrinted(QSharedPointer<Status> status)
+{
+    _printedPhotos++;
+
+    if (_printedPhotos == _faceDetector->facesNumber()) {
+        qDebug().noquote() << Logger::instance()->buildSystemEventLog(Logger::PRINTING_PHOTOS_END
+                       , 0, 0, QList<double>({printed, _faceDetector->facesNumber()}));
+
+        _ui->progressBar->setProgress(100);
+
+        setTimer("photoPrint");
+    } else {
+        qDebug().noquote() << Logger::instance()->buildSystemEventLog(Logger::PHOTO_PRINT_SUCCESS
+            , 0, 0, QList<double>({printed, _faceDetector->facesNumber()}));
+
+        _ui->progressBar->setProgress(100 * _printedPhotos / _faceDetector->facesNumber());
+        _mainWindow->getMachinery()->printImage(*_mainWindow->getSessionData().getImage());
+    }
 }
 
 void PhotoPrintPageWidget::setTimer(const QString& durationName)

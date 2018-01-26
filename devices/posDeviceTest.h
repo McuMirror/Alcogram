@@ -12,18 +12,16 @@ class POSDeviceTest : public QObject
 public:
     explicit POSDeviceTest(QObject *parent = 0);
 
-public:
-    void turnOn(DeviceCallback callback) override;
-    void turnOff(DeviceCallback callback) override;
-    void sendPrice(int price, DeviceCallback callback) override;
-    void getPaymentResponce(PayCallback payCallback) override;
-    void abortPayment(DeviceCallback callback) override;
-    void reset() override;
+    // BaseDeviceInterface interface
+    void start(DeviceCallback onStart);
+    void finish(DeviceCallback onFinish);
+    void restart(DeviceCallback onRestart);
+    void checkStatus(DeviceCallback onCheckStatus);
+    void connectionStatus(DeviceCallback onConnection);
+    void isConnected(OnIsConnectedCallback onIsConnected);
 
-private:
-    int _price;
-    int _enteredAmount;
-    QTimer _timer;
-
-    const int _denominations[2] = {50, 100};
+    // POSInterface interface
+    void activate(DeviceCallback onActivation);
+    void deactivate(DeviceCallback onDeactivation);
+    void takeMoney(double money, POSCallback onTransactionSucceded, DeviceCallback onTransactionFailed);
 };

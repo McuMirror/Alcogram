@@ -2,8 +2,9 @@
 
 #include "configManager.h"
 #include "stateMachine.h"
-#include "devices/deviceManager.h"
+#include "devices/machinery.h"
 #include "interfaces/faceDetectionInterface.h"
+#include "sessionData.h"
 
 enum PageName {
     NONCRITICAL_ERROR_PAGE = 0
@@ -23,7 +24,7 @@ public:
     virtual void setPage(PageName pageName) = 0;
 
     virtual ConfigManager* getConfigManager() const = 0;
-    virtual DeviceManager* getDeviceManager() const = 0;
+    virtual Machinery* getMachinery() const = 0;
 
     virtual FaceDetectionInterface* getFaceDetector() const = 0;
 
@@ -32,4 +33,6 @@ public:
 
     // returns current state machine state
     virtual StateName getCurrentStateName() const = 0;
+
+    virtual SessionData& getSessionData() = 0;
 };

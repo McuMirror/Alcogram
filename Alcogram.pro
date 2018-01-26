@@ -35,14 +35,16 @@ SOURCES += main.cpp\
     criticalErrorPage.cpp \
     noncriticalErrorPage.cpp \
     devices/posDeviceTest.cpp \
-    devices/deviceManager.cpp \
     devices/cameraDeviceTest.cpp \
     devices/cameraFrameGrabber.cpp \
     faceDetector.cpp \
     devices/alcoTesterDeviceTest.cpp \
     cameraImageHandler.cpp \
     devices/printerDeviceTest.cpp \
-    logger.cpp
+    logger.cpp \
+    devices/machinery.cpp \
+    deviceInterfaces/status.cpp \
+    sessionData.cpp
 
 HEADERS  += mainWindow.h \
     startPageWidget.h \
@@ -63,7 +65,6 @@ HEADERS  += mainWindow.h \
     deviceInterfaces/cameraInterface.h \
     deviceInterfaces/posInterface.h \
     devices/posDeviceTest.h \
-    devices/deviceManager.h \
     deviceInterfaces/baseDeviceInterface.h \
     devices/cameraDeviceTest.h \
     devices/cameraFrameGrabber.h \
@@ -76,7 +77,9 @@ HEADERS  += mainWindow.h \
     devices/printerDeviceTest.h \
     logger.h \
     interfaces/mainWindowInterface.h \
-    deviceInterfaces/status.h
+    deviceInterfaces/status.h \
+    devices/machinery.h \
+    sessionData.h
 
 FORMS    += mainWindow.ui \
     startPageWidget.ui \

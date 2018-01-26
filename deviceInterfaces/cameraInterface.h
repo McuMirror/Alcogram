@@ -5,15 +5,17 @@
 
 #include "baseDeviceInterface.h"
 
-const int CAMERA_STREAM = 2;        // TODO: get rid of it
-const int CAMERA_IMAGE_CAPTURE = 3; //
-
-typedef std::function<void(int, QSharedPointer<QImage>)> ImageCaptureCallback;
+typedef std::function<void(QSharedPointer<QImage>, QSharedPointer<Status>)> ImageCaptureCallback;
 
 class CameraInterface : public BaseDeviceInterface
 {
 public:
-    virtual void setImageCaptureCallback(ImageCaptureCallback callback) = 0; // TODO: logging
-    virtual void captureImage() = 0; // TODO: logging
-    virtual const QImage& getCapturedImage() = 0;
+    // set callback for image stream from camera
+    virtual void getImage(ImageCaptureCallback onGetImage) = 0;
+
+    // take an image from camera once
+    virtual void takeImage(ImageCaptureCallback onTookImage) = 0;
+
+    // stop image stream from camera
+    virtual void stopGetImage(DeviceCallback onStopGetImage) = 0;
 };

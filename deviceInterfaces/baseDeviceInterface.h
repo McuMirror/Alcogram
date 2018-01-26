@@ -1,17 +1,29 @@
 #pragma once
 
+#include <QSharedPointer>
+
 #include <functional>
-#
+#include "status.h"
 
-const int OK = 0;    // TODO: get rid of it
-const int DEVICE_ERROR = 1; //
-
-typedef std::function<void(int)> DeviceCallback; // _1 - status code
+typedef std::function<void(QSharedPointer<Status>)> DeviceCallback; // _1 - status
+typedef std::function<void(bool)> OnIsConnectedCallback;
 
 class BaseDeviceInterface
 {
 public:
-    virtual void turnOn(DeviceCallback callback) = 0; // TODO: logging
-    virtual void turnOff(DeviceCallback callback) = 0; // TODO: logging
-    virtual void reset() = 0;
+    // device start
+    virtual void start(DeviceCallback onStart) = 0;
+
+    // device shutdown
+    virtual void finish(DeviceCallback onFinish) = 0;
+
+    // device restart
+    virtual void restart(DeviceCallback onRestart) = 0;
+
+    // check device status
+    virtual void checkStatus(DeviceCallback onCheckStatus) = 0;
+
+    // check device connection
+    virtual void connectionStatus(DeviceCallback onConnection) = 0;
+    virtual void isConnected(OnIsConnectedCallback onIsConnected) = 0;
 };

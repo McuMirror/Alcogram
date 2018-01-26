@@ -36,8 +36,11 @@ public:
 protected:
     void onEntry() override;
     void initInterface() override;
+    void setConnections() override;
 
 private:
+    void onReceivedAlcotesterData(QSharedPointer<Status> status, double value);
+    void onFailedToReceiveDataFromAcotester(QSharedPointer<Status> status);
     void setTimer(const QString& durationName);
     void test(int i);
     void circleCurrentPerson();
@@ -47,9 +50,7 @@ private:
     QColor getAlcoLevelColor(double value) const;
 
     Ui::AlcoTestPageWidget* _ui;
-    AlcotesterInterface* _alcotester;
     FaceDetectionInterface* _faceDetector;
-    CameraInterface* _camera;
 
     QPixmap _repeatIcon;
 

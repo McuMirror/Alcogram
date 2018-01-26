@@ -5,35 +5,51 @@ PrinterDeviceTest::PrinterDeviceTest(QObject *parent) : QObject(parent)
 
 }
 
-void PrinterDeviceTest::turnOn(DeviceCallback callback)
+// BaseDeviceInterface interface
+void PrinterDeviceTest::start(DeviceCallback onStart)
 {
-    callback(OK);
+    onStart(QSharedPointer<Status>(new Status(0, PRINTER, START_DEVICE)));
 }
 
-void PrinterDeviceTest::turnOff(DeviceCallback callback)
+void PrinterDeviceTest::finish(DeviceCallback onFinish)
 {
-    callback(OK);
+    onFinish(QSharedPointer<Status>(new Status(0, PRINTER, FINISH_DEVICE)));
 }
 
-void PrinterDeviceTest::reset()
+void PrinterDeviceTest::restart(DeviceCallback onRestart)
+{
+    onRestart(QSharedPointer<Status>(new Status(0, PRINTER, RESTART_DEVICE)));
+}
+
+void PrinterDeviceTest::checkStatus(DeviceCallback onCheckStatus)
+{
+    onCheckStatus(QSharedPointer<Status>(new Status(0, PRINTER, CHECK_STATUS)));
+}
+
+void PrinterDeviceTest::connectionStatus(DeviceCallback onConnection)
+{
+    onConnection(QSharedPointer<Status>(new Status(0, PRINTER, CHECK_CONNECTION)));
+}
+
+void PrinterDeviceTest::isConnected(OnIsConnectedCallback onIsConnected)
 {
 
 }
 
-void PrinterDeviceTest::print(const QImage& image, int amount, PrinterCallback callback)
+// PrinterInterface interface
+void PrinterDeviceTest::warmUp(DeviceCallback onWarmUp)
 {
-    _amountLeft = amount;
-    _timer.setInterval(1000);
+    onWarmUp(QSharedPointer<Status>(new Status(0, PRINTER, WARMING_UP_PRINTER)));
+}
 
-    QObject::connect(&_timer, &QTimer::timeout, [=]{
-        _amountLeft--;
+void PrinterDeviceTest::coolDown(DeviceCallback onCoolDown)
+{
+    onCoolDown(QSharedPointer<Status>(new Status(0, PRINTER, COOLING_DOWN_PRINTER)));
+}
 
-        if (_amountLeft == 0) {
-            _timer.stop();
-        }
-
-        callback(_amountLeft == 0 ? PRINT_COMPLETE : OK, amount - _amountLeft);
-    });
-
-    _timer.start();
+void PrinterDeviceTest::printImage(const QImage &image, DeviceCallback onImagePrinted)
+{
+    QTimer::singleShot(1000, [=] {
+            onImagePrinted(QSharedPointer<Status>(new Status(0, PRINTER, PRINT_IMAGE)));
+        });
 }

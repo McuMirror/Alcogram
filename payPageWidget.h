@@ -29,6 +29,10 @@ protected:
     void setConnections() override;
 
 private:
+    void onTransactionSucceded(double money, QSharedPointer<Status> status);
+    void onTransactionFailed(QSharedPointer<Status> status);
+
+
     // init column price QLabel's
     // @param labels - column QLabels
     // @param richText - text to set (html text)
@@ -61,7 +65,6 @@ private:
     QString _priceText; // template text for QLabel price
     QString _timerText; // template for NOT_ENOUGH_MONEY timer text
 
-    POSInterface* _posDevice;
     int _enteredMoneyAmount;
     int _price;
     int _timerTimeLeft;

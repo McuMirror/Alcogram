@@ -16,18 +16,27 @@ public:
     explicit CameraDeviceTest(QObject *parent = 0);
     ~CameraDeviceTest();
 
-    void turnOn(DeviceCallback callback) override;
-    void turnOff(DeviceCallback callback) override;
-    void setImageCaptureCallback(ImageCaptureCallback callback) override;
-    void captureImage() override;
-    const QImage& getCapturedImage() override;
-    void reset() override;
+    // BaseDeviceInterface interface
+    void start(DeviceCallback onStart);
+    void finish(DeviceCallback onFinish);
+    void restart(DeviceCallback onRestart);
+    void checkStatus(DeviceCallback onCheckStatus);
+    void connectionStatus(DeviceCallback onConnection);
+    void isConnected(OnIsConnectedCallback onIsConnected);
+
+    // CameraInterface interface
+    void getImage(ImageCaptureCallback onGetImage);
+    void takeImage(ImageCaptureCallback onTookImage);
+    void stopGetImage(DeviceCallback onStopGetImage);
 
 private:
+    enum Mode {
+        STREAM, CAPTURE
+    };
+
     QCamera* _camera = nullptr;
     CameraFrameGrabber* _cameraFrameGrabber = nullptr;
 
     ImageCaptureCallback _callback = nullptr;
-    int _captureMode = CAMERA_STREAM;
-    QSharedPointer<QImage> _capturedImage;
+    Mode _mode;
 };

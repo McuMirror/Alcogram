@@ -11,14 +11,16 @@ class AlcotesterDeviceTest : public QObject
 public:
     explicit AlcotesterDeviceTest(QObject *parent = 0);
 
-    void turnOn(DeviceCallback callback) override;
-    void turnOff(DeviceCallback callback) override;
-    void reset();
+    // BaseDeviceInterface interface
+    void start(DeviceCallback onStart);
+    void finish(DeviceCallback onFinish);
+    void restart(DeviceCallback onRestart);
+    void checkStatus(DeviceCallback onCheckStatus);
+    void connectionStatus(DeviceCallback onConnection);
+    void isConnected(OnIsConnectedCallback onIsConnected);
 
-    void test(AlcoTestCallback callback) override;
-    void abort(DeviceCallback callback) override;
-    QList<double> getPersonsValues() const override;
-
-private:
-    QList<double> _personValues;
+    // AlcotesterInterface interface
+    void warmUp(DeviceCallback onWarmedUp);
+    void activate(AlcotesterCallback onDataRead, DeviceCallback onDataRejected);
+    void coolDown(DeviceCallback onCooledDown);
 };

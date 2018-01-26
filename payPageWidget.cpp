@@ -25,7 +25,7 @@ void PayPageWidget::init(MainWindow *mainWindow)
 {
     Page::init(mainWindow);
 
-    _posDevice = mainWindow->getDeviceManager()->getPOSDevice();
+    //_posDevice = mainWindow->getDeviceManager()->getPOSDevice();
 }
 
 QString PayPageWidget::getName() const
@@ -108,27 +108,7 @@ void PayPageWidget::onEntry()
 
     _enteredMoneyAmount = 0;
 
-    _posDevice->sendPrice(_price, [this](int statusCode) {
-        // TODO: handle status code
-        // while the test values are used
-        if (statusCode == OK) {
-            _posDevice->getPaymentResponce([=](int statusCode, int totalMoneyAmount) {
-                if (totalMoneyAmount < _price) {
-                    setInactionTimer("inactionPayMoneyNonZero");
-                }
-
-                _enteredMoneyAmount = totalMoneyAmount;
-
-                if (_enteredMoneyAmount == _price) {
-                    _mainWindow->goToState(PAYMENT_CONFIRMED);
-                }
-
-                if (_enteredMoneyAmount > _price) {
-                    _mainWindow->goToState(MORE_MONEY_THAN_NEED);
-                }
-            });
-        }
-    });
+    _mainWindow->getMachinery()->takeMoney(_price);
 }
 
 void PayPageWidget::initInterface() {
@@ -171,6 +151,23 @@ void PayPageWidget::setConnections()
 
         _mainWindow->goToState(targetState);
     });
+
+    QObject::connect(_mainWindow->getMachinery(), &Machinery::transactionSucceded
+                     , this, &PayPageWidget::onTransactionSucceded);
+
+    QObject::connect(_mainWindow->getMachinery(), &Machinery::transactionFailed
+                     , this, &PayPageWidget::onTransactionFailed);
+}
+
+void PayPageWidget::onTransactionSucceded(double money, QSharedPointer<Status> status)
+{
+    _enteredMoneyAmount = money;
+    _mainWindow->goToState(PAYMENT_CONFIRMED);
+}
+
+void PayPageWidget::onTransactionFailed(QSharedPointer<Status> status)
+{
+    // TODO: handle it
 }
 
 void PayPageWidget::setPriceLabelsText(QList<QLabel*> labels, const QString& richText)

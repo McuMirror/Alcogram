@@ -12,13 +12,19 @@ class PrinterDeviceTest : public QObject
 public:
     explicit PrinterDeviceTest(QObject *parent = 0);
 
-public:
-    void turnOn(DeviceCallback callback);
-    void turnOff(DeviceCallback callback);
-    void reset();
-    void print(const QImage &image, int amount, PrinterCallback callback);
+    // BaseDeviceInterface interface
+    void start(DeviceCallback onStart);
+    void finish(DeviceCallback onFinish);
+    void restart(DeviceCallback onRestart);
+    void checkStatus(DeviceCallback onCheckStatus);
+    void connectionStatus(DeviceCallback onConnection);
+    void isConnected(OnIsConnectedCallback onIsConnected);
+
+    // PrinterInterface interface
+    void warmUp(DeviceCallback onWarmUp);
+    void coolDown(DeviceCallback onCoolDown);
+    void printImage(const QImage &image, DeviceCallback onImagePrinted);
 
 private:
     QTimer _timer;
-    int _amountLeft;
 };

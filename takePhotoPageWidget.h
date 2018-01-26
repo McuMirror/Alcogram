@@ -38,6 +38,9 @@ protected:
     void setConnections() override;
 
 private:
+    void onReceivedNextFrameReceived(QSharedPointer<QImage> image, QSharedPointer<Status> status);
+    void onReceivedCapturedImage(QSharedPointer<QImage> image, QSharedPointer<Status> status);
+
     void updateCameraOutput(QPixmap processedImage);
 
     // setting photo timer with duration named "timer"
@@ -62,8 +65,6 @@ private:
     QMap<StateName, int> _mainPanelPageNumbers; // state -> mainPanel page number
 
     FaceDetectionInterface* _faceDetector;
-    CameraInterface* _camera;
-    ImageCaptureCallback _cameraStreamCallback;
     QThread _imageProcessingThread;
     CameraImageHandler _cameraImageHandler;
 

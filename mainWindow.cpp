@@ -13,8 +13,8 @@ MainWindow::MainWindow(QWidget *parent) :
     , _ui(new Ui::MainWindow)
     , _configManager(new ConfigManager(this))
     , _stateMachine(new StateMachine(this))
-    , _deviceManager(new DeviceManager(this))
     , _faceDetector(new FaceDetector(this))
+    , _machinery(new Machinery(this))
 {
     _ui->setupUi(this);
 
@@ -51,9 +51,9 @@ ConfigManager* MainWindow::getConfigManager() const
     return _configManager;
 }
 
-DeviceManager* MainWindow::getDeviceManager() const
+Machinery* MainWindow::getMachinery() const
 {
-    return _deviceManager;
+    return _machinery;
 }
 
 FaceDetectionInterface* MainWindow::getFaceDetector() const
@@ -69,6 +69,12 @@ void MainWindow::goToState(StateName targetState)
 void MainWindow::mouseReleaseEvent(QMouseEvent* event)
 {
     qDebug().noquote() << Logger::instance()->buildTapLog(event->x(), event->y());
+}
+
+
+SessionData& MainWindow::getSessionData()
+{
+    return _sessionData;
 }
 
 void MainWindow::loadFonts()

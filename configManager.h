@@ -17,7 +17,7 @@ public:
     Text(const QString& name, const QString& fontFamily
             , int size, qreal spacing, int weight, const QString& text);
 
-    // returns name of text constant (usually name of widget
+    // returns name of text constant (usually name of widget)
     QString getName() const;
 
     QString getFontFamily() const;

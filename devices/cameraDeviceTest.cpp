@@ -7,24 +7,23 @@
 CameraDeviceTest::CameraDeviceTest(QObject *parent)
     : QObject(parent)
 {
-
-    _capturedImage.reset(new QImage());
+    _mode = STREAM;
     _camera = new QCamera(QCameraInfo::defaultCamera());
     _cameraFrameGrabber = new CameraFrameGrabber();
     _camera->setViewfinder(_cameraFrameGrabber);
 
     QObject::connect(_cameraFrameGrabber, &CameraFrameGrabber::frameAvailable, [this] (QImage frame) {
         if (_callback != nullptr) {
-            if (_captureMode == CAMERA_IMAGE_CAPTURE) {
-                _capturedImage = QSharedPointer<QImage>(new QImage(frame.mirrored()));
-                _callback(_captureMode, _capturedImage);
+            _callback(QSharedPointer<QImage>(new QImage(frame.mirrored()))
+                      , QSharedPointer<Status>(new Status(0, CAMERA, _mode == STREAM ? GET_IMAGE : TAKE_IMAGE)));
+
+            if (_mode == TAKE_IMAGE) {
                 _callback = nullptr;
-                _captureMode = CAMERA_STREAM;
-            } else {
-                _callback(_captureMode, QSharedPointer<QImage>(new QImage(frame.mirrored())));
             }
         }
     });
+
+    _camera->start();
 }
 
 CameraDeviceTest::~CameraDeviceTest()
@@ -33,35 +32,52 @@ CameraDeviceTest::~CameraDeviceTest()
     delete _cameraFrameGrabber;
 }
 
-
-void CameraDeviceTest::turnOn(DeviceCallback callback)
+// BaseDeviceInterface interface
+void CameraDeviceTest::start(DeviceCallback onStart)
 {
-    _camera->start();
-    callback(OK);
+    onStart(QSharedPointer<Status>(new Status(0, CAMERA, START_DEVICE)));
 }
 
-void CameraDeviceTest::turnOff(DeviceCallback callback)
+void CameraDeviceTest::finish(DeviceCallback onFinish)
 {
-    _camera->stop();
-    callback(OK);
+    onFinish(QSharedPointer<Status>(new Status(0, CAMERA, FINISH_DEVICE)));
 }
 
-void CameraDeviceTest::setImageCaptureCallback(ImageCaptureCallback callback)
+void CameraDeviceTest::restart(DeviceCallback onRestart)
 {
-    _callback = callback;
+    onRestart(QSharedPointer<Status>(new Status(0, CAMERA, RESTART_DEVICE)));
 }
 
-void CameraDeviceTest::captureImage()
+void CameraDeviceTest::checkStatus(DeviceCallback onCheckStatus)
 {
-    _captureMode = CAMERA_IMAGE_CAPTURE;
+    onCheckStatus(QSharedPointer<Status>(new Status(0, CAMERA, CHECK_STATUS)));
 }
 
-const QImage& CameraDeviceTest::getCapturedImage()
+void CameraDeviceTest::connectionStatus(DeviceCallback onConnection)
 {
-    return *_capturedImage;
+    onConnection(QSharedPointer<Status>(new Status(0, CAMERA, CHECK_CONNECTION)));
 }
 
-void CameraDeviceTest::reset()
+void CameraDeviceTest::isConnected(OnIsConnectedCallback onIsConnected)
 {
-    _capturedImage.reset(new QImage());
+
+}
+
+// CameraInterface interface
+void CameraDeviceTest::getImage(ImageCaptureCallback onGetImage)
+{
+    _mode = STREAM;
+    _callback = onGetImage;
+}
+
+void CameraDeviceTest::takeImage(ImageCaptureCallback onTookImage)
+{
+    _mode = CAPTURE;
+    _callback = onTookImage;
+}
+
+void CameraDeviceTest::stopGetImage(DeviceCallback onStopGetImage)
+{
+    _callback = nullptr;
+    onStopGetImage(QSharedPointer<Status>(new Status(0, CAMERA, STOP_GET_IMAGE)));
 }

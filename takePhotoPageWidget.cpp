@@ -34,6 +34,21 @@ TakePhotoPageWidget::~TakePhotoPageWidget()
     delete _ui;
 }
 
+void TakePhotoPageWidget::onReceivedNextFrameReceived(QSharedPointer<QImage> image, QSharedPointer<Status> status)
+{
+    if (!_isImageHandling) {
+        _isImageHandling = true;
+        _cameraImageHandler.setImageToProcess(image);
+        emit startImageHandle();
+    }
+}
+
+void TakePhotoPageWidget::onReceivedCapturedImage(QSharedPointer<QImage> image, QSharedPointer<Status> status)
+{
+    _mainWindow->getSessionData().setImage(image);
+    _mainWindow->goToState(PHOTO_CONFIRMATION);
+}
+
 void TakePhotoPageWidget::updateCameraOutput(QPixmap processedImage)
 {
     int w = _ui->cameraOutput->width();
@@ -47,62 +62,30 @@ void TakePhotoPageWidget::updateCameraOutput(QPixmap processedImage)
     _ui->cameraOutput->setPixmap(f.scaled(w, h, Qt::KeepAspectRatioByExpanding));
     _ui->cameraOutput->update();
     _isImageHandling = false;
-
-    if (_captureImage) {
-        _mainWindow->goToState(PHOTO_CONFIRMATION);
-        _captureImage = false;
-    }
 }
 
 void TakePhotoPageWidget::init(MainWindow* mainWindow) {
     Page::init(mainWindow);
 
     _faceDetector = _mainWindow->getFaceDetector();
-    _camera = _mainWindow->getDeviceManager()->getCameraDevice();
+    //_camera = _mainWindow->getDeviceManager()->getCameraDevice();
 
     _cameraImageHandler.setFaceDetector(_faceDetector);
-
     _cameraImageHandler.moveToThread(&_imageProcessingThread);
 
     QObject::connect(&_cameraImageHandler, &CameraImageHandler::processed, this
                      , &TakePhotoPageWidget::updateCameraOutput, Qt::QueuedConnection);
-                    /* , [this](QPixmap proccessedImage) {
-        int w = _ui->cameraOutput->width();
-        int h = _ui->cameraOutput->height();
-
-        _ui->cameraOutput->setPixmap(proccessedImage.scaled(w, h, Qt::KeepAspectRatioByExpanding));
-        _ui->cameraOutput->update();
-        _isImageHandling = false;
-    });*/
 
     QObject::connect(this, &TakePhotoPageWidget::startImageHandle
                      , &_cameraImageHandler, &CameraImageHandler::process, Qt::QueuedConnection);
 
     _imageProcessingThread.start();
 
-    _cameraStreamCallback = [this] (int statusCode, QSharedPointer<QImage> image) {
-        switch (statusCode) {
-            case CAMERA_STREAM:
-            {
-                if (!_isImageHandling) {
-                    _isImageHandling = true;
-                    _cameraImageHandler.setImageToProcess(image);
-                    emit startImageHandle();
-                }
-                break;
-            }
+    QObject::connect(mainWindow->getMachinery(), &Machinery::receivedNextFrame
+                     , this, &TakePhotoPageWidget::onReceivedNextFrameReceived);
 
-            case CAMERA_IMAGE_CAPTURE:
-            {
-                _captureImage = true;
-                break;
-            }
-        }
-    };
-
-    _camera->turnOn([this](int statusCode) {
-        // TODO: handle
-    });
+    QObject::connect(mainWindow->getMachinery(), &Machinery::receivedCapturedImage
+                     , this, &TakePhotoPageWidget::onReceivedCapturedImage);
 }
 
 QString TakePhotoPageWidget::getName() const
@@ -144,7 +127,7 @@ QList<Transition*> TakePhotoPageWidget::getTransitions()
         int w = _ui->takenPhoto->width();
         int h = _ui->takenPhoto->height();
 
-        _ui->takenPhoto->setPixmap(QPixmap::fromImage(_camera->getCapturedImage())
+        _ui->takenPhoto->setPixmap(QPixmap::fromImage(*_mainWindow->getSessionData().getImage())
                                    .scaled(w, h, Qt::KeepAspectRatioByExpanding));
         setInactionTimer("inactionPhotoConfirmation");
     }));
@@ -158,8 +141,9 @@ QList<Transition*> TakePhotoPageWidget::getTransitions()
     // PHOTO_CONFIRMATION -> PREPARING_FOR_PHOTO
     transitions.append(new Transition(PHOTO_CONFIRMATION, PREPARING_FOR_PHOTO, [=] (QEvent*) {
         setInactionTimer("inactionPreparingPhoto");
-        _camera->reset();
-        _camera->setImageCaptureCallback(_cameraStreamCallback);
+        //_camera->reset();
+        //_camera->setImageCaptureCallback(_cameraStreamCallback);
+        _mainWindow->getMachinery()->getImage();
         setSubPage(PREPARING_FOR_PHOTO);
     }));
 
@@ -178,7 +162,7 @@ void TakePhotoPageWidget::onEntry()
     setInactionTimer("inactionPreparingPhoto");
 
     _captureImage = false;
-    _camera->setImageCaptureCallback(_cameraStreamCallback);
+    _mainWindow->getMachinery()->getImage();
 }
 
 void TakePhotoPageWidget::initInterface()
@@ -274,8 +258,8 @@ void TakePhotoPageWidget::setPhotoTimer()
 
         if (_timerTimeLeft <= 0) {
             stopTimer();
-
-            _camera->captureImage();
+            _mainWindow->getMachinery()->stopGetImage();
+            _mainWindow->getMachinery()->takeImage();
         };
     });
 

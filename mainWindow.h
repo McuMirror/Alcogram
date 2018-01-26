@@ -21,7 +21,7 @@ public:
     void setPage(PageName pageName) override;
 
     ConfigManager* getConfigManager() const override;
-    DeviceManager* getDeviceManager() const override;
+    Machinery* getMachinery() const override;
 
     FaceDetectionInterface* getFaceDetector() const override;
     void goToState(StateName targetState) override;
@@ -31,6 +31,8 @@ public:
     }
 
     void mouseReleaseEvent(QMouseEvent* event) override;
+
+    SessionData& getSessionData() override;
 
 private:
     // load fonts from resources
@@ -42,6 +44,7 @@ private:
     QVector<int> _fonts;
     ConfigManager* _configManager;
     StateMachine* _stateMachine;
-    DeviceManager* _deviceManager;
     FaceDetectionInterface* _faceDetector;
+    Machinery* _machinery;
+    SessionData _sessionData;
 };

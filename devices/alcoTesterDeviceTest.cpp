@@ -7,40 +7,55 @@ using namespace std;
 AlcotesterDeviceTest::AlcotesterDeviceTest(QObject *parent)
     : QObject(parent)
 {
-    _personValues = QList<double>();
+
 }
 
-void AlcotesterDeviceTest::turnOn(DeviceCallback callback)
+// BaseDeviceInterface interface
+void AlcotesterDeviceTest::start(DeviceCallback onStart)
 {
-    callback(OK);
+    onStart(QSharedPointer<Status>(new Status(0, ALCOTESTER, START_DEVICE)));
 }
 
-void AlcotesterDeviceTest::turnOff(DeviceCallback callback)
+void AlcotesterDeviceTest::finish(DeviceCallback onFinish)
 {
-    callback(OK);
+    onFinish(QSharedPointer<Status>(new Status(0, ALCOTESTER, FINISH_DEVICE)));
 }
 
-void AlcotesterDeviceTest::reset()
+void AlcotesterDeviceTest::restart(DeviceCallback onRestart)
 {
-    _personValues.clear();
+    onRestart(QSharedPointer<Status>(new Status(0, ALCOTESTER, RESTART_DEVICE)));
 }
 
-void AlcotesterDeviceTest::test(AlcoTestCallback callback)
+void AlcotesterDeviceTest::checkStatus(DeviceCallback onCheckStatus)
 {
-    QTimer::singleShot(1000, [=] {
-        float value = static_cast <float> (rand()) /( static_cast <float> (RAND_MAX));
-        value = std::trunc(value * 20) / 10;
-        _personValues.append(value);
-        callback(OK, value);
-    });
+    onCheckStatus(QSharedPointer<Status>(new Status(0, ALCOTESTER, CHECK_STATUS)));
 }
 
-void AlcotesterDeviceTest::abort(DeviceCallback callback)
+void AlcotesterDeviceTest::connectionStatus(DeviceCallback onConnection)
 {
-    callback(OK);
+    onConnection(QSharedPointer<Status>(new Status(0, ALCOTESTER, CHECK_CONNECTION)));
 }
 
-QList<double> AlcotesterDeviceTest::getPersonsValues() const
+void AlcotesterDeviceTest::isConnected(OnIsConnectedCallback onIsConnected)
 {
-    return _personValues;
+
+}
+
+// AlcotesterInterface interface
+void AlcotesterDeviceTest::warmUp(DeviceCallback onWarmedUp)
+{
+    onWarmedUp(QSharedPointer<Status>(new Status(0, ALCOTESTER, WARMING_UP_ALCOTESTER)));
+}
+
+void AlcotesterDeviceTest::coolDown(DeviceCallback onCooledDown)
+{
+    onCooledDown(QSharedPointer<Status>(new Status(0, ALCOTESTER, COOLING_DOWN_ALCOTESTER)));
+}
+
+void AlcotesterDeviceTest::activate(AlcotesterCallback onDataRead, DeviceCallback onDataRejected)
+{
+    float value = static_cast <float> (rand()) /( static_cast <float> (RAND_MAX));
+    value = std::trunc(value * 20) / 10;
+
+    onDataRead(QSharedPointer<Status>(new Status(0, ALCOTESTER, ACTIVATE_ALCOTESTER)), value);
 }

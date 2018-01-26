@@ -8,51 +8,49 @@ POSDeviceTest::POSDeviceTest(QObject *parent)
 {
 }
 
-void POSDeviceTest::turnOn(DeviceCallback callback)
+// BaseDeviceInterface interface
+void POSDeviceTest::start(DeviceCallback onStart)
 {
-    callback(OK);
+    onStart(QSharedPointer<Status>(new Status(0, POS, START_DEVICE)));
 }
 
-void POSDeviceTest::turnOff(DeviceCallback callback)
+void POSDeviceTest::finish(DeviceCallback onFinish)
 {
-    callback(OK);
+    onFinish(QSharedPointer<Status>(new Status(0, POS, FINISH_DEVICE)));
 }
 
-void POSDeviceTest::sendPrice(int price, DeviceCallback callback)
+void POSDeviceTest::restart(DeviceCallback onRestart)
 {
-    _price = price;
-    callback(OK);
+    onRestart(QSharedPointer<Status>(new Status(0, POS, RESTART_DEVICE)));
 }
 
-void POSDeviceTest::getPaymentResponce(PayCallback payCallback)
+void POSDeviceTest::checkStatus(DeviceCallback onCheckStatus)
 {
-    _enteredAmount = 0;
-
-    srand(time(NULL));
-
-    _timer.setInterval(1000);
-    QObject::disconnect(&_timer, &QTimer::timeout, 0, 0);
-    QObject::connect(&_timer, &QTimer::timeout, [=] {
-        int i = rand() % 2;
-
-        _enteredAmount += _denominations[i];
-
-        payCallback(OK, _price);//_enteredAmount);
-
-        _timer.stop();
-        /*if (_enteredAmount >= _price) {
-            _timer.stop();
-        }*/
-    });
-    _timer.start();
+    onCheckStatus(QSharedPointer<Status>(new Status(0, POS, CHECK_STATUS)));
 }
 
-void POSDeviceTest::abortPayment(DeviceCallback callback)
+void POSDeviceTest::connectionStatus(DeviceCallback onConnection)
 {
-    _timer.stop();
+    onConnection(QSharedPointer<Status>(new Status(0, POS, CHECK_CONNECTION)));
 }
 
-void POSDeviceTest::reset()
+void POSDeviceTest::isConnected(OnIsConnectedCallback onIsConnected)
 {
 
+}
+
+// POSInterface interface
+void POSDeviceTest::activate(DeviceCallback onActivation)
+{
+    onActivation(QSharedPointer<Status>(new Status(0, POS, ACTIVATE_POS)));
+}
+
+void POSDeviceTest::deactivate(DeviceCallback onDeactivation)
+{
+    onDeactivation(QSharedPointer<Status>(new Status(0, POS, ACTIVATE_POS)));
+}
+
+void POSDeviceTest::takeMoney(double money, POSCallback onTransactionSucceded, DeviceCallback onTransactionFailed)
+{
+    onTransactionSucceded(money, QSharedPointer<Status>(new Status(0, POS, TAKE_MONEY)));
 }

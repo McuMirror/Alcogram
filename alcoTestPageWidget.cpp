@@ -26,8 +26,6 @@ void AlcoTestPageWidget::init(MainWindow *mainWindow)
 {
     Page::init(mainWindow);
 
-    _alcotester = _mainWindow->getDeviceManager()->getAlcotesterDevice();
-    _camera = _mainWindow->getDeviceManager()->getCameraDevice();
     _faceDetector = _mainWindow->getFaceDetector();
 
     ConfigManager* configManager = _mainWindow->getConfigManager();
@@ -93,13 +91,43 @@ void AlcoTestPageWidget::onEntry()
     qDebug().noquote() << Logger::instance()->buildSystemEventLog(Logger::ALCOTEST_START, 0, 0
         , QList<double>({static_cast<double>(_faceDetector->facesNumber())}));
 
-    _alcotester->reset();
     test(0);
 }
 
 void AlcoTestPageWidget::initInterface()
 {
     updateTexts(_ui->frame);
+}
+
+void AlcoTestPageWidget::setConnections()
+{
+    QObject::connect(_mainWindow->getMachinery(), &Machinery::receivedAlcotesterData
+                     , this, &AlcoTestPageWidget::onReceivedAlcotesterData);
+
+    QObject::connect(_mainWindow->getMachinery(), &Machinery::failedToReceiveDataFromAcotester
+                     , this, &AlcoTestPageWidget::onFailedToReceiveDataFromAcotester);
+}
+
+void AlcoTestPageWidget::onReceivedAlcotesterData(QSharedPointer<Status> status, double value)
+{
+    _circleState = SUCCESS;
+    _lastPersonValue = value;
+    _mainWindow->getSessionData().addAlcoValue(value);
+
+    qDebug().noquote() << Logger::instance()->buildSystemEventLog(Logger::ALCOTEST_SUCCESS, 0, 0
+        , QList<double>({static_cast<double>(_currentPerson + 1), value}));
+
+    _mainWindow->goToState(ALCOTEST);
+}
+
+void AlcoTestPageWidget::onFailedToReceiveDataFromAcotester(QSharedPointer<Status> status)
+{
+    _circleState = FAIL;
+
+    qDebug().noquote() << Logger::instance()->buildSystemEventLog(Logger::ALCOTEST_FAIL, 0, 0
+        , QList<double>({static_cast<double>(_currentPerson + 1)}));
+
+    _mainWindow->goToState(DRUNKENESS_NOT_RECOGNIZED);
 }
 
 void AlcoTestPageWidget::setTimer(const QString& durationName)
@@ -166,29 +194,7 @@ void AlcoTestPageWidget::test(int i)
 
     circleCurrentPerson();
 
-    _alcotester->test([=](int statusCode, double value) {
-        switch (statusCode) {
-            case OK:
-                _circleState = SUCCESS;
-                _lastPersonValue = value;
-
-                qDebug().noquote() << Logger::instance()->buildSystemEventLog(Logger::ALCOTEST_SUCCESS, 0, 0
-                    , QList<double>({static_cast<double>(_currentPerson + 1), value}));
-
-                _mainWindow->goToState(ALCOTEST);
-                break;
-            case NOT_RECOGNIZED:
-                _circleState = FAIL;
-
-                qDebug().noquote() << Logger::instance()->buildSystemEventLog(Logger::ALCOTEST_FAIL, 0, 0
-                    , QList<double>({static_cast<double>(_currentPerson + 1)}));
-
-                _mainWindow->goToState(DRUNKENESS_NOT_RECOGNIZED);
-                break;
-            case DEVICE_ERROR:
-                break;
-        }
-    });
+    _mainWindow->getMachinery()->activateAlcotester();
 
     qDebug().noquote() << Logger::instance()->buildSystemEventLog(Logger::PERSON_ALCOTEST_INIT_END, 0, 0
                                                                   , QList<double>({static_cast<double>(_currentPerson + 1)}));
@@ -201,7 +207,7 @@ void AlcoTestPageWidget::circleCurrentPerson()
     int w = _ui->photo->width();
     int h = _ui->photo->height();
 
-    QPixmap notScaledImage = QPixmap::fromImage(_camera->getCapturedImage());
+    QPixmap notScaledImage = QPixmap::fromImage(*_mainWindow->getSessionData().getImage());
 
     // scale photo to QLabel "photo" size
     QPixmap image = notScaledImage.scaled(w, h, Qt::KeepAspectRatioByExpanding);
@@ -313,7 +319,7 @@ void AlcoTestPageWidget::circleCurrentPerson()
 
 void AlcoTestPageWidget::drawPreviousPersonValues(QPainter& p, float scale)
 {
-    QList<double> values = _alcotester->getPersonsValues();
+    QList<double> values = _mainWindow->getSessionData().getAlcoValues();
 
     for (int i = 0; i < _currentPerson; i++) {
         QRect faceRect = _faceDetector->faceRects().at(i);
