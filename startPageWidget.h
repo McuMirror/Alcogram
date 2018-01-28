@@ -30,5 +30,6 @@ private slots:
     void onSwitchLanguageButtonRelease();
 
 private:
+
     Ui::StartPageWidget* _ui;
 };

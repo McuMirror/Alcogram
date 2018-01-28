@@ -20,6 +20,13 @@ public:
     QString getName() const override;
     QList<Transition*> getTransitions() override;
 
+protected:
+    void onEntry();
+
 private:
+    void onDevicesStarted();
+    void onSomeDevicesNotStarted();
+
+    bool _firstLaunch = true;
     Ui::SplashScreen *_ui;
 };

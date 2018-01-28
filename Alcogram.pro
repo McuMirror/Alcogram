@@ -44,7 +44,8 @@ SOURCES += main.cpp\
     logger.cpp \
     devices/machinery.cpp \
     deviceInterfaces/status.cpp \
-    sessionData.cpp
+    sessionData.cpp \
+    devicesChecker.cpp
 
 HEADERS  += mainWindow.h \
     startPageWidget.h \
@@ -79,7 +80,8 @@ HEADERS  += mainWindow.h \
     interfaces/mainWindowInterface.h \
     deviceInterfaces/status.h \
     devices/machinery.h \
-    sessionData.h
+    sessionData.h \
+    devicesChecker.h
 
 FORMS    += mainWindow.ui \
     startPageWidget.ui \

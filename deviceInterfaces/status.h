@@ -21,6 +21,10 @@ enum RequestName {
     WARMING_UP_PRINTER, COOLING_DOWN_PRINTER, PRINT_IMAGE
 };
 
+const int NO_ERROR = 0;
+const int ERROR = 1;
+const int CONNECTED = 2;
+
 class Status
 {
 public:

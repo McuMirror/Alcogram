@@ -33,7 +33,7 @@ void AlcotesterDeviceTest::checkStatus(DeviceCallback onCheckStatus)
 
 void AlcotesterDeviceTest::connectionStatus(DeviceCallback onConnection)
 {
-    onConnection(QSharedPointer<Status>(new Status(0, ALCOTESTER, CHECK_CONNECTION)));
+    onConnection(QSharedPointer<Status>(new Status(CONNECTED, ALCOTESTER, CHECK_CONNECTION)));
 }
 
 void AlcotesterDeviceTest::isConnected(OnIsConnectedCallback onIsConnected)

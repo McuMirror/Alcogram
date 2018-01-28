@@ -15,6 +15,7 @@ MainWindow::MainWindow(QWidget *parent) :
     , _stateMachine(new StateMachine(this))
     , _faceDetector(new FaceDetector(this))
     , _machinery(new Machinery(this))
+    , _devicesChecker(this, this)
 {
     _ui->setupUi(this);
 
@@ -38,6 +39,7 @@ MainWindow::MainWindow(QWidget *parent) :
     qDebug().noquote() << Logger::instance()->buildSystemEventLog(Logger::INITIALIZATION_FINISH);
 
     _stateMachine->run();
+    setPage(SPLASH_SCREEN_PAGE);
 }
 
 void MainWindow::setPage(PageName pageName)
@@ -75,6 +77,11 @@ void MainWindow::mouseReleaseEvent(QMouseEvent* event)
 SessionData& MainWindow::getSessionData()
 {
     return _sessionData;
+}
+
+DevicesChecker& MainWindow::getDevicesChecker()
+{
+    return _devicesChecker;
 }
 
 void MainWindow::loadFonts()

@@ -16,6 +16,9 @@ class Machinery : public QObject
 public:
     explicit Machinery(QObject *parent = 0);
 
+    QList<DeviceName> getDeviceNames() const;
+    int devicesCount() const;
+
     // base device operations
     void start(DeviceName deviceName);
     void finish(DeviceName deviceName);

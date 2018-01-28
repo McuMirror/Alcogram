@@ -55,7 +55,7 @@ void CameraDeviceTest::checkStatus(DeviceCallback onCheckStatus)
 
 void CameraDeviceTest::connectionStatus(DeviceCallback onConnection)
 {
-    onConnection(QSharedPointer<Status>(new Status(0, CAMERA, CHECK_CONNECTION)));
+    onConnection(QSharedPointer<Status>(new Status(CONNECTED, CAMERA, CHECK_CONNECTION)));
 }
 
 void CameraDeviceTest::isConnected(OnIsConnectedCallback onIsConnected)

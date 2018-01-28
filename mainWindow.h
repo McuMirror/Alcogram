@@ -33,6 +33,7 @@ public:
     void mouseReleaseEvent(QMouseEvent* event) override;
 
     SessionData& getSessionData() override;
+    DevicesChecker& getDevicesChecker() override;
 
 private:
     // load fonts from resources
@@ -47,4 +48,5 @@ private:
     FaceDetectionInterface* _faceDetector;
     Machinery* _machinery;
     SessionData _sessionData;
+    DevicesChecker _devicesChecker;
 };

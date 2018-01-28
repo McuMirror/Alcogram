@@ -26,6 +26,16 @@ Machinery::Machinery(QObject *parent)
     }
 }
 
+QList<DeviceName> Machinery::getDeviceNames() const
+{
+    return _devices.keys();
+}
+
+int Machinery::devicesCount() const
+{
+    return _devices.size();
+}
+
 // base device operations
 void Machinery::start(DeviceName deviceName)
 {

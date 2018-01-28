@@ -275,14 +275,14 @@ void PhotoPrintPageWidget::onImagePrinted(QSharedPointer<Status> status)
 
     if (_printedPhotos == _faceDetector->facesNumber()) {
         qDebug().noquote() << Logger::instance()->buildSystemEventLog(Logger::PRINTING_PHOTOS_END
-                       , 0, 0, QList<double>({printed, _faceDetector->facesNumber()}));
+                       , 0, 0, QList<double>({_printedPhotos, _faceDetector->facesNumber()}));
 
         _ui->progressBar->setProgress(100);
 
         setTimer("photoPrint");
     } else {
         qDebug().noquote() << Logger::instance()->buildSystemEventLog(Logger::PHOTO_PRINT_SUCCESS
-            , 0, 0, QList<double>({printed, _faceDetector->facesNumber()}));
+            , 0, 0, QList<double>({_printedPhotos, _faceDetector->facesNumber()}));
 
         _ui->progressBar->setProgress(100 * _printedPhotos / _faceDetector->facesNumber());
         _mainWindow->getMachinery()->printImage(*_mainWindow->getSessionData().getImage());

@@ -5,6 +5,7 @@
 #include "devices/machinery.h"
 #include "interfaces/faceDetectionInterface.h"
 #include "sessionData.h"
+#include "devicesChecker.h"
 
 enum PageName {
     NONCRITICAL_ERROR_PAGE = 0
@@ -35,4 +36,6 @@ public:
     virtual StateName getCurrentStateName() const = 0;
 
     virtual SessionData& getSessionData() = 0;
+
+    virtual DevicesChecker& getDevicesChecker() = 0;
 };

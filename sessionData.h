@@ -2,6 +2,9 @@
 
 #include <QObject>
 #include <QSharedPointer>
+#include <QMap>
+
+#include "deviceInterfaces/status.h"
 
 class SessionData : public QObject
 {
@@ -18,6 +21,7 @@ public:
     void reset();
 
 private:
+
     QList<double> _alcoValues;
     QSharedPointer<QImage> _image;
 };
