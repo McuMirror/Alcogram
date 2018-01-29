@@ -35,12 +35,17 @@ public:
 
 protected:
     void onEntry() override;
+    void onExit() override;
     void initInterface() override;
     void setConnections() override;
 
 private:
     void onReceivedAlcotesterData(QSharedPointer<Status> status, double value);
     void onFailedToReceiveDataFromAcotester(QSharedPointer<Status> status);
+    void onError(QSharedPointer<Status> status);
+    void onWarmingUpAlcotester(QSharedPointer<Status> status);
+    void onRestartAlcotester(QSharedPointer<Status> status);
+
     void setTimer(const QString& durationName);
     void test(int i);
     void circleCurrentPerson();
@@ -57,6 +62,9 @@ private:
     AlcotestCircleState _circleState = TEST;
     double _lastPersonValue;
     int _currentPerson;
+    int _alcotesterWarmingUpAttemptNumber;
+    int _alcotesterFailureNumber;
+    bool _alcotesterInWork;
 
     QMap<QString, QPair<float, float>> _alcoLevelIntervals;
 };

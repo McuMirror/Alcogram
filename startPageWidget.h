@@ -30,6 +30,14 @@ private slots:
     void onSwitchLanguageButtonRelease();
 
 private:
+    void onDevicesConnected();
+    void onSomeDevicesNotConnected();
+    void checkDevicesConnection();
+    void disconnectFromDevicesChecker();
 
+    static const int ERROR_SUBPAGE = 1;
+    static const int MAIN_SUBPAGE = 0;
+
+    int _checkConnectionAttempt;
     Ui::StartPageWidget* _ui;
 };

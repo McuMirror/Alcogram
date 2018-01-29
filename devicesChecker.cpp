@@ -9,7 +9,7 @@ DevicesChecker::DevicesChecker(QObject* parent, MainWindowInterface* mainWindow)
 
     QObject::connect(_machinery, &Machinery::deviceStarted, this, &DevicesChecker::onDeviceStarted);
     QObject::connect(_machinery, &Machinery::deviceFinished, this, &DevicesChecker::onDeviceFinished);
-    QObject::connect(_machinery, &Machinery::requestTimeout, this, &DevicesChecker::onRequestTimeout);
+    QObject::connect(_machinery, &Machinery::error, this, &DevicesChecker::onError);
     QObject::connect(_machinery, &Machinery::receivedDeviceStatus, this, &DevicesChecker::onReceivedDeviceStatus);
     QObject::connect(_machinery, &Machinery::receivedDeviceConnectionStatus
                      , this, &DevicesChecker::onReceivedDeviceConnectionStatus);
@@ -79,11 +79,15 @@ void DevicesChecker::initCheck(CheckMode checkMode, bool checkAll)
     _checkMode = checkMode;
 }
 
-void DevicesChecker::deviceCheckFinished(QSharedPointer<Status> status)
+void DevicesChecker::deviceCheckFinished(QSharedPointer<Status> status, bool error)
 {
+    if (_checkMode == IDLE) {
+        return;
+    }
+
     _handledDevicesCount++;
 
-    if (status->getErrorCode() == ERROR) {
+    if (error) {
         _disabledDevices.insert(status->getDeviceName(), status);
     }
 
@@ -103,7 +107,6 @@ void DevicesChecker::deviceCheckFinished(QSharedPointer<Status> status)
                     emit devicesConnected();
                     break;
             }
-            emit devicesStarted();
         } else {
             switch (_checkMode) {
                 case START_DEVICES:
@@ -120,6 +123,8 @@ void DevicesChecker::deviceCheckFinished(QSharedPointer<Status> status)
                     break;
             }
         }
+
+        _checkMode = IDLE;
     }
 }
 
@@ -133,9 +138,9 @@ void DevicesChecker::onDeviceFinished(QSharedPointer<Status> status)
     deviceCheckFinished(status);
 }
 
-void DevicesChecker::onRequestTimeout(QSharedPointer<Status> status)
+void DevicesChecker::onError(QSharedPointer<Status> status)
 {
-    deviceCheckFinished(status);
+    deviceCheckFinished(status, true);
 }
 
 void DevicesChecker::onReceivedDeviceStatus(QSharedPointer<Status> status)

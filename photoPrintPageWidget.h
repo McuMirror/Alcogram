@@ -33,6 +33,7 @@ protected:
 
 private:
     void onImagePrinted(QSharedPointer<Status> status);
+
     void setTimer(const QString& durationName);
     QPixmap generateFinalPhoto(int w, int h);
     void drawLoser(QPainter& p, const QRect& faceRect, double value);

@@ -26,6 +26,8 @@ protected:
 private:
     void onDevicesStarted();
     void onSomeDevicesNotStarted();
+    void onDevicesStatusOk();
+    void onSomeDevicesStatusNotOk();
 
     bool _firstLaunch = true;
     Ui::SplashScreen *_ui;

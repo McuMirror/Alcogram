@@ -51,6 +51,8 @@ void SplashScreen::onEntry()
 
         QObject::connect(devicesChecker, &DevicesChecker::devicesStarted, this, &SplashScreen::onDevicesStarted);
         QObject::connect(devicesChecker, &DevicesChecker::someDevicesNotStarted, this, &SplashScreen::onSomeDevicesNotStarted);
+        QObject::connect(devicesChecker, &DevicesChecker::devicesStatusOk, this, &SplashScreen::onDevicesStatusOk);
+        QObject::connect(devicesChecker, &DevicesChecker::someDevicesStatusNotOk, this, &SplashScreen::onSomeDevicesStatusNotOk);
 
         devicesChecker->startDevices();
     }
@@ -58,10 +60,23 @@ void SplashScreen::onEntry()
 
 void SplashScreen::onDevicesStarted()
 {
-    _mainWindow->setPage(START_PAGE);
+    // TODO: logging
+    _mainWindow->getDevicesChecker().checkDevicesStatus();
 }
 
 void SplashScreen::onSomeDevicesNotStarted()
 {
+    // TODO: logging
+    _mainWindow->goToState(CRITICAL_ERROR);
+}
+
+void SplashScreen::onDevicesStatusOk()
+{
+    // TODO: logging
+}
+
+void SplashScreen::onSomeDevicesStatusNotOk()
+{
+    // TODO: logging
     _mainWindow->goToState(CRITICAL_ERROR);
 }

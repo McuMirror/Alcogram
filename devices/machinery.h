@@ -75,7 +75,7 @@ signals:
     void printerCooledDown(QSharedPointer<Status> status);
     void imagePrinted(QSharedPointer<Status> status);
 
-    void requestTimeout(QSharedPointer<Status> status);
+    void error(QSharedPointer<Status> status);
 
 private:
     QSharedPointer<QTimer> registerRequest(DeviceName deviceName, RequestName requestName);
@@ -109,6 +109,8 @@ private:
     void onWarmingUpPrinter(QSharedPointer<Status> status);
     void onCoolingDownPrinter(QSharedPointer<Status> status);
     void onPrintImage(QSharedPointer<Status> status);
+
+    void onError(QSharedPointer<Status> status);
 
     QMap<DeviceName, QSet<RequestName>> _requests;
     QMap<DeviceName, QMap<RequestName, QSharedPointer<QTimer>>> _requestTimers;

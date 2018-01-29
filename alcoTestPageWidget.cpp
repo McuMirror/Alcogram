@@ -91,7 +91,20 @@ void AlcoTestPageWidget::onEntry()
     qDebug().noquote() << Logger::instance()->buildSystemEventLog(Logger::ALCOTEST_START, 0, 0
         , QList<double>({static_cast<double>(_faceDetector->facesNumber())}));
 
-    test(0);
+    Machinery* machinery = _mainWindow->getMachinery();
+
+    QObject::connect(_mainWindow->getMachinery(), &Machinery::error, this, &AlcoTestPageWidget::onError);
+    QObject::connect(machinery, &Machinery::deviceRestarted, this, &AlcoTestPageWidget::onRestartAlcotester);
+
+    _alcotesterWarmingUpAttemptNumber = 0;
+    _alcotesterInWork = false;
+    _mainWindow->getMachinery()->warmingUpAlcotester();
+}
+
+void AlcoTestPageWidget::onExit()
+{
+    QObject::disconnect(_mainWindow->getMachinery(), &Machinery::error, this, &AlcoTestPageWidget::onError);
+    QObject::disconnect(machinery, &Machinery::deviceRestarted, this, &AlcoTestPageWidget::onRestartAlcotester);
 }
 
 void AlcoTestPageWidget::initInterface()
@@ -101,11 +114,16 @@ void AlcoTestPageWidget::initInterface()
 
 void AlcoTestPageWidget::setConnections()
 {
-    QObject::connect(_mainWindow->getMachinery(), &Machinery::receivedAlcotesterData
+    Machinery* machinery = _mainWindow->getMachinery();
+
+    QObject::connect(machinery, &Machinery::receivedAlcotesterData
                      , this, &AlcoTestPageWidget::onReceivedAlcotesterData);
 
-    QObject::connect(_mainWindow->getMachinery(), &Machinery::failedToReceiveDataFromAcotester
+    QObject::connect(machinery, &Machinery::failedToReceiveDataFromAcotester
                      , this, &AlcoTestPageWidget::onFailedToReceiveDataFromAcotester);
+
+    QObject::connect(machinery, &Machinery::alcotesterWarmedUp
+                     , this, &AlcoTestPageWidget::onWarmingUpAlcotester);
 }
 
 void AlcoTestPageWidget::onReceivedAlcotesterData(QSharedPointer<Status> status, double value)
@@ -128,6 +146,55 @@ void AlcoTestPageWidget::onFailedToReceiveDataFromAcotester(QSharedPointer<Statu
         , QList<double>({static_cast<double>(_currentPerson + 1)}));
 
     _mainWindow->goToState(DRUNKENESS_NOT_RECOGNIZED);
+}
+
+void AlcoTestPageWidget::onError(QSharedPointer<Status> status)
+{
+    switch (status->getRequestName()) {
+        case WARMING_UP_ALCOTESTER:
+            _alcotesterWarmingUpAttemptNumber++;
+
+            if (_alcotesterWarmingUpAttemptNumber == 5) {
+                _mainWindow->goToState(CRITICAL_ERROR);
+            } else {
+                // TODO: move time to xml
+                QTimer::singleShot(2000, [this] {
+                        _mainWindow->getMachinery()->warmingUpAlcotester();
+                    });
+            }
+            break;
+        case RESTART_DEVICE:
+        case ACTIVATE_ALCOTESTER:
+            _alcotesterWarmingUpAttemptNumber = 0;
+            _alcotesterFailureNumber++;
+
+            if (_alcotesterFailureNumber == 3) {
+                _mainWindow->goToState(CRITICAL_ERROR);
+            } else {
+                _mainWindow->getMachinery()->restart(ALCOTESTER);
+            }
+
+            break;
+        default:
+            break;
+    }
+}
+
+void AlcoTestPageWidget::onWarmingUpAlcotester(QSharedPointer<Status> status)
+{
+    if (!_alcotesterInWork) {
+        _alcotesterWarmingUpAttemptNumber = 0;
+        _alcotesterFailureNumber = 0;
+        _alcotesterInWork = true;
+        test(0);
+    } else {
+        _mainWindow->goToState(DRUNKENESS_NOT_RECOGNIZED);
+    }
+}
+
+void AlcoTestPageWidget::onRestartAlcotester(QSharedPointer<Status> status)
+{
+    _mainWindow->getMachinery()->warmingUpAlcotester();
 }
 
 void AlcoTestPageWidget::setTimer(const QString& durationName)

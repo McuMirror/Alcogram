@@ -54,6 +54,8 @@ public:
         , PRINTING_PHOTOS_END
         , PHOTO_PRINT_SUCCESS
         , PHOTO_PRINT_FAIL
+        , PAGE_EXIT_START
+        , PAGE_EXIT_END
     };
 
 

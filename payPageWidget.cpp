@@ -108,7 +108,13 @@ void PayPageWidget::onEntry()
 
     _enteredMoneyAmount = 0;
 
-    _mainWindow->getMachinery()->takeMoney(_price);
+    QObject::connect(_mainWindow->getMachinery(), &Machinery::error, this, &PayPageWidget::onError);
+    _mainWindow->getMachinery()->activatePOS();
+}
+
+void PayPageWidget::onExit()
+{
+    QObject::disconnect(_mainWindow->getMachinery(), &Machinery::error, this, &PayPageWidget::onError);
 }
 
 void PayPageWidget::initInterface() {
@@ -152,22 +158,59 @@ void PayPageWidget::setConnections()
         _mainWindow->goToState(targetState);
     });
 
-    QObject::connect(_mainWindow->getMachinery(), &Machinery::transactionSucceded
+    Machinery* machinery = _mainWindow->getMachinery();
+
+    QObject::connect(machinery, &Machinery::transactionSucceded
                      , this, &PayPageWidget::onTransactionSucceded);
 
-    QObject::connect(_mainWindow->getMachinery(), &Machinery::transactionFailed
+    QObject::connect(machinery, &Machinery::transactionFailed
                      , this, &PayPageWidget::onTransactionFailed);
+
+    QObject::connect(machinery, &Machinery::posActivated
+                     , this, &PayPageWidget::onActivate);
+
+    QObject::connect(machinery, &Machinery::alcotesterWarmedUp
+                     , this, &PayPageWidget::onWarmingUpAlcotester);
 }
 
 void PayPageWidget::onTransactionSucceded(double money, QSharedPointer<Status> status)
 {
     _enteredMoneyAmount = money;
+    _mainWindow->getMachinery()->deactivatePOS();
     _mainWindow->goToState(PAYMENT_CONFIRMED);
 }
 
 void PayPageWidget::onTransactionFailed(QSharedPointer<Status> status)
 {
-    // TODO: handle it
+    // TODO: show msg
+    _mainWindow->getMachinery()->takeMoney(_price);
+}
+
+void PayPageWidget::onError(QSharedPointer<Status> status)
+{
+    // TODO: add actual errors
+    switch(status->getRequestName()) {
+    case TAKE_MONEY:
+    case ACTIVATE_POS:
+        // TODO: show msg
+        _mainWindow->getMachinery()->restart(POS);
+        break;
+    case DEACTIVATE_POS:
+        break;
+    case RESTART_DEVICE:
+        break;
+    }
+
+}
+
+void PayPageWidget::onActivate(QSharedPointer<Status> status)
+{
+    _mainWindow->getMachinery()->takeMoney(_price);
+}
+
+void PayPageWidget::onRestart(QSharedPointer<Status> status)
+{
+    _mainWindow->getMachinery()->deactivatePOS();
 }
 
 void PayPageWidget::setPriceLabelsText(QList<QLabel*> labels, const QString& richText)

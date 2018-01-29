@@ -20,6 +20,10 @@ Machinery::Machinery(QObject *parent)
     _devices.insert(POS, _pos);
     _devices.insert(PRINTER, _printer);
 
+    for (BaseDeviceInterface* device : _devices.values()) {
+        device->setOnErrorCallback(std::bind(&Machinery::onError, this, _1));
+    }
+
     for (int deviceName = CAMERA; deviceName <= PRINTER; deviceName++) {
         _requests.insert(static_cast<DeviceName>(deviceName), QSet<RequestName>());
         _requestTimers.insert(static_cast<DeviceName>(deviceName), QMap<RequestName, QSharedPointer<QTimer>>());
@@ -51,7 +55,7 @@ void Machinery::finish(DeviceName deviceName)
 {
     QSharedPointer<QTimer> requestTimer = registerRequest(deviceName, FINISH_DEVICE);
 
-    _devices[deviceName]->finish(std::bind(&Machinery::onDeviceStart, this, _1));
+    _devices[deviceName]->finish(std::bind(&Machinery::onDeviceFinish, this, _1));
 
     requestTimer->start();
 }
@@ -60,7 +64,7 @@ void Machinery::restart(DeviceName deviceName)
 {
     QSharedPointer<QTimer> requestTimer = registerRequest(deviceName, RESTART_DEVICE);
 
-    _devices[deviceName]->restart(std::bind(&Machinery::onDeviceStart, this, _1));
+    _devices[deviceName]->restart(std::bind(&Machinery::onDeviceRestart, this, _1));
 
     requestTimer->start();
 }
@@ -69,7 +73,7 @@ void Machinery::checkStatus(DeviceName deviceName)
 {
     QSharedPointer<QTimer> requestTimer = registerRequest(deviceName, CHECK_STATUS);
 
-    _devices[deviceName]->checkStatus(std::bind(&Machinery::onDeviceStart, this, _1));
+    _devices[deviceName]->checkStatus(std::bind(&Machinery::onDeviceCheckStatus, this, _1));
 
     requestTimer->start();
 }
@@ -78,7 +82,7 @@ void Machinery::checkConnectionStatus(DeviceName deviceName)
 {
     QSharedPointer<QTimer> requestTimer = registerRequest(deviceName, CHECK_CONNECTION);
 
-    _devices[deviceName]->connectionStatus(std::bind(&Machinery::onDeviceStart, this, _1));
+    _devices[deviceName]->connectionStatus(std::bind(&Machinery::onDeviceCheckConnection, this, _1));
 
     requestTimer->start();
 }
@@ -204,14 +208,14 @@ QSharedPointer<QTimer> Machinery::registerRequest(DeviceName deviceName, Request
 
     QSharedPointer<QTimer> requestTimer = QSharedPointer<QTimer>(new QTimer());
     requestTimer->setSingleShot(true);
-    requestTimer->setInterval(50); // TODO: get interval from config
+    requestTimer->setInterval(1000); // TODO: get interval from config
 
     _requestTimers[deviceName].insert(requestName, requestTimer);
 
     QObject::connect(requestTimer.data(), &QTimer::timeout, [this, deviceName, requestName]{
         _requestTimers[deviceName].remove(requestName);
         _requests[deviceName].remove(requestName);
-        emit requestTimeout(QSharedPointer<Status>(new Status(1, deviceName, requestName)));
+        emit error(QSharedPointer<Status>(new Status(REQUEST_TIMEOUT, deviceName, requestName)));
     });
 
     return requestTimer;
@@ -271,8 +275,11 @@ void Machinery::onDeviceCheckConnection(QSharedPointer<Status> status)
 // camera device opeation callbacks
 void Machinery::onGetImage(QSharedPointer<QImage> image, QSharedPointer<Status> status)
 {
-    removeRequest(status->getDeviceName(), GET_IMAGE);
-    emit receivedNextFrame(image, status);
+    if (removeRequest(status->getDeviceName(), GET_IMAGE)) {
+        QSharedPointer<QTimer> requestTimer = registerRequest(CAMERA, GET_IMAGE);
+        requestTimer->start();
+        emit receivedNextFrame(image, status);
+    }
 }
 
 void Machinery::onTakeImage(QSharedPointer<QImage> image, QSharedPointer<Status> status)
@@ -364,5 +371,12 @@ void Machinery::onPrintImage(QSharedPointer<Status> status)
 {
     if (removeRequest(status->getDeviceName(), PRINT_IMAGE)) {
         emit imagePrinted(status);
+    }
+}
+
+void Machinery::onError(QSharedPointer<Status> status)
+{
+    if (removeRequest(status->getDeviceName(), status->getRequestName())) {
+        emit error(status);
     }
 }

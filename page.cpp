@@ -6,7 +6,8 @@
 #include "utils.h"
 #include "logger.h"
 
-void Page::enter() {
+void Page::enter()
+{
     qDebug().noquote() << Logger::instance()->buildSystemEventLog(Logger::PAGE_ENTRANCE_START, 0, 0
         , QStringList({getName()}));
 
@@ -14,10 +15,21 @@ void Page::enter() {
 
     qDebug().noquote() << Logger::instance()->buildSystemEventLog(Logger::PAGE_ENTRANCE_END, 0, 0
         , QStringList({getName()}));
-
 }
 
-void Page::setTexts(QWidget* mainWidget, const QList<Text>& texts) {
+void Page::exit()
+{
+    qDebug().noquote() << Logger::instance()->buildSystemEventLog(Logger::PAGE_EXIT_START, 0, 0
+        , QStringList({getName()}));
+
+    onExit();
+
+    qDebug().noquote() << Logger::instance()->buildSystemEventLog(Logger::PAGE_EXIT_END, 0, 0
+        , QStringList({getName()}));
+}
+
+void Page::setTexts(QWidget* mainWidget, const QList<Text>& texts)
+{
     for (const Text t : texts) {
         QWidget* w = mainWidget->findChild<QWidget*>(t.getName());
 
@@ -67,7 +79,8 @@ void Page::stopTimer()
 }
 
 
-void Page::updateTexts(QWidget* mainWidget, bool onlyLanguageDependent) {
+void Page::updateTexts(QWidget* mainWidget, bool onlyLanguageDependent)
+{
     QString pageName = getName();
 
     ConfigManager* configManager = _mainWindow->getConfigManager();

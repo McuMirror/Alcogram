@@ -44,6 +44,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
 void MainWindow::setPage(PageName pageName)
 {
+    static_cast<Page*>(_ui->pages->currentWidget())->exit();
     _ui->pages->setCurrentIndex(pageName);
     static_cast<Page*>(_ui->pages->currentWidget())->enter();
 }

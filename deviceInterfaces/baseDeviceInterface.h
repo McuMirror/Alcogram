@@ -26,4 +26,9 @@ public:
     // check device connection
     virtual void connectionStatus(DeviceCallback onConnection) = 0;
     virtual void isConnected(OnIsConnectedCallback onIsConnected) = 0;
+
+    void setOnErrorCallback(DeviceCallback onError);
+
+protected:
+    DeviceCallback _onError;
 };

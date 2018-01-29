@@ -39,6 +39,8 @@ public:
     // called when page becomes active
     void enter();
 
+    void exit();
+
 private:
     // set page interface elements texts
     // @param mainWidget - central page QWidget
@@ -52,6 +54,11 @@ protected:
 
     // called from enter()
     virtual void onEntry()
+    {
+
+    }
+
+    virtual void onExit()
     {
 
     }

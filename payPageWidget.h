@@ -25,12 +25,16 @@ public:
 
 protected:
     void onEntry() override;
+    void onExit() override;
     void initInterface() override;
     void setConnections() override;
 
 private:
     void onTransactionSucceded(double money, QSharedPointer<Status> status);
     void onTransactionFailed(QSharedPointer<Status> status);
+    void onError(QSharedPointer<Status> status);
+    void onActivate(QSharedPointer<Status> status);
+    void onRestart(QSharedPointer<Status> status);
 
 
     // init column price QLabel's

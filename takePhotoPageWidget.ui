@@ -190,7 +190,7 @@ border: no;
        </rect>
       </property>
       <property name="currentIndex">
-       <number>1</number>
+       <number>3</number>
       </property>
       <widget class="QWidget" name="takePhotoBottom">
        <property name="styleSheet">
@@ -463,6 +463,13 @@ border: no;
        <zorder>retakePhotoButton</zorder>
        <zorder>continueButton</zorder>
       </widget>
+      <widget class="QWidget" name="errorBottom">
+       <property name="styleSheet">
+        <string notr="true">QWidget {
+	background-color: rgb(5, 5, 5);
+}</string>
+       </property>
+      </widget>
      </widget>
      <widget class="QStackedWidget" name="mainPanel">
       <property name="geometry">
@@ -474,7 +481,7 @@ border: no;
        </rect>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>2</number>
       </property>
       <widget class="QWidget" name="takePhotoMain">
        <property name="styleSheet">
@@ -576,6 +583,13 @@ border: no;
          <set>Qt::AlignCenter</set>
         </property>
        </widget>
+      </widget>
+      <widget class="QWidget" name="errorMain">
+       <property name="styleSheet">
+        <string notr="true">QWidget {
+	background-color: rgb(5, 5, 5);
+}</string>
+       </property>
       </widget>
      </widget>
      <zorder>bottomPanel</zorder>

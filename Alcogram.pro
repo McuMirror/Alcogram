@@ -45,7 +45,8 @@ SOURCES += main.cpp\
     devices/machinery.cpp \
     deviceInterfaces/status.cpp \
     sessionData.cpp \
-    devicesChecker.cpp
+    devicesChecker.cpp \
+    deviceInterfaces/basedeviceinterface.cpp
 
 HEADERS  += mainWindow.h \
     startPageWidget.h \

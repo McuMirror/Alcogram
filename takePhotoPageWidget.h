@@ -34,12 +34,15 @@ signals:
 
 protected:
     void onEntry() override;
+    void onExit() override;
     void initInterface() override;
     void setConnections() override;
 
 private:
-    void onReceivedNextFrameReceived(QSharedPointer<QImage> image, QSharedPointer<Status> status);
+    void onNextFrameReceived(QSharedPointer<QImage> image, QSharedPointer<Status> status);
     void onReceivedCapturedImage(QSharedPointer<QImage> image, QSharedPointer<Status> status);
+    void onCameraRestart(QSharedPointer<Status> status);
+    void onCameraError(QSharedPointer<Status> status);
 
     void updateCameraOutput(QPixmap processedImage);
 
@@ -58,6 +61,8 @@ private:
     // setting page for bottomPanel and mainPanel by stateName
     void setSubPage(StateName stateName);
 
+    void setErrorSubPage();
+
     Ui::TakePhotoPageWidget* _ui;
     int _timerTimeLeft; // remaining time for photo timer
 
@@ -69,5 +74,6 @@ private:
     CameraImageHandler _cameraImageHandler;
 
     bool _isImageHandling = false;
-    bool _captureImage = false;
+
+    static const int ERROR_SUBPAGE = 2;
 };

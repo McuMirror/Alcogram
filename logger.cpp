@@ -42,7 +42,7 @@ const QString Logger::_eventNames[] = {"SYSTEM CHECK", "USER TIMER START", "USER
                                       , "ALCOTEST START", "ALCOTEST END", "PERSON ALCOTEST INIT START"
                                       , "PERSON ALCOTEST INIT END", "ALCOTEST SUCCESS", "ALCOTEST FAIL"
                                       , "PRINTING PHOTOS START", "PRINTING PHOTOS END", "PHOTO PRINT SUCCESS"
-                                      , "PHOTO PRINT FAIL"};
+                                      , "PHOTO PRINT FAIL", "PAGE EXIT START", "PAGE EXIT END"};
 
 Logger* Logger::_instance = NULL;
 

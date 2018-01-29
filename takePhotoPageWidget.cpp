@@ -34,7 +34,7 @@ TakePhotoPageWidget::~TakePhotoPageWidget()
     delete _ui;
 }
 
-void TakePhotoPageWidget::onReceivedNextFrameReceived(QSharedPointer<QImage> image, QSharedPointer<Status> status)
+void TakePhotoPageWidget::onNextFrameReceived(QSharedPointer<QImage> image, QSharedPointer<Status> status)
 {
     if (!_isImageHandling) {
         _isImageHandling = true;
@@ -47,6 +47,40 @@ void TakePhotoPageWidget::onReceivedCapturedImage(QSharedPointer<QImage> image, 
 {
     _mainWindow->getSessionData().setImage(image);
     _mainWindow->goToState(PHOTO_CONFIRMATION);
+}
+
+void TakePhotoPageWidget::onCameraRestart(QSharedPointer<Status> status)
+{
+    StateName stateName = _mainWindow->getCurrentStateName();
+
+    if (stateName == PHOTO_TIMER) {
+        _mainWindow->goToState(PREPARING_FOR_PHOTO);
+    } else {
+        setSubPage(stateName);
+    }
+
+    _mainWindow->getMachinery()->getImage();
+}
+
+void TakePhotoPageWidget::onCameraError(QSharedPointer<Status> status)
+{
+    if (status->getRequestName() == RESTART_DEVICE) {
+        _mainWindow->goToState(CRITICAL_ERROR);
+    }
+
+
+    if (status->getRequestName() == GET_IMAGE) {
+        SessionData* sessionData = &_mainWindow->getSessionData();
+
+        sessionData->cameraGetImageTimeout();
+
+        if (sessionData->getCameraGetImageTimeoutNumber() == 2) {
+            _mainWindow->goToState(CRITICAL_ERROR);
+        } else {
+            setErrorSubPage();
+            _mainWindow->getMachinery()->restart(CAMERA);
+        }
+    }
 }
 
 void TakePhotoPageWidget::updateCameraOutput(QPixmap processedImage)
@@ -82,7 +116,7 @@ void TakePhotoPageWidget::init(MainWindow* mainWindow) {
     _imageProcessingThread.start();
 
     QObject::connect(mainWindow->getMachinery(), &Machinery::receivedNextFrame
-                     , this, &TakePhotoPageWidget::onReceivedNextFrameReceived);
+                     , this, &TakePhotoPageWidget::onNextFrameReceived);
 
     QObject::connect(mainWindow->getMachinery(), &Machinery::receivedCapturedImage
                      , this, &TakePhotoPageWidget::onReceivedCapturedImage);
@@ -161,8 +195,16 @@ void TakePhotoPageWidget::onEntry()
     setSubPage(PREPARING_FOR_PHOTO);
     setInactionTimer("inactionPreparingPhoto");
 
-    _captureImage = false;
+    QObject::connect(mainWindow->getMachinery(), &Machinery::error
+                     , this, &TakePhotoPageWidget::onCameraError);
+
     _mainWindow->getMachinery()->getImage();
+}
+
+void TakePhotoPageWidget::onExit()
+{
+    QObject::disconnect(mainWindow->getMachinery(), &Machinery::error
+                     , this, &TakePhotoPageWidget::onCameraError);
 }
 
 void TakePhotoPageWidget::initInterface()
@@ -313,4 +355,10 @@ void TakePhotoPageWidget::setSubPage(StateName stateName)
 
     _ui->bottomPanel->setCurrentIndex(bottomIndex);
     _ui->mainPanel->setCurrentIndex(mainIndex);
+}
+
+void TakePhotoPageWidget::setErrorSubPage()
+{
+    _ui->bottomPanel->setCurrentIndex(ERROR_SUBPAGE);
+    _ui->mainPanel->setCurrentIndex(ERROR_SUBPAGE);
 }

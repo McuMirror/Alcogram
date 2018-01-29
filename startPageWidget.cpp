@@ -1,6 +1,7 @@
 #include <QGraphicsDropShadowEffect>
 #include <QFontDatabase>
 #include <QDebug>
+#include <QTimer>
 
 #include "startPageWidget.h"
 #include "ui_startPageWidget.h"
@@ -44,6 +45,9 @@ QList<Transition*> StartPageWidget::getTransitions()
 
 void StartPageWidget::onEntry()
 {
+    _checkConnectionAttempt = 0;
+    checkDevicesConnection();
+
     // inaction timer
     int timeMs = _mainWindow->getConfigManager()->getTimeDuration(getName(), "inaction") * 1000;
 
@@ -100,4 +104,52 @@ void StartPageWidget::setConnections()
 
     QObject::connect(_ui->switchLanguageButton, &QPushButton::released, this
                      , &StartPageWidget::onSwitchLanguageButtonRelease);
+
+}
+
+void StartPageWidget::onDevicesConnected()
+{
+    // TODO: logging
+    if (_checkConnectionAttempt == 2) {
+        _ui->pages->setCurrentIndex(MAIN_SUBPAGE);
+    }
+
+    disconnectFromDevicesChecker();
+}
+
+void StartPageWidget::onSomeDevicesNotConnected()
+{
+    // TODO: logging
+    if (_checkConnectionAttempt != 2) {
+       _ui->pages->setCurrentIndex(ERROR_SUBPAGE);
+
+       // TODO: move const to xml
+       QTimer::singleShot(2000, [this] {
+               checkDevicesConnection();
+           });
+    } else {
+        _mainWindow->goToState(CRITICAL_ERROR);
+    }
+}
+
+void StartPageWidget::checkDevicesConnection()
+{
+    _checkConnectionAttempt++;
+
+    DevicesChecker* devicesChecker = &_mainWindow->getDevicesChecker();
+
+    QObject::connect(devicesChecker, &DevicesChecker::devicesConnected, this, &StartPageWidget::onDevicesConnected);
+    QObject::connect(devicesChecker, &DevicesChecker::someDevicesNotConnected
+                     , this, &StartPageWidget::onSomeDevicesNotConnected);
+
+    devicesChecker->checkDevicesConnection();
+}
+
+void StartPageWidget::disconnectFromDevicesChecker()
+{
+    DevicesChecker* devicesChecker = &_mainWindow->getDevicesChecker();
+
+    QObject::disconnect(devicesChecker, &DevicesChecker::devicesConnected, 0, 0);
+    QObject::disconnect(devicesChecker, &DevicesChecker::someDevicesNotConnected, 0, 0);
+
 }
