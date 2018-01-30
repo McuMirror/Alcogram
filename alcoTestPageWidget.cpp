@@ -122,6 +122,8 @@ void AlcoTestPageWidget::setConnections()
 {
     Machinery* machinery = _mainWindow->getMachinery();
 
+    // connect to Machinary signals for alcotester device
+    // because the alcotester is used only here, you do not need to disconnect these connections when you exit the page
     QObject::connect(machinery, &Machinery::receivedAlcotesterData
                      , this, &AlcoTestPageWidget::onReceivedAlcotesterData);
 
@@ -160,6 +162,7 @@ void AlcoTestPageWidget::onAlcotesterError(QSharedPointer<Status> status)
         case WARMING_UP_ALCOTESTER:
             _alcotesterWarmingUpAttemptNumber++;
 
+            // try to warm up alcotester 5 times
             if (_alcotesterWarmingUpAttemptNumber == 5) {
                 _mainWindow->getDevicesChecker().addDisabledDevice(status);
                 _mainWindow->goToState(CRITICAL_ERROR);
@@ -175,6 +178,7 @@ void AlcoTestPageWidget::onAlcotesterError(QSharedPointer<Status> status)
             _alcotesterWarmingUpAttemptNumber = 0;
             _alcotesterFailureNumber++;
 
+            // try to restart alcotester 5 times
             if (_alcotesterFailureNumber == 3) {
                 _mainWindow->getDevicesChecker().addDisabledDevice(status);
                 _mainWindow->goToState(CRITICAL_ERROR);
@@ -191,11 +195,13 @@ void AlcoTestPageWidget::onAlcotesterError(QSharedPointer<Status> status)
 void AlcoTestPageWidget::onWarmingUpAlcotester(QSharedPointer<Status> status)
 {
     if (!_alcotesterInWork) {
+        // initial warm up
         _alcotesterWarmingUpAttemptNumber = 0;
         _alcotesterFailureNumber = 0;
         _alcotesterInWork = true;
         test(0);
     } else {
+        // some bad shit happends and alcotester restarted
         _mainWindow->goToState(DRUNKENESS_NOT_RECOGNIZED);
     }
 }
@@ -221,6 +227,7 @@ void AlcoTestPageWidget::setTimer(const QString& durationName)
             case ALCOTEST:
                 switch (_circleState) {
                     case TEST:
+                        // inaction during alcotest
                         _mainWindow->goToState(ALCOTEST_INACTION);
                         break;
                     case SUCCESS:
@@ -231,7 +238,7 @@ void AlcoTestPageWidget::setTimer(const QString& durationName)
             case ALCOTEST_INACTION:
                 qDebug().noquote() << Logger::instance()->buildSystemEventLog(Logger::ALCOTEST_END, 0, 0
                     , QList<double>({static_cast<double>(_currentPerson)}));
-
+                // inaction during inaction message
                 _mainWindow->goToState(SPLASH_SCREEN);
                 break;
             case DRUNKENESS_NOT_RECOGNIZED:
@@ -249,6 +256,7 @@ void AlcoTestPageWidget::setTimer(const QString& durationName)
 void AlcoTestPageWidget::test(int i)
 {
     if (i == _faceDetector->facesCount()) {
+        // all persons tested
         qDebug().noquote() << Logger::instance()->buildSystemEventLog(Logger::ALCOTEST_END, 0, 0
             , QList<double>({static_cast<double>(i)}));
 
@@ -406,6 +414,7 @@ void AlcoTestPageWidget::drawPreviousPersonValues(QPainter& p, float scale)
         QRect rect(center.x() - radius, center.y() - radius
                                , radius * 2, radius * 2);
 
+        // draw alcovalue circle
         QPen pen = QPen(QColor(255, 255, 255));
         pen.setWidth(faceRectRadius * 0.05);
 
@@ -413,6 +422,7 @@ void AlcoTestPageWidget::drawPreviousPersonValues(QPainter& p, float scale)
         p.setBrush(getAlcoLevelColor(values.at(i)));
         p.drawEllipse(center, radius, radius);
 
+        // draw alcovalue
         p.setFont(Utils::getFont("Proxima Nova Rg", radius, 0, QFont::Bold));
         QString valueText = QString::number(values.at(i));
 

@@ -139,10 +139,10 @@ void DevicesChecker::connectToMachinery()
 {
     switch (_checkMode) {
         case START_DEVICES:
-            QObject::connect(_machinery, &Machinery::deviceStarted, this, &DevicesChecker::onDeviceStarted);
+            QObject::connect(_machinery, &Machinery::deviceHasStarted, this, &DevicesChecker::onDeviceStarted);
             break;
         case FINISH_DEVICES:
-            QObject::connect(_machinery, &Machinery::deviceFinished, this, &DevicesChecker::onDeviceFinished);
+            QObject::connect(_machinery, &Machinery::deviceHasFinished, this, &DevicesChecker::onDeviceFinished);
             break;
         case CHECK_STATUS:
             QObject::connect(_machinery, &Machinery::receivedDeviceStatus, this, &DevicesChecker::onReceivedDeviceStatus);
@@ -160,10 +160,10 @@ void DevicesChecker::disconnectFromMachinery()
 {
     switch (_checkMode) {
         case START_DEVICES:
-            QObject::disconnect(_machinery, &Machinery::deviceStarted, 0, 0);
+            QObject::disconnect(_machinery, &Machinery::deviceHasStarted, 0, 0);
             break;
         case FINISH_DEVICES:
-            QObject::disconnect(_machinery, &Machinery::deviceFinished, 0, 0);
+            QObject::disconnect(_machinery, &Machinery::deviceHasFinished, 0, 0);
             break;
         case CHECK_STATUS:
             QObject::disconnect(_machinery, &Machinery::receivedDeviceStatus, 0, 0);

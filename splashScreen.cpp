@@ -47,6 +47,7 @@ QList<Transition*> SplashScreen::getTransitions()
 void SplashScreen::onEntry()
 {
     if (_firstLaunch) {
+        // check all devices status
         DevicesChecker* devicesChecker = &_mainWindow->getDevicesChecker();
 
         QObject::connect(devicesChecker, &DevicesChecker::devicesStarted, this, &SplashScreen::onDevicesStarted);

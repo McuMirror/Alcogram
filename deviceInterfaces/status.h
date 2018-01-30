@@ -29,6 +29,7 @@ const int POS_NOT_ENOUGH_MONEY = 4;
 const int POS_WRONG_PIN_CODE = 5;
 const int DEVICE_NOT_CONNECTED = 6;
 
+// contains information about a result of a request
 class Status
 {
 public:

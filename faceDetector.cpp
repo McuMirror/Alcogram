@@ -55,7 +55,7 @@ void FaceDetector::detect(const QImage& image)
     //_rects.append(QRect(200, 100, 150, 150));
 }
 
-int FaceDetector::facesNumber() const
+int FaceDetector::facesCount() const
 {
     return _rects.size();
 }

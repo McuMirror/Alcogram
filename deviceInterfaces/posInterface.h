@@ -12,7 +12,7 @@ public:
     // deactivate POS
     virtual void deactivate(DeviceCallback onDeactivation) = 0;
 
-    // send amount of money to the POS device for payment
+    // send amount of money to the POS device for a payment
     virtual void takeMoney(double money, POSCallback onTransactionSucceded
                            , DeviceCallback onTransactionFailed) = 0;
 };

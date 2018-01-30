@@ -11,12 +11,12 @@ typedef std::function<void(QSharedPointer<Status>, double)> AlcotesterCallback; 
 class AlcotesterInterface : public BaseDeviceInterface
 {
 public:
-    // start warming up the alcotester
+    // start warming up a alcotester
     virtual void warmUp(DeviceCallback onWarmedUp) = 0;
 
-    // get data from the alcotester
+    // get data from a alcotester
     virtual void activate(AlcotesterCallback onDataRead, DeviceCallback onDataRejected) = 0;
 
-    // start cooling down the alcotester
+    // start cooling down a alcotester
     virtual void coolDown(DeviceCallback onCooledDown) = 0;
 };

@@ -25,11 +25,12 @@ public:
     virtual void setPage(PageName pageName) = 0;
 
     virtual ConfigManager* getConfigManager() const = 0;
+
     virtual Machinery* getMachinery() const = 0;
 
     virtual FaceDetectionInterface* getFaceDetector() const = 0;
 
-    // sets state machine state
+    // move to state
     virtual void goToState(StateName targetState) = 0;
 
     // returns current state machine state

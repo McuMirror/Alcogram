@@ -102,7 +102,7 @@ void PayPageWidget::onEntry()
     setSubPage(PAY);
     setInactionTimer("inactionPayMoneyZero");
 
-    _price = _mainWindow->getFaceDetector()->facesNumber() * 50; // TODO: 50 to xml
+    _price = _mainWindow->getFaceDetector()->facesCount() * 50; // TODO: 50 to xml
     _ui->price->setText(QString(_priceText).replace("@PRICE", QString::number(_price)));
     setPriceToPriceLabels(_price);
 
@@ -167,7 +167,7 @@ void PayPageWidget::setConnections()
                      , this, &PayPageWidget::onTransactionFailed);
 
     QObject::connect(machinery, &Machinery::posActivated
-                     , this, &PayPageWidget::onActivate);
+                     , this, &PayPageWidget::onPOSActivate);
 }
 
 void PayPageWidget::onTransactionSucceded(double money, QSharedPointer<Status> status)
@@ -200,7 +200,7 @@ void PayPageWidget::onError(QSharedPointer<Status> status)
 
 }
 
-void PayPageWidget::onActivate(QSharedPointer<Status> status)
+void PayPageWidget::onPOSActivate(QSharedPointer<Status> status)
 {
     _mainWindow->getMachinery()->takeMoney(_price);
 }

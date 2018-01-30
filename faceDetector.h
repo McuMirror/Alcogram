@@ -25,12 +25,17 @@ class FaceDetector : public QObject
 public:
     explicit FaceDetector(QObject *parent = 0);
 
+    // finds faces in the image
     void detect(const QImage &image) override;
-    int facesNumber() const override;
+
+    // number of found faces
+    int facesCount() const override;
+
+    // rects of found faces
     QList<QRect> faceRects() const override;
 
 private:
     net_type _net;
-    QList<QRect> _rects;
-    matrix<rgb_pixel> _dlibImage;
+    QList<QRect> _rects; // detected face rects
+    matrix<rgb_pixel> _dlibImage; // image for dlib face dectector
 };
