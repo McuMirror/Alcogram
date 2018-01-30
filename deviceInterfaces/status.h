@@ -23,10 +23,11 @@ enum RequestName {
 
 const int NO_ERROR = 0;
 const int ERROR = 1;
-const int CONNECTED = 2;
+const int DEVICE_CONNECTED = 2;
 const int REQUEST_TIMEOUT = 3;
 const int POS_NOT_ENOUGH_MONEY = 4;
 const int POS_WRONG_PIN_CODE = 5;
+const int DEVICE_NOT_CONNECTED = 6;
 
 class Status
 {

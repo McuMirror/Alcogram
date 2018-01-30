@@ -39,6 +39,7 @@ public:
     // called when page becomes active
     void enter();
 
+    // called when page becomes inactive
     void exit();
 
 private:

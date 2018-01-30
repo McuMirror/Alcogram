@@ -9,7 +9,12 @@
 class PrinterInterface : public BaseDeviceInterface
 {
 public:
+    // start warming up a printer
     virtual void warmUp(DeviceCallback onWarmUp) = 0;
+
+    // start cooling down a printer
     virtual void coolDown(DeviceCallback onCoolDown) = 0;
+
+    // send image to print to a printer
     virtual void printImage(const QImage& image, DeviceCallback onImagePrinted) = 0;
 };

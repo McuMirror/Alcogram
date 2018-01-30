@@ -206,13 +206,15 @@ QSharedPointer<QTimer> Machinery::registerRequest(DeviceName deviceName, Request
 {
     _requests[deviceName].insert(requestName);
 
+    // sets request timeout timer
     QSharedPointer<QTimer> requestTimer = QSharedPointer<QTimer>(new QTimer());
     requestTimer->setSingleShot(true);
-    requestTimer->setInterval(1000); // TODO: get interval from config
+    requestTimer->setInterval(2000); // TODO: get interval from config
 
     _requestTimers[deviceName].insert(requestName, requestTimer);
 
     QObject::connect(requestTimer.data(), &QTimer::timeout, [this, deviceName, requestName]{
+        // request timeout
         _requestTimers[deviceName].remove(requestName);
         _requests[deviceName].remove(requestName);
         emit error(QSharedPointer<Status>(new Status(REQUEST_TIMEOUT, deviceName, requestName)));
@@ -224,6 +226,7 @@ QSharedPointer<QTimer> Machinery::registerRequest(DeviceName deviceName, Request
 bool Machinery::removeRequest(DeviceName deviceName, RequestName requestName)
 {
     if (_requests[deviceName].contains(requestName)) {
+        // request was registered
         _requestTimers[deviceName][requestName]->stop();
         _requestTimers[deviceName].remove(requestName);
         _requests[deviceName].remove(requestName);
@@ -231,6 +234,7 @@ bool Machinery::removeRequest(DeviceName deviceName, RequestName requestName)
         return true;
     }
 
+    // request was not registered
     return false;
 }
 
@@ -239,7 +243,7 @@ bool Machinery::removeRequest(DeviceName deviceName, RequestName requestName)
 void Machinery::onDeviceStart(QSharedPointer<Status> status)
 {
     if (removeRequest(status->getDeviceName(), START_DEVICE)) {
-        emit deviceStarted(status);
+        emit deviceHasStarted(status);
     }
 }
 
@@ -247,14 +251,14 @@ void Machinery::onDeviceStart(QSharedPointer<Status> status)
 void Machinery::onDeviceFinish(QSharedPointer<Status> status)
 {
     if (removeRequest(status->getDeviceName(), FINISH_DEVICE)) {
-        emit deviceFinished(status);
+        emit deviceHasFinished(status);
     }
 }
 
 void Machinery::onDeviceRestart(QSharedPointer<Status> status)
 {
     if (removeRequest(status->getDeviceName(), RESTART_DEVICE)) {
-        emit deviceRestarted(status);
+        emit deviceHasRestarted(status);
     }
 }
 
@@ -276,6 +280,7 @@ void Machinery::onDeviceCheckConnection(QSharedPointer<Status> status)
 void Machinery::onGetImage(QSharedPointer<QImage> image, QSharedPointer<Status> status)
 {
     if (removeRequest(status->getDeviceName(), GET_IMAGE)) {
+        // register request for next frame from the camera
         QSharedPointer<QTimer> requestTimer = registerRequest(CAMERA, GET_IMAGE);
         requestTimer->start();
         emit receivedNextFrame(image, status);

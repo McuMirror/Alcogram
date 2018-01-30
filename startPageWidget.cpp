@@ -45,7 +45,9 @@ QList<Transition*> StartPageWidget::getTransitions()
 
 void StartPageWidget::onEntry()
 {
+    _mainWindow->getSessionData().reset();
     _checkConnectionAttempt = 0;
+    _connectedToDeviceChecker = false;
     checkDevicesConnection();
 
     // inaction timer
@@ -138,9 +140,13 @@ void StartPageWidget::checkDevicesConnection()
 
     DevicesChecker* devicesChecker = &_mainWindow->getDevicesChecker();
 
-    QObject::connect(devicesChecker, &DevicesChecker::devicesConnected, this, &StartPageWidget::onDevicesConnected);
-    QObject::connect(devicesChecker, &DevicesChecker::someDevicesNotConnected
-                     , this, &StartPageWidget::onSomeDevicesNotConnected);
+    if (!_connectedToDeviceChecker) {
+        QObject::connect(devicesChecker, &DevicesChecker::devicesConnected, this, &StartPageWidget::onDevicesConnected);
+        QObject::connect(devicesChecker, &DevicesChecker::someDevicesNotConnected
+                        , this, &StartPageWidget::onSomeDevicesNotConnected);
+
+        _connectedToDeviceChecker = true;
+    }
 
     devicesChecker->checkDevicesConnection();
 }
@@ -151,5 +157,7 @@ void StartPageWidget::disconnectFromDevicesChecker()
 
     QObject::disconnect(devicesChecker, &DevicesChecker::devicesConnected, 0, 0);
     QObject::disconnect(devicesChecker, &DevicesChecker::someDevicesNotConnected, 0, 0);
+
+    _connectedToDeviceChecker = false;
 
 }

@@ -31,7 +31,7 @@ void POSDeviceTest::checkStatus(DeviceCallback onCheckStatus)
 
 void POSDeviceTest::connectionStatus(DeviceCallback onConnection)
 {
-    onConnection(QSharedPointer<Status>(new Status(CONNECTED, POS, CHECK_CONNECTION)));
+    onConnection(QSharedPointer<Status>(new Status(DEVICE_CONNECTED, POS, CHECK_CONNECTION)));
 }
 
 void POSDeviceTest::isConnected(OnIsConnectedCallback onIsConnected)

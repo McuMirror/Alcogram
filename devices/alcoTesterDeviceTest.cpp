@@ -33,7 +33,7 @@ void AlcotesterDeviceTest::checkStatus(DeviceCallback onCheckStatus)
 
 void AlcotesterDeviceTest::connectionStatus(DeviceCallback onConnection)
 {
-    onConnection(QSharedPointer<Status>(new Status(CONNECTED, ALCOTESTER, CHECK_CONNECTION)));
+    onConnection(QSharedPointer<Status>(new Status(DEVICE_CONNECTED, ALCOTESTER, CHECK_CONNECTION)));
     //_onError(QSharedPointer<Status>(new Status(CONNECTED, ALCOTESTER, CHECK_CONNECTION)));
 }
 
@@ -58,5 +58,7 @@ void AlcotesterDeviceTest::activate(AlcotesterCallback onDataRead, DeviceCallbac
     float value = static_cast <float> (rand()) /( static_cast <float> (RAND_MAX));
     value = std::trunc(value * 20) / 10;
 
-    onDataRead(QSharedPointer<Status>(new Status(0, ALCOTESTER, ACTIVATE_ALCOTESTER)), value);
+    QTimer::singleShot(1000, [=, value] {
+        onDataRead(QSharedPointer<Status>(new Status(0, ALCOTESTER, ACTIVATE_ALCOTESTER)), value);
+    });
 }

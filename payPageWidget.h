@@ -30,6 +30,7 @@ protected:
     void setConnections() override;
 
 private:
+    // callback for Machinery signals for POS device
     void onTransactionSucceded(double money, QSharedPointer<Status> status);
     void onTransactionFailed(QSharedPointer<Status> status);
     void onError(QSharedPointer<Status> status);
@@ -47,6 +48,7 @@ private:
     // setting inaction timer with duration named durationName
     void setInactionTimer(const QString& durationName);
 
+    // setting inaction timer for "not enough money" subpage
     void setNotEnoughMoneyInactionTimer();
 
     void retrieveTextTemplates();
@@ -70,7 +72,7 @@ private:
     QString _timerText; // template for NOT_ENOUGH_MONEY timer text
 
     int _enteredMoneyAmount;
-    int _price;
+    int _price; // price to pay
     int _timerTimeLeft;
 
     QMap<StateName, int> _payStatePageNumber; // state -> payState page number

@@ -65,6 +65,7 @@ void TakePhotoPageWidget::onCameraRestart(QSharedPointer<Status> status)
 void TakePhotoPageWidget::onCameraError(QSharedPointer<Status> status)
 {
     if (status->getRequestName() == RESTART_DEVICE) {
+        _mainWindow->getDevicesChecker().addDisabledDevice(status);
         _mainWindow->goToState(CRITICAL_ERROR);
     }
 
@@ -75,6 +76,7 @@ void TakePhotoPageWidget::onCameraError(QSharedPointer<Status> status)
         sessionData->cameraGetImageTimeout();
 
         if (sessionData->getCameraGetImageTimeoutNumber() == 2) {
+            _mainWindow->getDevicesChecker().addDisabledDevice(status);
             _mainWindow->goToState(CRITICAL_ERROR);
         } else {
             setErrorSubPage();
@@ -195,7 +197,7 @@ void TakePhotoPageWidget::onEntry()
     setSubPage(PREPARING_FOR_PHOTO);
     setInactionTimer("inactionPreparingPhoto");
 
-    QObject::connect(mainWindow->getMachinery(), &Machinery::error
+    QObject::connect(_mainWindow->getMachinery(), &Machinery::error
                      , this, &TakePhotoPageWidget::onCameraError);
 
     _mainWindow->getMachinery()->getImage();
@@ -203,7 +205,7 @@ void TakePhotoPageWidget::onEntry()
 
 void TakePhotoPageWidget::onExit()
 {
-    QObject::disconnect(mainWindow->getMachinery(), &Machinery::error
+    QObject::disconnect(_mainWindow->getMachinery(), &Machinery::error
                      , this, &TakePhotoPageWidget::onCameraError);
 }
 
@@ -264,6 +266,7 @@ void TakePhotoPageWidget::setConnections()
         qDebug().noquote() << Logger::instance()->buildUserActionLog(Logger::BUTTON_RELEASE, Logger::BUTTON
             , _ui->retakePhotoButton->objectName());
 
+        _mainWindow->getSessionData().removeImage();
         _mainWindow->goToState(PREPARING_FOR_PHOTO);
     });
 

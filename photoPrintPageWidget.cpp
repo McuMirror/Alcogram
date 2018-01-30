@@ -28,11 +28,6 @@ void PhotoPrintPageWidget::init(MainWindow* mainWindow)
 {
     Page::init(mainWindow);
 
-    //DeviceManager* deviceManager = _mainWindow->getDeviceManager();
-
-    //_printer = deviceManager->getPrinterDevice();
-    //_camera = deviceManager->getCameraDevice();
-    //_alcotester = deviceManager->getAlcotesterDevice();
     _faceDetector = _mainWindow->getFaceDetector();
 
     ConfigManager* configManager = _mainWindow->getConfigManager();
@@ -61,10 +56,11 @@ QList<Transition*> PhotoPrintPageWidget::getTransitions()
         _ui->progressBar->setProgress(0);
 
         qDebug().noquote() << Logger::instance()->buildSystemEventLog(Logger::PRINTING_PHOTOS_START, 0, 0
-            , QList<double>({_faceDetector->facesNumber()}));
+            , QList<double>({_faceDetector->facesCount()}));
 
         _printedPhotos = 0;
 
+        // TODO: final photo
         _mainWindow->getMachinery()->printImage(*_mainWindow->getSessionData().getImage());
     }));
 
@@ -81,10 +77,6 @@ void PhotoPrintPageWidget::onEntry()
 {
     _ui->printPages->setCurrentIndex(0);
 
-    //QPixmap image = generateFinalPhoto();//QPixmap::fromImage(_camera->getCapturedImage());
-
-    // TODO: generate final photo
-
     int w = _ui->finalPhoto->width();
     int h = _ui->finalPhoto->height();
 
@@ -95,7 +87,36 @@ void PhotoPrintPageWidget::onEntry()
 
     _ui->previewPhoto->setPixmap(generateFinalPhoto(w, h));//image.scaled(w, h, Qt::KeepAspectRatioByExpanding));
 
-    setTimer("finalPhoto");
+    Machinery* machinery = _mainWindow->getMachinery();
+
+    // connect to Machinary signals for alcotester device
+    QObject::connect(machinery, &Machinery::imagePrinted, this, &PhotoPrintPageWidget::onImagePrinted);
+    QObject::connect(machinery, &Machinery::error, this, &PhotoPrintPageWidget::onError);
+    QObject::connect(machinery, &Machinery::receivedDeviceStatus, this, &PhotoPrintPageWidget::onPrinterCheckStatus);
+    QObject::connect(machinery, &Machinery::printerWarmedUp, this, &PhotoPrintPageWidget::onPrinterWarmUp);
+    QObject::connect(machinery, &Machinery::deviceHasRestarted, this, &PhotoPrintPageWidget::onPrinterRestart);
+    QObject::connect(machinery, &Machinery::printerCooledDown, this, &PhotoPrintPageWidget::onPrinterCoolDown);
+
+    // check printer status
+    _printerWarmingUpAttemptNumber = 0;
+    _printerRestartFailureNumber = 0;
+    _printerPrintFailureNumber = 0;
+    _wasPrintFailure = false;
+    _mainWindow->getMachinery()->checkStatus(PRINTER);
+}
+
+void PhotoPrintPageWidget::onExit()
+{
+    Machinery* machinery = _mainWindow->getMachinery();
+
+    // disconnect from Machinary signals for alcotester device
+    QObject::disconnect(machinery, &Machinery::imagePrinted, 0, 0);
+    QObject::disconnect(machinery, &Machinery::error, 0, 0);
+    QObject::disconnect(machinery, &Machinery::receivedDeviceStatus, 0, 0);
+    QObject::disconnect(machinery, &Machinery::printerWarmedUp, 0, 0);
+    QObject::disconnect(machinery, &Machinery::deviceHasRestarted, 0, 0);
+    QObject::disconnect(machinery, &Machinery::printerCooledDown, this, &PhotoPrintPageWidget::onPrinterCoolDown);
+
 }
 
 void PhotoPrintPageWidget::initInterface()
@@ -135,6 +156,7 @@ QPixmap PhotoPrintPageWidget::generateFinalPhoto(int w, int h)
     int maxValueIndex = 0;
     double maxValue = 0;
 
+    // finds winner
     for (int i = 0; i < values.size(); i++) {
         if (values.at(i) > maxValue) {
             maxValue = values.at(i);
@@ -162,6 +184,7 @@ void PhotoPrintPageWidget::drawLoser(QPainter& p, const QRect& faceRect, double 
     QPoint center = faceRect.center() - QPoint(0, faceRectRadius);
     QRect rect(center.x() - radius, center.y() - radius
                            , radius * 2, radius * 2);
+    // draw alcovalue circle
     QPen pen = QPen(QColor(255, 255, 255));
     pen.setWidth(faceRectRadius * 0.05);
 
@@ -169,6 +192,7 @@ void PhotoPrintPageWidget::drawLoser(QPainter& p, const QRect& faceRect, double 
     p.setBrush(getAlcoLevelColor(value));
     p.drawEllipse(center, radius, radius);
 
+    // draw alcovalue
     p.setFont(Utils::getFont("Proxima Nova Rg", radius, 0, QFont::Bold));
     QString valueText = QString::number(value);
 
@@ -273,20 +297,96 @@ void PhotoPrintPageWidget::onImagePrinted(QSharedPointer<Status> status)
 {
     _printedPhotos++;
 
-    if (_printedPhotos == _faceDetector->facesNumber()) {
+    _printerPrintFailureNumber = 0;
+
+    if (_printedPhotos == _faceDetector->facesCount()) {
         qDebug().noquote() << Logger::instance()->buildSystemEventLog(Logger::PRINTING_PHOTOS_END
-                       , 0, 0, QList<double>({_printedPhotos, _faceDetector->facesNumber()}));
+                       , 0, 0, QList<double>({_printedPhotos, _faceDetector->facesCount()}));
 
         _ui->progressBar->setProgress(100);
 
         setTimer("photoPrint");
     } else {
         qDebug().noquote() << Logger::instance()->buildSystemEventLog(Logger::PHOTO_PRINT_SUCCESS
-            , 0, 0, QList<double>({_printedPhotos, _faceDetector->facesNumber()}));
+            , 0, 0, QList<double>({_printedPhotos, _faceDetector->facesCount()}));
 
-        _ui->progressBar->setProgress(100 * _printedPhotos / _faceDetector->facesNumber());
+        _ui->progressBar->setProgress(100 * _printedPhotos / _faceDetector->facesCount());
+        // TODO: final photo
         _mainWindow->getMachinery()->printImage(*_mainWindow->getSessionData().getImage());
     }
+}
+
+void PhotoPrintPageWidget::onPrinterCheckStatus(QSharedPointer<Status> status)
+{
+    _mainWindow->getMachinery()->warmingUpPrinter();
+}
+
+void PhotoPrintPageWidget::onPrinterWarmUp(QSharedPointer<Status> status)
+{
+    if (!_wasPrintFailure) {
+        setTimer("finalPhoto");
+    } else {
+        _wasPrintFailure = false;
+        // TODO: final photo
+        _mainWindow->getMachinery()->printImage(*_mainWindow->getSessionData().getImage());
+    }
+}
+
+void PhotoPrintPageWidget::onPrinterCoolDown(QSharedPointer<Status> status)
+{
+
+}
+
+void PhotoPrintPageWidget::onError(QSharedPointer<Status> status)
+{
+    switch (status->getRequestName()) {
+        case CHECK_STATUS:
+            _mainWindow->getMachinery()->restart(PRINTER);
+            break;
+        case WARMING_UP_PRINTER:
+            _printerWarmingUpAttemptNumber++;
+
+            if (_printerWarmingUpAttemptNumber == 5) {
+                _mainWindow->getDevicesChecker().addDisabledDevice(status);
+                _mainWindow->goToState(CRITICAL_ERROR);
+            } else {
+                // TODO: move time to xml
+                QTimer::singleShot(2000, [this] {
+                        _mainWindow->getMachinery()->warmingUpPrinter();
+                    });
+            }
+            break;
+        case RESTART_DEVICE:
+            _printerRestartFailureNumber++;
+
+            if (_printerPrintFailureNumber == 3) {
+                _mainWindow->getDevicesChecker().addDisabledDevice(status);
+                _mainWindow->goToState(CRITICAL_ERROR);
+            } else {
+                _mainWindow->getMachinery()->restart(PRINTER);
+            }
+            break;
+        case PRINT_IMAGE:
+            _printerPrintFailureNumber++;
+            _wasPrintFailure = true;
+
+            if (_printerPrintFailureNumber == 2) {
+                _mainWindow->getDevicesChecker().addDisabledDevice(status);
+                _mainWindow->goToState(CRITICAL_ERROR);
+            } else {
+                _mainWindow->getMachinery()->restart(PRINTER);
+            }
+            break;
+        case COOLING_DOWN_PRINTER:
+            break;
+    }
+}
+
+void PhotoPrintPageWidget::onPrinterRestart(QSharedPointer<Status> status)
+{
+    _printerWarmingUpAttemptNumber = 0;
+    _printerRestartFailureNumber = 0;
+    _mainWindow->getMachinery()->warmingUpPrinter();
 }
 
 void PhotoPrintPageWidget::setTimer(const QString& durationName)

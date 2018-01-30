@@ -17,12 +17,12 @@ void SessionData::addAlcoValue(double value)
 
 void SessionData::cameraGetImageTimeout()
 {
-    _cameraGetImageTimeoutТгьиук++;
+    _cameraGetImageTimeoutNumber++;
 }
 
 int SessionData::getCameraGetImageTimeoutNumber() const
 {
-    return _cameraGetImageTimeoutТгьиук;
+    return _cameraGetImageTimeoutNumber;
 }
 
 QSharedPointer<QImage> SessionData::getImage() const
@@ -30,14 +30,20 @@ QSharedPointer<QImage> SessionData::getImage() const
     return _image;
 }
 
+void SessionData::removeImage()
+{
+    _image.clear();
+}
+
 const QList<double>& SessionData::getAlcoValues() const
 {
     return _alcoValues;
 }
 
+
 void SessionData::reset()
 {
     _alcoValues.clear();
     _image.clear();
-    _cameraGetImageTimeoutТгьиук = 0;
+    _cameraGetImageTimeoutNumber = 0;
 }

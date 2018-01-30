@@ -6,6 +6,7 @@
 
 #include "deviceInterfaces/status.h"
 
+// stores all generated data during session
 class SessionData : public QObject
 {
     Q_OBJECT
@@ -20,6 +21,7 @@ public:
 
     const QList<double>& getAlcoValues() const;
     QSharedPointer<QImage> getImage() const;
+    void removeImage();
 
     void reset();
 

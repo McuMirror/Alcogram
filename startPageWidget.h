@@ -38,6 +38,7 @@ private:
     static const int ERROR_SUBPAGE = 1;
     static const int MAIN_SUBPAGE = 0;
 
-    int _checkConnectionAttempt;
+    int _checkConnectionAttempt; // number of attempts to check connection with devices in succession
+    bool _connectedToDeviceChecker;
     Ui::StartPageWidget* _ui;
 };

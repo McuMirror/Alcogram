@@ -30,6 +30,7 @@ void AlcoTestPageWidget::init(MainWindow *mainWindow)
 
     ConfigManager* configManager = _mainWindow->getConfigManager();
 
+    // fill alcolevel intervals
     _alcoLevelIntervals.insert("level1", configManager->getInterval(getName(), "level1"));
     _alcoLevelIntervals.insert("level2", configManager->getInterval(getName(), "level2"));
     _alcoLevelIntervals.insert("level3", configManager->getInterval(getName(), "level3"));
@@ -89,13 +90,15 @@ QList<Transition*> AlcoTestPageWidget::getTransitions()
 void AlcoTestPageWidget::onEntry()
 {
     qDebug().noquote() << Logger::instance()->buildSystemEventLog(Logger::ALCOTEST_START, 0, 0
-        , QList<double>({static_cast<double>(_faceDetector->facesNumber())}));
+        , QList<double>({static_cast<double>(_faceDetector->facesCount())}));
 
     Machinery* machinery = _mainWindow->getMachinery();
 
-    QObject::connect(_mainWindow->getMachinery(), &Machinery::error, this, &AlcoTestPageWidget::onError);
-    QObject::connect(machinery, &Machinery::deviceRestarted, this, &AlcoTestPageWidget::onRestartAlcotester);
+    // connect to Machinary signals for alcotester device
+    QObject::connect(_mainWindow->getMachinery(), &Machinery::error, this, &AlcoTestPageWidget::onAlcotesterError);
+    QObject::connect(machinery, &Machinery::deviceHasRestarted, this, &AlcoTestPageWidget::onRestartAlcotester);
 
+    // initial warm up
     _alcotesterWarmingUpAttemptNumber = 0;
     _alcotesterInWork = false;
     _mainWindow->getMachinery()->warmingUpAlcotester();
@@ -103,8 +106,11 @@ void AlcoTestPageWidget::onEntry()
 
 void AlcoTestPageWidget::onExit()
 {
-    QObject::disconnect(_mainWindow->getMachinery(), &Machinery::error, this, &AlcoTestPageWidget::onError);
-    QObject::disconnect(machinery, &Machinery::deviceRestarted, this, &AlcoTestPageWidget::onRestartAlcotester);
+    Machinery* machinery = _mainWindow->getMachinery();
+
+    // disconnect from Machinary signals for alcotester device
+    QObject::disconnect(machinery, &Machinery::error, this, &AlcoTestPageWidget::onAlcotesterError);
+    QObject::disconnect(machinery, &Machinery::deviceHasRestarted, this, &AlcoTestPageWidget::onRestartAlcotester);
 }
 
 void AlcoTestPageWidget::initInterface()
@@ -148,13 +154,14 @@ void AlcoTestPageWidget::onFailedToReceiveDataFromAcotester(QSharedPointer<Statu
     _mainWindow->goToState(DRUNKENESS_NOT_RECOGNIZED);
 }
 
-void AlcoTestPageWidget::onError(QSharedPointer<Status> status)
+void AlcoTestPageWidget::onAlcotesterError(QSharedPointer<Status> status)
 {
     switch (status->getRequestName()) {
         case WARMING_UP_ALCOTESTER:
             _alcotesterWarmingUpAttemptNumber++;
 
             if (_alcotesterWarmingUpAttemptNumber == 5) {
+                _mainWindow->getDevicesChecker().addDisabledDevice(status);
                 _mainWindow->goToState(CRITICAL_ERROR);
             } else {
                 // TODO: move time to xml
@@ -169,6 +176,7 @@ void AlcoTestPageWidget::onError(QSharedPointer<Status> status)
             _alcotesterFailureNumber++;
 
             if (_alcotesterFailureNumber == 3) {
+                _mainWindow->getDevicesChecker().addDisabledDevice(status);
                 _mainWindow->goToState(CRITICAL_ERROR);
             } else {
                 _mainWindow->getMachinery()->restart(ALCOTESTER);
@@ -240,9 +248,11 @@ void AlcoTestPageWidget::setTimer(const QString& durationName)
 
 void AlcoTestPageWidget::test(int i)
 {
-    if (i == _faceDetector->facesNumber()) {
+    if (i == _faceDetector->facesCount()) {
         qDebug().noquote() << Logger::instance()->buildSystemEventLog(Logger::ALCOTEST_END, 0, 0
             , QList<double>({static_cast<double>(i)}));
+
+        _mainWindow->getMachinery()->coolingDownAlcotester();
 
         _mainWindow->goToState(FINAL_PHOTO);
         return;

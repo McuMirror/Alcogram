@@ -168,9 +168,6 @@ void PayPageWidget::setConnections()
 
     QObject::connect(machinery, &Machinery::posActivated
                      , this, &PayPageWidget::onActivate);
-
-    QObject::connect(machinery, &Machinery::alcotesterWarmedUp
-                     , this, &PayPageWidget::onWarmingUpAlcotester);
 }
 
 void PayPageWidget::onTransactionSucceded(double money, QSharedPointer<Status> status)

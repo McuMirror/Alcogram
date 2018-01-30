@@ -6,13 +6,6 @@ DevicesChecker::DevicesChecker(QObject* parent, MainWindowInterface* mainWindow)
 {
     _mainWindow = mainWindow;
     _machinery = _mainWindow->getMachinery();
-
-    QObject::connect(_machinery, &Machinery::deviceStarted, this, &DevicesChecker::onDeviceStarted);
-    QObject::connect(_machinery, &Machinery::deviceFinished, this, &DevicesChecker::onDeviceFinished);
-    QObject::connect(_machinery, &Machinery::error, this, &DevicesChecker::onError);
-    QObject::connect(_machinery, &Machinery::receivedDeviceStatus, this, &DevicesChecker::onReceivedDeviceStatus);
-    QObject::connect(_machinery, &Machinery::receivedDeviceConnectionStatus
-                     , this, &DevicesChecker::onReceivedDeviceConnectionStatus);
 }
 
 void DevicesChecker::startDevices()
@@ -61,6 +54,16 @@ void DevicesChecker::checkDisabledDevicesConnection()
     initCheck(CHECK_CONNECTION, false);
 }
 
+void DevicesChecker::addDisabledDevice(QSharedPointer<Status> status)
+{
+    _disabledDevices.insert(status->getDeviceName(), status);
+}
+
+QMap<DeviceName, QSharedPointer<Status>>& DevicesChecker::getDisabledDevices()
+{
+    return _disabledDevices;
+}
+
 bool DevicesChecker::isAllDevicesHandled()
 {
     return _checkAll && _handledDevicesCount == _machinery->devicesCount()
@@ -77,6 +80,8 @@ void DevicesChecker::initCheck(CheckMode checkMode, bool checkAll)
     _checkAll = checkAll;
     _handledDevicesCount = 0;
     _checkMode = checkMode;
+
+    connectToMachinery();
 }
 
 void DevicesChecker::deviceCheckFinished(QSharedPointer<Status> status, bool error)
@@ -124,8 +129,51 @@ void DevicesChecker::deviceCheckFinished(QSharedPointer<Status> status, bool err
             }
         }
 
+        disconnectFromMachinery();
+
         _checkMode = IDLE;
     }
+}
+
+void DevicesChecker::connectToMachinery()
+{
+    switch (_checkMode) {
+        case START_DEVICES:
+            QObject::connect(_machinery, &Machinery::deviceStarted, this, &DevicesChecker::onDeviceStarted);
+            break;
+        case FINISH_DEVICES:
+            QObject::connect(_machinery, &Machinery::deviceFinished, this, &DevicesChecker::onDeviceFinished);
+            break;
+        case CHECK_STATUS:
+            QObject::connect(_machinery, &Machinery::receivedDeviceStatus, this, &DevicesChecker::onReceivedDeviceStatus);
+            break;
+        case CHECK_CONNECTION:
+            QObject::connect(_machinery, &Machinery::receivedDeviceConnectionStatus
+                         , this, &DevicesChecker::onReceivedDeviceConnectionStatus);
+            break;
+    }
+
+    QObject::connect(_machinery, &Machinery::error, this, &DevicesChecker::onError);
+}
+
+void DevicesChecker::disconnectFromMachinery()
+{
+    switch (_checkMode) {
+        case START_DEVICES:
+            QObject::disconnect(_machinery, &Machinery::deviceStarted, 0, 0);
+            break;
+        case FINISH_DEVICES:
+            QObject::disconnect(_machinery, &Machinery::deviceFinished, 0, 0);
+            break;
+        case CHECK_STATUS:
+            QObject::disconnect(_machinery, &Machinery::receivedDeviceStatus, 0, 0);
+            break;
+        case CHECK_CONNECTION:
+            QObject::disconnect(_machinery, &Machinery::receivedDeviceConnectionStatus, 0, 0);
+            break;
+    }
+
+    QObject::disconnect(_machinery, &Machinery::error, 0, 0);
 }
 
 void DevicesChecker::onDeviceStarted(QSharedPointer<Status> status)
