@@ -5,6 +5,7 @@
 #include "devices/cameraDeviceTest.h"
 #include "devices/posDeviceTest.h"
 #include "devices/printerDeviceTest.h"
+#include "mainWindow.h"
 
 using namespace std::placeholders;
 
@@ -28,6 +29,8 @@ Machinery::Machinery(QObject *parent)
         _requests.insert(static_cast<DeviceName>(deviceName), QSet<RequestName>());
         _requestTimers.insert(static_cast<DeviceName>(deviceName), QMap<RequestName, QSharedPointer<QTimer>>());
     }
+
+    _configManager = static_cast<MainWindow*>(parent)->getConfigManager();
 }
 
 QList<DeviceName> Machinery::getDeviceNames() const
@@ -209,7 +212,8 @@ QSharedPointer<QTimer> Machinery::registerRequest(DeviceName deviceName, Request
     // sets request timeout timer
     QSharedPointer<QTimer> requestTimer = QSharedPointer<QTimer>(new QTimer());
     requestTimer->setSingleShot(true);
-    requestTimer->setInterval(2000); // TODO: get interval from config
+
+    requestTimer->setInterval(_configManager->getTimeDuration(deviceName, requestName));
 
     _requestTimers[deviceName].insert(requestName, requestTimer);
 
@@ -281,8 +285,8 @@ void Machinery::onGetImage(QSharedPointer<QImage> image, QSharedPointer<Status> 
 {
     if (removeRequest(status->getDeviceName(), GET_IMAGE)) {
         // register request for next frame from the camera
-        QSharedPointer<QTimer> requestTimer = registerRequest(CAMERA, GET_IMAGE);
-        requestTimer->start();
+        //QSharedPointer<QTimer> requestTimer = registerRequest(CAMERA, GET_IMAGE);
+        //requestTimer->start();
         emit receivedNextFrame(image, status);
     }
 }

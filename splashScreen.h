@@ -28,6 +28,8 @@ private:
     void onSomeDevicesNotStarted();
     void onDevicesStatusOk();
     void onSomeDevicesStatusNotOk();
+    void connectToDeviceChecker();
+    void disconnectFromDeviceChecker();
 
     bool _firstLaunch = true;
     Ui::SplashScreen *_ui;

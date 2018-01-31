@@ -22,10 +22,20 @@ void Page::exit()
     qDebug().noquote() << Logger::instance()->buildSystemEventLog(Logger::PAGE_EXIT_START, 0, 0
         , QStringList({getName()}));
 
+    // if was critical error
+    if (!_mainWindow->getDevicesChecker().getDisabledDevices().isEmpty()) {
+        stopTimer();
+    }
+
     onExit();
 
     qDebug().noquote() << Logger::instance()->buildSystemEventLog(Logger::PAGE_EXIT_END, 0, 0
         , QStringList({getName()}));
+}
+
+void Page::switchLanguage()
+{
+    initInterface();
 }
 
 void Page::setTexts(QWidget* mainWidget, const QList<Text>& texts)

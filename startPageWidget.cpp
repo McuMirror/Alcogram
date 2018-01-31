@@ -69,6 +69,8 @@ void StartPageWidget::onSwitchLanguageButtonRelease()
 {
     qDebug().noquote() << Logger::instance()->buildUserActionLog(Logger::BUTTON_RELEASE
                                                                  , Logger::BUTTON, _ui->switchLanguageButton->objectName());
+
+    _mainWindow->switchLanguage();
 }
 
 void StartPageWidget::initInterface()
@@ -125,8 +127,10 @@ void StartPageWidget::onSomeDevicesNotConnected()
     if (_checkConnectionAttempt != 2) {
        _ui->pages->setCurrentIndex(ERROR_SUBPAGE);
 
-       // TODO: move const to xml
-       QTimer::singleShot(2000, [this] {
+       int timeMs = _mainWindow->getConfigManager()
+               ->getTimeDuration(getName(), "delayBwCheckConnectionAttempts") * 1000;
+
+       QTimer::singleShot(timeMs, [this] {
                checkDevicesConnection();
            });
     } else {

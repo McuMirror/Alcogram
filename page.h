@@ -42,6 +42,8 @@ public:
     // called when page becomes inactive
     void exit();
 
+    void switchLanguage();
+
 private:
     // set page interface elements texts
     // @param mainWidget - central page QWidget

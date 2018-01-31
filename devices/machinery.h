@@ -10,6 +10,8 @@
 #include "deviceInterfaces/posinterface.h"
 #include "deviceInterfaces/printerinterface.h"
 
+#include "configManager.h"
+
 // class for interaction with devices via device interfaces
 class Machinery : public QObject
 {
@@ -241,6 +243,8 @@ private:
     QMap<DeviceName, QSet<RequestName>> _requests; // registered requests
     QMap<DeviceName, QMap<RequestName, QSharedPointer<QTimer>>> _requestTimers; // timers for each device request
     QMap<DeviceName, BaseDeviceInterface*> _devices; // device interfaces
+
+    ConfigManager* _configManager;
 
     // device interfaces
     CameraInterface* _camera; // camera device

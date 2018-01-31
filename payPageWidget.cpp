@@ -39,7 +39,6 @@ QList<Transition*> PayPageWidget::getTransitions()
 
     // PAY -> SPLASH_SCREEN
     transitions.append(new Transition(PAY, SPLASH_SCREEN, [this](QEvent*) {
-        // TODO: reset save image and data
         stopTimer();
         _mainWindow->setPage(SPLASH_SCREEN_PAGE);
     }));
@@ -102,7 +101,7 @@ void PayPageWidget::onEntry()
     setSubPage(PAY);
     setInactionTimer("inactionPayMoneyZero");
 
-    _price = _mainWindow->getFaceDetector()->facesCount() * 50; // TODO: 50 to xml
+    _price = _mainWindow->getFaceDetector()->facesCount() * 50;
     _ui->price->setText(QString(_priceText).replace("@PRICE", QString::number(_price)));
     setPriceToPriceLabels(_price);
 
@@ -167,7 +166,7 @@ void PayPageWidget::setConnections()
                      , this, &PayPageWidget::onTransactionFailed);
 
     QObject::connect(machinery, &Machinery::posActivated
-                     , this, &PayPageWidget::onPOSActivate);
+                     , this, &PayPageWidget::onActivate);
 }
 
 void PayPageWidget::onTransactionSucceded(double money, QSharedPointer<Status> status)
@@ -200,7 +199,7 @@ void PayPageWidget::onError(QSharedPointer<Status> status)
 
 }
 
-void PayPageWidget::onPOSActivate(QSharedPointer<Status> status)
+void PayPageWidget::onActivate(QSharedPointer<Status> status)
 {
     _mainWindow->getMachinery()->takeMoney(_price);
 }
@@ -220,7 +219,7 @@ void PayPageWidget::setPriceLabelsText(QList<QLabel*> labels, const QString& ric
 
 void PayPageWidget::setPriceToPriceLabels(int price)
 {
-    QString priceText = QString::number(price);
+    QString priceText = "200";//QString::number(price);
 
     setPriceLabelsText(_ui->boldPrices->findChildren<QLabel*>()
                     , QString(_boldPricesText).replace("@PRICE", priceText));

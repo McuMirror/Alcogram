@@ -93,18 +93,34 @@ bool Interval::isStartNotLimited() const
 
 // Config Manager
 
+const QString ConfigManager::_requestNameStrings[] = {"startDevice", "finishDevice", "restartDevice", "checkStatus", "checkConnection"
+                                               , "getImage", "takeImage", "stopGetImage" , "warmingUpAlcotester", "coolingDownAlcotester"
+                                               , "activateAlcotester", "activatePOS", "deactivatePOS", "takeMoney"
+                                               , "warmingUpPrinter", "coolingDownPrinter", "printImage"};
+
 ConfigManager::ConfigManager(QObject *parent)
     : QObject(parent)
     , _currentLanguage(RU)
     , _defaultInterval(std::numeric_limits<float>::min(), std::numeric_limits<float>::max())
     , _defaultGradient(QColor(Qt::white), QColor(Qt::black))
 {
-
+    for (int i = START_DEVICE; i <= PRINT_IMAGE; i++) {
+        _requestNames.insert(_requestNameStrings[i], static_cast<RequestName>(i));
+    }
 }
 
 ConfigManager::TextLanguage ConfigManager::getCurrentLanguage() const
 {
     return _currentLanguage;
+}
+
+void ConfigManager::switchLanguage()
+{
+    if (_currentLanguage == RU) {
+        _currentLanguage = EN;
+    } else {
+        _currentLanguage = RU;
+    }
 }
 
 const QList<Text> ConfigManager::getTexts(const QString& page) const
@@ -184,6 +200,11 @@ int ConfigManager::getTimeDuration(const QString& pageName, const QString& durat
     return 0;
 }
 
+int ConfigManager::getTimeDuration(DeviceName deviceName, RequestName requestName) const
+{
+    return _requestTimeouts[deviceName][requestName];
+}
+
 QPair<float, float> ConfigManager::getInterval(const QString& pageName, const QString& intervalName) const
 {
     if (_intervals.contains(pageName)) {
@@ -241,12 +262,84 @@ void ConfigManager::load(const QString& fileName)
             parsePages(domElement.firstChild());
         }
 
+        if (domElement.tagName() == "devices") {
+            parseDevices(domElement.firstChild());
+        }
+
         domNode = domNode.nextSibling();
     }
 
     delete file;
 
     qDebug().noquote() << Logger::instance()->buildSystemEventLog(Logger::CONFIG_LOAD_FINISH);
+}
+
+void ConfigManager::parseDevices(QDomNode device)
+{
+    while(!device.isNull()) {
+        QDomElement deviceElement = device.toElement();
+        QString name = deviceElement.attribute("name", "");
+        DeviceName deviceName = getDeviceName(name);
+
+        _requestTimeouts.insert(deviceName, QMap<RequestName, int>());
+
+        QDomNode deviceSet = device.firstChild();
+
+        while (!deviceSet.isNull()) {
+            QDomElement deviceSetElement = deviceSet.toElement();
+
+            if (deviceSetElement.tagName() == "timeouts") {
+                parseTimeouts(deviceSetElement.firstChild(), deviceName);
+            }
+
+            deviceSet = deviceSet.nextSibling();
+        }
+
+        device = device.nextSibling();
+    }
+}
+
+void ConfigManager::parseTimeouts(QDomNode timeout, DeviceName deviceName)
+{
+    // iterate over <timeout> tags
+    while (!timeout.isNull()) {
+        QDomElement timeoutElement = timeout.toElement();
+        QString timeoutName = timeoutElement.attribute("name", "");
+        RequestName requestName = _requestNames[timeoutName];
+        QString dimension = timeoutElement.attribute("dimension", "ms");
+        int time = timeoutElement.attribute("value", "0").toInt();
+
+        if (dimension == "s") {
+            time *= 1000;
+        } else if (dimension == "min") {
+            time *= 60000;
+        }
+
+        _requestTimeouts[deviceName].insert(requestName, time);
+
+        timeout = timeout.nextSibling();
+    }
+}
+
+DeviceName ConfigManager::getDeviceName(const QString &name) const
+{
+    if (name == "camera") {
+        return CAMERA;
+    }
+
+    if (name == "pos") {
+        return POS;
+    }
+
+    if (name == "alcotester") {
+        return ALCOTESTER;
+    }
+
+    if (name == "printer") {
+        return PRINTER;
+    }
+
+    return NON_DEVICE;
 }
 
 void ConfigManager::parsePages(QDomNode page)

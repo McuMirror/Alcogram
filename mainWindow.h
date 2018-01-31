@@ -35,6 +35,11 @@ public:
     SessionData& getSessionData() override;
     DevicesChecker& getDevicesChecker() override;
 
+     void switchLanguage() override;
+
+signals:
+    void criticalError(StateName fromState);
+
 private:
     // load fonts from resources
     void loadFonts();

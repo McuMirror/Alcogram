@@ -61,7 +61,7 @@ private:
     // setting page for bottomPanel and mainPanel by stateName
     void setSubPage(StateName stateName);
 
-    void setErrorSubPage();
+    void setErrorSubPage(const QString& textName = "", const QString& durationName = "");
 
     Ui::TakePhotoPageWidget* _ui;
     int _timerTimeLeft; // remaining time for photo timer
@@ -74,6 +74,8 @@ private:
     CameraImageHandler _cameraImageHandler;
 
     bool _isImageHandling = false;
+    bool _isImageCapturing = false;
 
-    static const int ERROR_SUBPAGE = 2;
+    static const int ERROR_SUBPAGE_MAIN = 2;
+    static const int ERROR_SUBPAGE_BOTTOM = 3;
 };

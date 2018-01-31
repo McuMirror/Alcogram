@@ -144,7 +144,7 @@ void StateMachine::addErrorTransitions(State* state)
     // add transition to non critical error state
     errorState = _states[NON_CRITICAL_ERROR];
     transition = new Transition(state->getName(), NON_CRITICAL_ERROR
-                                , std::bind(&StateMachine::handleNonCriticalError, this, _1));
+                                   , std::bind(&StateMachine::handleNonCriticalError, this, _1));
 
     transition->setTargetState(errorState);
     state->addTransition(transition);
@@ -158,7 +158,7 @@ void StateMachine::addErrorStatesTransitions()
 
 void StateMachine::handleCriticalError(QEvent* event)
 {
-    // TODO: handle it
+    emit criticalError(static_cast<Event*>(event)->getSourceState());
 }
 
 void StateMachine::handleNonCriticalError(QEvent* event)

@@ -39,4 +39,6 @@ public:
     virtual SessionData& getSessionData() = 0;
 
     virtual DevicesChecker& getDevicesChecker() = 0;
+
+    virtual void switchLanguage() = 0;
 };

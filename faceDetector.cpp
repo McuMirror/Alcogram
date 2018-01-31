@@ -1,3 +1,5 @@
+#include <QMutexLocker>
+
 #include <dlib/image_processing.h>
 //#include <dlib/opencv.h>
 //#include <opencv2/imgproc.hpp>
@@ -8,6 +10,7 @@
 
 FaceDetector::FaceDetector(QObject *parent)
     : QObject(parent)
+    , _mutex()
 {
     deserialize("E:\\mmod_human_face_detector.dat") >> _net;
     //_rects = QList<QRect>();
@@ -19,6 +22,7 @@ void FaceDetector::detect(const QImage& image)
 {
     //cv::Mat mat = Utils::qImageToCvMat(image);
     //matrix<rgb_pixel> dlibImage;
+    QMutexLocker ml(&_mutex);
 
     if (_dlibImage.size() == 0) {
         _dlibImage.set_size(image.height(), image.width());
@@ -57,10 +61,12 @@ void FaceDetector::detect(const QImage& image)
 
 int FaceDetector::facesCount() const
 {
+    QMutexLocker ml(&_mutex);
     return _rects.size();
 }
 
 QList<QRect> FaceDetector::faceRects() const
 {
+    QMutexLocker ml(&_mutex);
     return _rects;
 }

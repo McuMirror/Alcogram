@@ -350,8 +350,10 @@ void PhotoPrintPageWidget::onError(QSharedPointer<Status> status)
                 _mainWindow->getDevicesChecker().addDisabledDevice(status);
                 _mainWindow->goToState(CRITICAL_ERROR);
             } else {
-                // TODO: move time to xml
-                QTimer::singleShot(2000, [this] {
+                int timeMs = _mainWindow->getConfigManager()
+                        ->getTimeDuration(getName(), "delayBwPrinterWarmingUpAttempts") * 1000;
+
+                QTimer::singleShot(timeMs, [this] {
                         _mainWindow->getMachinery()->warmingUpPrinter();
                     });
             }

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QObject>
+#include <QMutex>
 
 #include <dlib/dnn.h>
 #include <dlib/image_processing/frontal_face_detector.h>
@@ -35,6 +36,7 @@ public:
     QList<QRect> faceRects() const override;
 
 private:
+    mutable QMutex _mutex;
     net_type _net;
     QList<QRect> _rects; // detected face rects
     matrix<rgb_pixel> _dlibImage; // image for dlib face dectector

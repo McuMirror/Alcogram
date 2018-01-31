@@ -20,5 +20,14 @@ public:
     QString getName() const override;
 
 private:
+    void onCriticalError(StateName fromState);
+    void setCheckTimer();
+    void onDevicesStatusOk();
+    void onSomeDevicesStatusNotOk();
+    void connectToDeviceChecker();
+    void disconnectFromDeviceChecker();
+
+    QTimer _checkTimer;
+    StateName _fromState;
     Ui::CriticalErrorPage *ui;
 };

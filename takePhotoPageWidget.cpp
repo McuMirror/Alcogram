@@ -6,6 +6,7 @@
 #include <QColor>
 #include <QThread>
 #include <QDebug>
+#include <QFontMetrics>
 
 //#include <opencv2\imgproc.hpp>
 
@@ -45,8 +46,12 @@ void TakePhotoPageWidget::onNextFrameReceived(QSharedPointer<QImage> image, QSha
 
 void TakePhotoPageWidget::onReceivedCapturedImage(QSharedPointer<QImage> image, QSharedPointer<Status> status)
 {
-    _mainWindow->getSessionData().setImage(image);
-    _mainWindow->goToState(PHOTO_CONFIRMATION);
+    if (_faceDetector->facesCount() > 0) {
+        _mainWindow->getSessionData().setImage(image);
+        _mainWindow->goToState(PHOTO_CONFIRMATION);
+    } else {
+        setErrorSubPage("facesNotFoundMsg", "facesNotFoundMsg");
+    }
 }
 
 void TakePhotoPageWidget::onCameraRestart(QSharedPointer<Status> status)
@@ -59,6 +64,7 @@ void TakePhotoPageWidget::onCameraRestart(QSharedPointer<Status> status)
         setSubPage(stateName);
     }
 
+    _isImageCapturing = false;
     _mainWindow->getMachinery()->getImage();
 }
 
@@ -70,7 +76,7 @@ void TakePhotoPageWidget::onCameraError(QSharedPointer<Status> status)
     }
 
 
-    if (status->getRequestName() == GET_IMAGE) {
+    if (status->getRequestName() == GET_IMAGE || status->getRequestName() == TAKE_IMAGE) {
         SessionData* sessionData = &_mainWindow->getSessionData();
 
         sessionData->cameraGetImageTimeout();
@@ -79,7 +85,7 @@ void TakePhotoPageWidget::onCameraError(QSharedPointer<Status> status)
             _mainWindow->getDevicesChecker().addDisabledDevice(status);
             _mainWindow->goToState(CRITICAL_ERROR);
         } else {
-            setErrorSubPage();
+            setErrorSubPage("cameraNoResponceMsg");
             _mainWindow->getMachinery()->restart(CAMERA);
         }
     }
@@ -97,14 +103,18 @@ void TakePhotoPageWidget::updateCameraOutput(QPixmap processedImage)
 
     _ui->cameraOutput->setPixmap(f.scaled(w, h, Qt::KeepAspectRatioByExpanding));
     _ui->cameraOutput->update();
+
     _isImageHandling = false;
+
+    if (!_isImageCapturing) {
+        _mainWindow->getMachinery()->getImage();
+    }
 }
 
 void TakePhotoPageWidget::init(MainWindow* mainWindow) {
     Page::init(mainWindow);
 
     _faceDetector = _mainWindow->getFaceDetector();
-    //_camera = _mainWindow->getDeviceManager()->getCameraDevice();
 
     _cameraImageHandler.setFaceDetector(_faceDetector);
     _cameraImageHandler.moveToThread(&_imageProcessingThread);
@@ -200,6 +210,7 @@ void TakePhotoPageWidget::onEntry()
     QObject::connect(_mainWindow->getMachinery(), &Machinery::error
                      , this, &TakePhotoPageWidget::onCameraError);
 
+    _isImageCapturing = false;
     _mainWindow->getMachinery()->getImage();
 }
 
@@ -240,6 +251,7 @@ void TakePhotoPageWidget::setConnections()
 
         case PHOTO_CONFIRMATION:
         case PHOTO_TIMER:
+            _isImageCapturing = false;
             targetState = PREPARING_FOR_PHOTO;
             break;
 
@@ -266,6 +278,7 @@ void TakePhotoPageWidget::setConnections()
         qDebug().noquote() << Logger::instance()->buildUserActionLog(Logger::BUTTON_RELEASE, Logger::BUTTON
             , _ui->retakePhotoButton->objectName());
 
+        _isImageCapturing = false;
         _mainWindow->getSessionData().removeImage();
         _mainWindow->goToState(PREPARING_FOR_PHOTO);
     });
@@ -303,6 +316,7 @@ void TakePhotoPageWidget::setPhotoTimer()
 
         if (_timerTimeLeft <= 0) {
             stopTimer();
+            _isImageCapturing = true;
             _mainWindow->getMachinery()->stopGetImage();
             _mainWindow->getMachinery()->takeImage();
         };
@@ -360,8 +374,44 @@ void TakePhotoPageWidget::setSubPage(StateName stateName)
     _ui->mainPanel->setCurrentIndex(mainIndex);
 }
 
-void TakePhotoPageWidget::setErrorSubPage()
+void TakePhotoPageWidget::setErrorSubPage(const QString& textName, const QString& durationName)
 {
-    _ui->bottomPanel->setCurrentIndex(ERROR_SUBPAGE);
-    _ui->mainPanel->setCurrentIndex(ERROR_SUBPAGE);
+    if (!textName.isEmpty()) {
+        Text t = _mainWindow->getConfigManager()->getText(getName(), textName);
+
+        if (t.getSize() != 0) {
+            // plain text
+            _ui->errorMsg->setFont(Utils::getFont(t.getFontFamily(), t.getSize()
+                                      , t.getSpacing(), t.getWeight()));
+        } else {
+            // html text
+            _ui->errorMsg->setTextFormat(Qt::RichText);
+        }
+
+        QFontMetrics fm(_ui->errorMsg->font());
+
+        _ui->errorMsg->setFixedHeight(fm.height());
+        _ui->errorMsg->setText(t.getText());
+    }
+
+    _ui->bottomPanel->setCurrentIndex(ERROR_SUBPAGE_BOTTOM);
+    _ui->mainPanel->setCurrentIndex(ERROR_SUBPAGE_MAIN);
+
+    if (!durationName.isEmpty()) {
+        stopTimer();
+
+        int timeMs = _mainWindow->getConfigManager()->getTimeDuration(getName(), durationName) * 1000;
+
+        _timer.setInterval(timeMs);
+
+        QObject::disconnect(&_timer, &QTimer::timeout, 0, 0);
+        QObject::connect(&_timer, &QTimer::timeout, [=]{
+            stopTimer();
+            _isImageCapturing = false;
+            _mainWindow->getMachinery()->getImage();
+            _mainWindow->goToState(PREPARING_FOR_PHOTO);
+        });
+
+        startTimer(durationName, timeMs / 1000);
+    }
 }

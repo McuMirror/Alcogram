@@ -98,6 +98,9 @@ public:
 
     StateName getCurrentStateName() const;
 
+signals:
+    void criticalError(StateName fromState);
+
 private:
     // adding transitions to critical error and non critical error states
     void addErrorTransitions(State* state);

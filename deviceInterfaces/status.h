@@ -1,7 +1,7 @@
 #pragma once
 
 enum DeviceName {
-    CAMERA, BILL_ACCEPTOR, POS, ALCOTESTER, PRINTER
+    CAMERA, BILL_ACCEPTOR, POS, ALCOTESTER, PRINTER, NON_DEVICE
 };
 
 enum RequestName {

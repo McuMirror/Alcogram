@@ -38,6 +38,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     qDebug().noquote() << Logger::instance()->buildSystemEventLog(Logger::INITIALIZATION_FINISH);
 
+    QObject::connect(_stateMachine, &StateMachine::criticalError, this, &MainWindow::criticalError);
+
     _stateMachine->run();
     setPage(SPLASH_SCREEN_PAGE);
 }
@@ -83,6 +85,17 @@ SessionData& MainWindow::getSessionData()
 DevicesChecker& MainWindow::getDevicesChecker()
 {
     return _devicesChecker;
+}
+
+void MainWindow::switchLanguage()
+{
+    _configManager->switchLanguage();
+
+    for (int i = 0; i < _ui->pages->count(); i++) {
+        Page* page = static_cast<Page*>(_ui->pages->widget(i));
+
+        page->switchLanguage();
+    }
 }
 
 void MainWindow::loadFonts()

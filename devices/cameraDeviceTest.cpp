@@ -17,9 +17,9 @@ CameraDeviceTest::CameraDeviceTest(QObject *parent)
             _callback(QSharedPointer<QImage>(new QImage(frame.mirrored()))
                       , QSharedPointer<Status>(new Status(0, CAMERA, _mode == STREAM ? GET_IMAGE : TAKE_IMAGE)));
 
-            if (_mode == TAKE_IMAGE) {
-                _callback = nullptr;
-            }
+            //if (_mode == TAKE_IMAGE) {
+            _callback = nullptr;
+            //}
         }
     });
 
