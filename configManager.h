@@ -86,11 +86,18 @@ public:
 
     const QList<Text> getLanguageIndependentText(const QString& page) const;
 
+    // get time durations in sec (mostly for page times?)
     int getTimeDuration(const QString& pageName, const QString& durationName) const;
+
+    // get time durations in ms for request timeouts
     int getTimeDuration(DeviceName deviceName, RequestName requestName) const;
 
+    // get a numerical interval
     QPair<float, float> getInterval(const QString& pageName, const QString& intervalName) const;
+
     QPair<QColor, QColor> getGradient(const QString& pageName, const QString& gradientName) const;
+
+    double getSize(const QString& pageName, const QString& sizeName) const;
 
 private:
     Text getPageText(const QMap<QString, QMap<QString, Text> > &pageTexts, const QString& pageName
@@ -106,6 +113,9 @@ private:
 
     // parse <pages> tag
     void parsePages(QDomNode page);
+
+    // parse <sizes> tag
+    void parseSizes(QDomNode size, const QString& pageName);
 
     // parse <texts> tag
     void parseTexts(QDomNode language, const QString& pageName);
@@ -126,6 +136,7 @@ private:
     QMap<QString, QMap<QString, QPair<float, float>>> _intervals; // page intervals
     QMap<QString, QMap<QString, QPair<QColor, QColor>>> _gradients; // page gradients
     QMap<DeviceName, QMap<RequestName, int>> _requestTimeouts;
+    QMap<QString, QMap<QString, double>> _pageSizes;
 
     TextLanguage _currentLanguage; // current interface language
     Text _defaultText; // default value for getText() function

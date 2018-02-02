@@ -1,5 +1,6 @@
 #include "criticalErrorPage.h"
 #include "ui_criticalErrorPage.h"
+#include "mainWindow.h"
 
 CriticalErrorPage::CriticalErrorPage(QWidget *parent) :
     Page(parent),
@@ -13,11 +14,11 @@ CriticalErrorPage::~CriticalErrorPage()
     delete ui;
 }
 
-void CriticalErrorPage::init(MainWindow *mainWindow)
+void CriticalErrorPage::init(MainWindowInterface* mainWindow)
 {
     Page::init(mainWindow);
 
-    QObject::connect(_mainWindow, &MainWindow::criticalError, this, &CriticalErrorPage::onCriticalError);
+    QObject::connect(static_cast<MainWindow*> (_mainWindow), &MainWindow::criticalError, this, &CriticalErrorPage::onCriticalError);
 }
 
 QString CriticalErrorPage::getName() const
@@ -25,10 +26,23 @@ QString CriticalErrorPage::getName() const
     return "criticalError";
 }
 
+QList<Transition *> CriticalErrorPage::getTransitions()
+{
+    QList<Transition*> transitions;
+
+    // CRITICAL_ERROR -> SPLASH_SCREEN_ETERNAL_SLEEP
+    transitions.append(new Transition(CRITICAL_ERROR, SPLASH_SCREEN_ETERNAL_SLEEP, [this](QEvent*) {
+        _mainWindow->setPage(SPLASH_SCREEN_ETERNAL_SLEEP_PAGE);
+    }));
+
+    return transitions;
+}
+
 void CriticalErrorPage::onCriticalError(StateName fromState)
 {
     _fromState = fromState;
 
+    // set critical error time
     stopTimer();
 
     // TODO: move to xml
@@ -51,6 +65,7 @@ void CriticalErrorPage::onCriticalError(StateName fromState)
 
 void CriticalErrorPage::setCheckTimer()
 {
+    // check devices after a certain period of time
     // TODO: move to xml
     _checkTimer.setInterval(5000);
     _checkTimer.setSingleShot(true);

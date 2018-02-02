@@ -30,6 +30,7 @@ private slots:
     void onSwitchLanguageButtonRelease();
 
 private:
+    // callbacks for DeviceChecker signals
     void onDevicesConnected();
     void onSomeDevicesNotConnected();
     void checkDevicesConnection();

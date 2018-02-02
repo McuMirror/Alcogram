@@ -93,11 +93,16 @@ void DevicesChecker::deviceCheckFinished(QSharedPointer<Status> status, bool err
     _handledDevicesCount++;
 
     if (error) {
+        // error status
         _disabledDevices.insert(status->getDeviceName(), status);
     }
 
     if (isAllDevicesHandled()) {
+        // response came from all devices
+
         if (_disabledDevices.isEmpty()) {
+            // ok
+
             switch (_checkMode) {
                 case START_DEVICES:
                     emit devicesStarted();
@@ -113,6 +118,8 @@ void DevicesChecker::deviceCheckFinished(QSharedPointer<Status> status, bool err
                     break;
             }
         } else {
+            // response from some devices came with an error
+
             switch (_checkMode) {
                 case START_DEVICES:
                     emit someDevicesNotStarted();
@@ -193,10 +200,10 @@ void DevicesChecker::onError(QSharedPointer<Status> status)
 
 void DevicesChecker::onReceivedDeviceStatus(QSharedPointer<Status> status)
 {
-    deviceCheckFinished(status);
+    deviceCheckFinished(status, status->getErrorCode() == STATUS_NOT_OK);
 }
 
 void DevicesChecker::onReceivedDeviceConnectionStatus(QSharedPointer<Status> status)
 {
-    deviceCheckFinished(status);
+    deviceCheckFinished(status, status->getErrorCode() == DEVICE_NOT_CONNECTED);
 }

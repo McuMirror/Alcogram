@@ -16,7 +16,7 @@ public:
     explicit NoncriticalErrorPage(QWidget *parent = 0);
     ~NoncriticalErrorPage();
 
-    void init(MainWindow* mainWindow) override;
+    void init(MainWindowInterface* mainWindow) override;
     QString getName() const override;
 
 private:

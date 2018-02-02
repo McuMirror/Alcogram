@@ -13,7 +13,7 @@ SplashScreenEternalSleep::~SplashScreenEternalSleep()
     delete ui;
 }
 
-void SplashScreenEternalSleep::init(MainWindow *mainWindow)
+void SplashScreenEternalSleep::init(MainWindowInterface* mainWindow)
 {
     Page::init(mainWindow);
 }

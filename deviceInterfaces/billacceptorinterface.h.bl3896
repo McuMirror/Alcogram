@@ -1,0 +1,24 @@
+#pragma once
+
+#include <QTimer>
+
+#include "baseDeviceInterface.h"
+
+typedef std::function<void(double, QSharedPointer<Status>)> BillAcceptorCallback;
+
+class BillAcceptorInterface : public BaseDeviceInterface {
+public:
+    // activate bill acceptor
+    virtual void activate(DeviceCallback onActivation) = 0;
+
+    virtual void setBillAcceptorCallback(BillAcceptorCallback onMoneyReceived, DeviceCallback onMoneyRejected);
+
+    // deactivate bill acceptor
+    virtual void deactivate(DeviceCallback onDeactivation) = 0;
+
+private:
+    BillAcceptorCallback _onMoneyReceived;
+    DeviceCallback _onMoneyRejected;
+    QTimer _timer;
+};
+

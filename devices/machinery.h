@@ -9,6 +9,7 @@
 #include "deviceInterfaces/cameraInterface.h"
 #include "deviceInterfaces/posinterface.h"
 #include "deviceInterfaces/printerinterface.h"
+#include "deviceInterfaces/billacceptorinterface.h"
 
 #include "configManager.h"
 
@@ -91,6 +92,14 @@ public:
     void takeMoney(double money);
 
     //###########
+    // bill acceptor device operations
+    //###########
+
+    void activateBillAcceptor();
+
+    void deactivateBillAcceptor();
+
+    //###########
     // printer device operations
     //###########
 
@@ -167,6 +176,22 @@ signals:
     void transactionFailed(QSharedPointer<Status> status);
 
     //###########
+    // bill acceptor device operation signals
+    //###########
+
+    // emits after activation of the bill acceptor device
+    void billAcceptorActivated(QSharedPointer<Status> status);
+
+    // emits after deactivation of the bill acceptor device
+    void billAcceptorDeactivated(QSharedPointer<Status> status);
+
+    // emits after the adoption of banknote
+    void moneyReceived(double money, QSharedPointer<Status> status);
+
+    // emits after failing banknote
+    void moneyRejected(QSharedPointer<Status> status);
+
+    //###########
     // printer device operation signals
     //###########
 
@@ -231,6 +256,15 @@ private:
     void onTransactionFailed(QSharedPointer<Status> status);
 
     //###########
+    // bill acceptor device operation callbacks
+    //###########
+
+    void onActivateBillAcceptor(QSharedPointer<Status> status);
+    void onDeactivateBillAcceptor(QSharedPointer<Status> status);
+    void onMoneyReceived(double money, QSharedPointer<Status> status);
+    void onMoneyRejected(QSharedPointer<Status> status);
+
+    //###########
     // printer device operation callbacks
     //###########
 
@@ -251,4 +285,5 @@ private:
     AlcotesterInterface* _alcotester; // alcotester device
     POSInterface* _pos; // POS device
     PrinterInterface* _printer; // printer device
+    BillAcceptorInterface* _billAcceptor;
 };

@@ -100,10 +100,13 @@ public:
 
 signals:
     void criticalError(StateName fromState);
+    void fromCriticalError(StateName toState);
 
 private:
     // adding transitions to critical error and non critical error states
     void addErrorTransitions(State* state);
+
+    void fromCriticalErrorState(QEvent* event);
 
     void addErrorStatesTransitions();
     void handleCriticalError(QEvent* event);

@@ -22,7 +22,7 @@ public:
     explicit PhotoPrintPageWidget(QWidget *parent = 0);
     ~PhotoPrintPageWidget();
 
-    void init(MainWindow* mainWindow) override;
+    void init(MainWindowInterface* mainWindow) override;
     QString getName() const override;
     QList<Transition*> getTransitions() override;
 
@@ -42,9 +42,17 @@ private:
     void onPrinterRestart(QSharedPointer<Status> status);
 
     void setTimer(const QString& durationName);
+
+    // generates final photo
     QPixmap generateFinalPhoto(int w, int h);
+
+    // draw loser alco circle
     void drawLoser(QPainter& p, const QRect& faceRect, double value);
+
+    // draw champion alco circle
     void drawChampion(QPainter& p, const QRect& faceRect, double value);
+
+    // returns color for alcovalue
     QColor getAlcoLevelColor(double value) const;
 
     Ui::PhotoPrintPageWidget* _ui;

@@ -8,6 +8,7 @@
 class FaceDetectionInterface
 {
 public:
+    // finds faces in the image
     virtual void detect(const QImage& image) = 0;
 
     // number of detected faces

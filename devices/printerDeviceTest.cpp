@@ -23,7 +23,7 @@ void PrinterDeviceTest::restart(DeviceCallback onRestart)
 
 void PrinterDeviceTest::checkStatus(DeviceCallback onCheckStatus)
 {
-    onCheckStatus(QSharedPointer<Status>(new Status(0, PRINTER, CHECK_STATUS)));
+    onCheckStatus(QSharedPointer<Status>(new Status(STATUS_OK, PRINTER, CHECK_STATUS)));
 }
 
 void PrinterDeviceTest::connectionStatus(DeviceCallback onConnection)

@@ -6,6 +6,7 @@
 #include "logger.h"
 #include "utils.h"
 
+// table insert request templates
 const QString Logger::_tapLogTemplate = "INSERT INTO tapLog "
                                         "(machine_id, date_time, state, x, y) "
                                         "VALUES ('@machine_id', '@time', '@state', @x, @y)";

@@ -95,8 +95,9 @@ void TakePhotoPageWidget::updateCameraOutput(QPixmap processedImage)
 {
     int w = _ui->cameraOutput->width();
     int h = _ui->cameraOutput->height();
-    int x = (int) (0.1 * processedImage.width());
-    int y = (int) (0.1 * processedImage.height());
+    double cutSize = _mainWindow->getConfigManager()->getSize(getName(), "liveViewCutSize");
+    int x = (int) (cutSize * processedImage.width());
+    int y = (int) (cutSize * processedImage.height());
 
     QRect rect(x, y, processedImage.width() - x, processedImage.height() - y);
     QPixmap f = processedImage.copy(rect);
@@ -106,12 +107,13 @@ void TakePhotoPageWidget::updateCameraOutput(QPixmap processedImage)
 
     _isImageHandling = false;
 
+    // TODO: weak point
     if (!_isImageCapturing) {
         _mainWindow->getMachinery()->getImage();
     }
 }
 
-void TakePhotoPageWidget::init(MainWindow* mainWindow) {
+void TakePhotoPageWidget::init(MainWindowInterface* mainWindow) {
     Page::init(mainWindow);
 
     _faceDetector = _mainWindow->getFaceDetector();
@@ -210,6 +212,9 @@ void TakePhotoPageWidget::onEntry()
     QObject::connect(_mainWindow->getMachinery(), &Machinery::error
                      , this, &TakePhotoPageWidget::onCameraError);
 
+    QObject::connect(_mainWindow->getMachinery(), &Machinery::deviceHasRestarted
+                     , this, &TakePhotoPageWidget::onCameraRestart);
+
     _isImageCapturing = false;
     _mainWindow->getMachinery()->getImage();
 }
@@ -218,6 +223,9 @@ void TakePhotoPageWidget::onExit()
 {
     QObject::disconnect(_mainWindow->getMachinery(), &Machinery::error
                      , this, &TakePhotoPageWidget::onCameraError);
+
+    QObject::disconnect(_mainWindow->getMachinery(), &Machinery::deviceHasRestarted
+                     , this, &TakePhotoPageWidget::onCameraRestart);
 }
 
 void TakePhotoPageWidget::initInterface()

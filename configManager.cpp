@@ -96,7 +96,8 @@ bool Interval::isStartNotLimited() const
 const QString ConfigManager::_requestNameStrings[] = {"startDevice", "finishDevice", "restartDevice", "checkStatus", "checkConnection"
                                                , "getImage", "takeImage", "stopGetImage" , "warmingUpAlcotester", "coolingDownAlcotester"
                                                , "activateAlcotester", "activatePOS", "deactivatePOS", "takeMoney"
-                                               , "warmingUpPrinter", "coolingDownPrinter", "printImage"};
+                                               , "warmingUpPrinter", "coolingDownPrinter", "printImage"
+                                               , "activateBillAcceptor", "deactivateBillAcceptor"};
 
 ConfigManager::ConfigManager(QObject *parent)
     : QObject(parent)
@@ -104,7 +105,7 @@ ConfigManager::ConfigManager(QObject *parent)
     , _defaultInterval(std::numeric_limits<float>::min(), std::numeric_limits<float>::max())
     , _defaultGradient(QColor(Qt::white), QColor(Qt::black))
 {
-    for (int i = START_DEVICE; i <= PRINT_IMAGE; i++) {
+    for (int i = START_DEVICE; i <= DEACTIVATE_BILL_ACCEPTOR; i++) {
         _requestNames.insert(_requestNameStrings[i], static_cast<RequestName>(i));
     }
 }
@@ -227,6 +228,17 @@ QPair<QColor, QColor> ConfigManager::getGradient(const QString& pageName, const 
     return _defaultGradient;
 }
 
+double ConfigManager::getSize(const QString& pageName, const QString& sizeName) const
+{
+    if (_pageSizes.contains(pageName)) {
+        if (_pageSizes[pageName].contains(sizeName)) {
+            return _pageSizes[pageName].value(sizeName);
+        }
+    }
+
+    return 0;
+}
+
 void ConfigManager::load(const QString& fileName)
 {
     qDebug().noquote() << Logger::instance()->buildSystemEventLog(Logger::CONFIG_LOAD_START, 0, 0, QStringList({fileName}));
@@ -276,6 +288,8 @@ void ConfigManager::load(const QString& fileName)
 
 void ConfigManager::parseDevices(QDomNode device)
 {
+    // iterate over <device> tags
+
     while(!device.isNull()) {
         QDomElement deviceElement = device.toElement();
         QString name = deviceElement.attribute("name", "");
@@ -352,6 +366,7 @@ void ConfigManager::parsePages(QDomNode page)
         _pageTextRU.insert(pageName, QMap<QString, Text>());
         _pageTextEN.insert(pageName, QMap<QString, Text>());
         _pageText.insert(pageName, QMap<QString, Text>());
+        _pageSizes.insert(pageName, QMap<QString, double>());
 
         QDomNode pageSet = page.firstChild();
 
@@ -375,10 +390,30 @@ void ConfigManager::parsePages(QDomNode page)
                 parseColors(pageSetElement.firstChild(), pageName);
             }
 
+            if (pageSetElement.tagName() == "sizes") {
+                parseSizes(pageSetElement.firstChild(), pageName);
+            }
+
             pageSet = pageSet.nextSibling();
         }
 
         page = page.nextSibling();
+    }
+}
+
+void ConfigManager::parseSizes(QDomNode size, const QString& pageName)
+{
+    // iterate over <size> tags
+    while (!size.isNull()) {
+        QDomElement sizeElement = size.toElement();
+        QString sizeName = sizeElement.attribute("name", "");
+        int iSize = sizeElement.attribute("value", "0").toInt();
+        QString dimension = sizeElement.attribute("dimension", "px");
+        double dSize = dimension == "%" ? iSize / 100.0 : iSize;
+
+        _pageSizes[pageName].insert(sizeName, dSize);
+
+        size = size.nextSibling();
     }
 }
 

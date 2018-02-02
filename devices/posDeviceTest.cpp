@@ -26,7 +26,7 @@ void POSDeviceTest::restart(DeviceCallback onRestart)
 
 void POSDeviceTest::checkStatus(DeviceCallback onCheckStatus)
 {
-    onCheckStatus(QSharedPointer<Status>(new Status(0, POS, CHECK_STATUS)));
+    onCheckStatus(QSharedPointer<Status>(new Status(STATUS_OK, POS, CHECK_STATUS)));
 }
 
 void POSDeviceTest::connectionStatus(DeviceCallback onConnection)
@@ -52,5 +52,5 @@ void POSDeviceTest::deactivate(DeviceCallback onDeactivation)
 
 void POSDeviceTest::takeMoney(double money, POSCallback onTransactionSucceded, DeviceCallback onTransactionFailed)
 {
-    onTransactionSucceded(money, QSharedPointer<Status>(new Status(0, POS, TAKE_MONEY)));
+    //onTransactionSucceded(money, QSharedPointer<Status>(new Status(0, POS, TAKE_MONEY)));
 }

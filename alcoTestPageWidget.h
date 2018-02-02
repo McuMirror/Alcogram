@@ -29,7 +29,7 @@ public:
     explicit AlcoTestPageWidget(QWidget *parent = 0);
     ~AlcoTestPageWidget();
 
-    void init(MainWindow* mainWindow) override;
+    void init(MainWindowInterface* mainWindow) override;
     QString getName() const override;
     QList<Transition*> getTransitions() override;
 
@@ -75,9 +75,9 @@ private:
 
     QPixmap _repeatIcon;
 
-    AlcotestCircleState _circleState = TEST;
-    double _lastPersonValue;
-    int _currentPerson; // current person number
+    AlcotestCircleState _circleState = TEST; // type of displayed selection
+    double _lastPersonValue; // alcovalue of last tested person
+    int _currentPerson; // number of current person
     int _alcotesterWarmingUpAttemptNumber; // number of attempts to warm up alcotester in succession
     int _alcotesterFailureNumber; // number of attempts to read data from alcotester in succession
     bool _alcotesterInWork;

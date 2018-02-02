@@ -27,6 +27,7 @@ void CameraImageHandler::process()
 {
     QPixmap processedImage = QPixmap::fromImage(*_imageToProcess);
 
+    // find faces
     _faceDetector->detect(*_imageToProcess);
 
     // draw rects for found faces

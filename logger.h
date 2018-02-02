@@ -23,6 +23,7 @@ public:
         , CAMERA
         , POS
         , PRINTER
+        , BILLACCEPTOR
     };
 
     enum Event {

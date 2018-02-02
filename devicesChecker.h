@@ -14,9 +14,16 @@ class DevicesChecker : public QObject
 public:
     explicit DevicesChecker(QObject* parent, MainWindowInterface* mainWindow);
 
+    // start all devices
     void startDevices();
+
+    // finish all devices
     void finishDevices();
+
+    // check all devices status
     void checkDevicesStatus();
+
+    // check all devices connection status
     void checkDevicesConnection();
 
     // сheck status for devices that have errors on the previous operation
@@ -32,14 +39,30 @@ public:
     QMap<DeviceName, QSharedPointer<Status>>& getDisabledDevices();
 
 signals:
+    // emits after all devices have started
     void devicesStarted();
+
+    // emits after all devices have finished
     void devicesFinished();
+
+    // emits after receiving the status of all devices
     void devicesStatusOk();
+
+    // emits after receiving the connection status of all devices
     void devicesConnected();
 
+    // emits after response to the start request came from all devices
+    // but some devices are not started
     void someDevicesNotStarted();
+
+    // emits after response to the finish request came from all devices
+    // but some devices are not finished
     void someDevicesNotFinshed();
+
+    // emits after receiving the status of all devices and status of some devices are not ok
     void someDevicesStatusNotOk();
+
+    // emits after receiving the connection status of all devices and some devices are not connected
     void someDevicesNotConnected();
 
 private:
@@ -61,6 +84,7 @@ private:
     // reset all callback to Machinery signals
     void disconnectFromMachinery();
 
+    // callback for Machinery signals
     void onDeviceStarted(QSharedPointer<Status> status);
     void onDeviceFinished(QSharedPointer<Status> status);
     void onError(QSharedPointer<Status> status);

@@ -5,6 +5,7 @@
 #include "devices/cameraDeviceTest.h"
 #include "devices/posDeviceTest.h"
 #include "devices/printerDeviceTest.h"
+#include "devices/billAcceptorDeviceTest.h"
 #include "mainWindow.h"
 
 using namespace std::placeholders;
@@ -15,11 +16,13 @@ Machinery::Machinery(QObject *parent)
     , _alcotester(new AlcotesterDeviceTest(this))
     , _pos(new POSDeviceTest(this))
     , _printer(new PrinterDeviceTest(this))
+    , _billAcceptor(new BillAcceptorDeviceTest(this))
 {   
     _devices.insert(CAMERA, _camera);
     _devices.insert(ALCOTESTER, _alcotester);
     _devices.insert(POS, _pos);
     _devices.insert(PRINTER, _printer);
+    _devices.insert(BILL_ACCEPTOR, _billAcceptor);
 
     for (BaseDeviceInterface* device : _devices.values()) {
         device->setOnErrorCallback(std::bind(&Machinery::onError, this, _1));
@@ -102,6 +105,8 @@ void Machinery::getImage()
 
 void Machinery::takeImage()
 {
+    removeRequest(CAMERA, GET_IMAGE);
+
     QSharedPointer<QTimer> requestTimer = registerRequest(CAMERA, TAKE_IMAGE);
 
     _camera->takeImage(std::bind(&Machinery::onTakeImage, this, _1, _2));
@@ -159,6 +164,8 @@ void Machinery::activatePOS()
 
 void Machinery::deactivatePOS()
 {
+    removeRequest(POS, TAKE_MONEY);
+
     QSharedPointer<QTimer> requestTimer = registerRequest(POS, DEACTIVATE_POS);
 
     _pos->deactivate(std::bind(&Machinery::onDeactivatePOS, this, _1));
@@ -172,6 +179,28 @@ void Machinery::takeMoney(double money)
 
     _pos->takeMoney(money, std::bind(&Machinery::onTransactionSucceded, this, _1, _2)
                           , std::bind(&Machinery::onTransactionFailed, this, _1));
+
+    requestTimer->start();
+}
+
+// bill acceptor device operations
+
+void Machinery::activateBillAcceptor()
+{
+    QSharedPointer<QTimer> requestTimer = registerRequest(BILL_ACCEPTOR, ACTIVATE_BILL_ACCEPTOR);
+
+    _billAcceptor->setBillAcceptorCallback(std::bind(&Machinery::onMoneyReceived, this, _1, _2)
+                                           , std::bind(&Machinery::onMoneyRejected, this, _1));
+    _billAcceptor->activate(std::bind(&Machinery::onActivateBillAcceptor, this, _1));
+
+    requestTimer->start();
+}
+
+void Machinery::deactivateBillAcceptor()
+{
+    QSharedPointer<QTimer> requestTimer = registerRequest(BILL_ACCEPTOR, DEACTIVATE_BILL_ACCEPTOR);
+
+    _billAcceptor->deactivate(std::bind(&Machinery::onDeactivateBillAcceptor, this, _1));
 
     requestTimer->start();
 }
@@ -359,6 +388,32 @@ void Machinery::onTransactionFailed(QSharedPointer<Status> status)
     if (removeRequest(status->getDeviceName(), TAKE_MONEY)) {
         emit transactionFailed(status);
     }
+}
+
+// bill acceptor device operation callback
+
+void Machinery::onActivateBillAcceptor(QSharedPointer<Status> status)
+{
+    if (removeRequest(status->getDeviceName(), ACTIVATE_BILL_ACCEPTOR)) {
+        emit billAcceptorActivated(status);
+    }
+}
+
+void Machinery::onDeactivateBillAcceptor(QSharedPointer<Status> status)
+{
+    if (removeRequest(status->getDeviceName(), ACTIVATE_BILL_ACCEPTOR)) {
+        emit billAcceptorDeactivated(status);
+    }
+}
+
+void Machinery::onMoneyReceived(double money, QSharedPointer<Status> status)
+{
+    emit moneyReceived(money, status);
+}
+
+void Machinery::onMoneyRejected(QSharedPointer<Status> status)
+{
+    emit moneyRejected(status);
 }
 
 // printer device operation callback

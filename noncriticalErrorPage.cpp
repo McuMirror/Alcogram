@@ -13,7 +13,7 @@ NoncriticalErrorPage::~NoncriticalErrorPage()
     delete ui;
 }
 
-void NoncriticalErrorPage::init(MainWindow *mainWindow)
+void NoncriticalErrorPage::init(MainWindowInterface* mainWindow)
 {
     Page::init(mainWindow);
 }

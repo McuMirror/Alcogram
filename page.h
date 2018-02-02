@@ -4,7 +4,7 @@
 #include <QList>
 #include <QTimer>
 
-#include "mainWindow.h"
+#include "interfaces/mainwindowinterface.h"
 #include "configManager.h"
 #include "stateMachine.h"
 
@@ -16,7 +16,7 @@ public:
 
     virtual ~Page() {}
 
-    virtual void init(MainWindow* mainWindow)
+    virtual void init(MainWindowInterface* mainWindow)
     {
         _mainWindow = mainWindow;
 
@@ -42,6 +42,7 @@ public:
     // called when page becomes inactive
     void exit();
 
+    // switch page interface language
     void switchLanguage();
 
 private:
@@ -83,7 +84,7 @@ protected:
 
     }
 
-    MainWindow* _mainWindow;
-    QString _currentTimerName = "";
+    MainWindowInterface* _mainWindow;
+    QString _currentTimerName = ""; // the name of active timer
     QTimer _timer;
 };

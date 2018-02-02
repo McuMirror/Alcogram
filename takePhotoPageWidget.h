@@ -25,7 +25,7 @@ public:
     explicit TakePhotoPageWidget(QWidget *parent = 0);
     ~TakePhotoPageWidget();
 
-    void init(MainWindow* mainWindow) override;
+    void init(MainWindowInterface* mainWindow) override;
     QString getName() const override;
     QList<Transition*> getTransitions() override;
 
@@ -39,11 +39,13 @@ protected:
     void setConnections() override;
 
 private:
+    // callbacks for Machinery signals for camera device
     void onNextFrameReceived(QSharedPointer<QImage> image, QSharedPointer<Status> status);
     void onReceivedCapturedImage(QSharedPointer<QImage> image, QSharedPointer<Status> status);
     void onCameraRestart(QSharedPointer<Status> status);
     void onCameraError(QSharedPointer<Status> status);
 
+    // calls after received signal processed from CameraImageHandler
     void updateCameraOutput(QPixmap processedImage);
 
     // setting photo timer with duration named "timer"

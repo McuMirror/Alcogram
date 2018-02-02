@@ -38,9 +38,13 @@ public:
      void switchLanguage() override;
 
 signals:
+    // emits on signal criticalError from StateMachine
     void criticalError(StateName fromState);
 
 private:
+    // called on signal fromCritical from StateMachine
+    void onFromCriticalError(StateName toState);
+
     // load fonts from resources
     void loadFonts();
 
@@ -54,4 +58,6 @@ private:
     Machinery* _machinery;
     SessionData _sessionData;
     DevicesChecker _devicesChecker;
+
+    static const PageName _statePageNames[]; // StateName to PageName
 };

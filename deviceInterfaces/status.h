@@ -18,7 +18,10 @@ enum RequestName {
     ACTIVATE_POS, DEACTIVATE_POS, TAKE_MONEY,
 
     // printer requests
-    WARMING_UP_PRINTER, COOLING_DOWN_PRINTER, PRINT_IMAGE
+    WARMING_UP_PRINTER, COOLING_DOWN_PRINTER, PRINT_IMAGE,
+
+    // billacceptor requests
+    ACTIVATE_BILL_ACCEPTOR, DEACTIVATE_BILL_ACCEPTOR, MONEY_REQUEST
 };
 
 const int NO_ERROR = 0;
@@ -28,6 +31,8 @@ const int REQUEST_TIMEOUT = 3;
 const int POS_NOT_ENOUGH_MONEY = 4;
 const int POS_WRONG_PIN_CODE = 5;
 const int DEVICE_NOT_CONNECTED = 6;
+const int STATUS_OK = 7;
+const int STATUS_NOT_OK = 8;
 
 // contains information about a result of a request
 class Status

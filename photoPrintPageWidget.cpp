@@ -24,7 +24,7 @@ PhotoPrintPageWidget::~PhotoPrintPageWidget()
     delete _ui;
 }
 
-void PhotoPrintPageWidget::init(MainWindow* mainWindow)
+void PhotoPrintPageWidget::init(MainWindowInterface* mainWindow)
 {
     Page::init(mainWindow);
 

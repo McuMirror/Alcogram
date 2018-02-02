@@ -46,7 +46,8 @@ SOURCES += main.cpp\
     deviceInterfaces/status.cpp \
     sessionData.cpp \
     devicesChecker.cpp \
-    deviceInterfaces/basedeviceinterface.cpp
+    deviceInterfaces/basedeviceinterface.cpp \
+    devices/billAcceptorDeviceTest.cpp
 
 HEADERS  += mainWindow.h \
     startPageWidget.h \
@@ -82,7 +83,9 @@ HEADERS  += mainWindow.h \
     deviceInterfaces/status.h \
     devices/machinery.h \
     sessionData.h \
-    devicesChecker.h
+    devicesChecker.h \
+    deviceInterfaces/billAcceptorInterface.h \
+    devices/billAcceptorDeviceTest.h
 
 FORMS    += mainWindow.ui \
     startPageWidget.ui \

@@ -21,7 +21,7 @@ SplashScreen::~SplashScreen()
     delete _ui;
 }
 
-void SplashScreen::init(MainWindow *mainWindow)
+void SplashScreen::init(MainWindowInterface* mainWindow)
 {
     Page::init(mainWindow);
 
@@ -48,7 +48,6 @@ void SplashScreen::onEntry()
 {
     connectToDeviceChecker();
     _mainWindow->getDevicesChecker().startDevices();
-
     _mainWindow->getSessionData().reset();
 }
 

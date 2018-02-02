@@ -22,12 +22,17 @@ enum PageName {
 
 class MainWindowInterface {
 public:
+    // sets pageName as active
+    // @param pageName - name of the page to set active
     virtual void setPage(PageName pageName) = 0;
 
+    // returns ConfigManager
     virtual ConfigManager* getConfigManager() const = 0;
 
+    // returns Machinary
     virtual Machinery* getMachinery() const = 0;
 
+    // returns FaceDetectorInterface
     virtual FaceDetectionInterface* getFaceDetector() const = 0;
 
     // move to state
@@ -36,9 +41,12 @@ public:
     // returns current state machine state
     virtual StateName getCurrentStateName() const = 0;
 
+    // returns SessionData
     virtual SessionData& getSessionData() = 0;
 
+    // returns DeviceChecker
     virtual DevicesChecker& getDevicesChecker() = 0;
 
+    // switch interface language
     virtual void switchLanguage() = 0;
 };

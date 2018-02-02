@@ -28,12 +28,12 @@ void AlcotesterDeviceTest::restart(DeviceCallback onRestart)
 
 void AlcotesterDeviceTest::checkStatus(DeviceCallback onCheckStatus)
 {
-    onCheckStatus(QSharedPointer<Status>(new Status(0, ALCOTESTER, CHECK_STATUS)));
+    onCheckStatus(QSharedPointer<Status>(new Status(STATUS_OK, ALCOTESTER, CHECK_STATUS)));
 }
 
 void AlcotesterDeviceTest::connectionStatus(DeviceCallback onConnection)
 {
-    onConnection(QSharedPointer<Status>(new Status(0, ALCOTESTER, CHECK_CONNECTION)));
+    onConnection(QSharedPointer<Status>(new Status(DEVICE_CONNECTED, ALCOTESTER, CHECK_CONNECTION)));
     //_onError(QSharedPointer<Status>(new Status(ERROR, ALCOTESTER, CHECK_CONNECTION)));
 }
 

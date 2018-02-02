@@ -16,7 +16,7 @@ public:
     explicit SplashScreenEternalSleep(QWidget *parent = 0);
     ~SplashScreenEternalSleep();
 
-    void init(MainWindow* mainWindow) override;
+    void init(MainWindowInterface* mainWindow) override;
     QString getName() const override;
 
 private:

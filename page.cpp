@@ -44,6 +44,7 @@ void Page::setTexts(QWidget* mainWidget, const QList<Text>& texts)
         QWidget* w = mainWidget->findChild<QWidget*>(t.getName());
 
         if (QLabel* l = dynamic_cast<QLabel*>(w)) {
+            // set QLabel text
             if (t.getSize() != 0) {
                 // plain text
                 l->setFont(Utils::getFont(t.getFontFamily(), t.getSize()
@@ -57,6 +58,7 @@ void Page::setTexts(QWidget* mainWidget, const QList<Text>& texts)
         }
 
         if (QPushButton* b = dynamic_cast<QPushButton*>(w)) {
+            // set QPushButton text
             if (t.getSize() != 0) {
                 b->setFont(Utils::getFont(t.getFontFamily(), t.getSize()
                                           , t.getSpacing(), t.getWeight()));
@@ -81,6 +83,7 @@ void Page::stopTimer()
     _timer.stop();
 
     if (!_currentTimerName.isEmpty()) {
+        // if there was an active timer
         qDebug().noquote() << Logger::instance()->buildSystemEventLog(Logger::USER_TIMER_STOP, Logger::NONE
             , _currentTimerName);
     }

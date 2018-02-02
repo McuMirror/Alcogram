@@ -16,7 +16,7 @@ public:
     explicit SplashScreen(QWidget *parent = 0);
     ~SplashScreen();
 
-    void init(MainWindow* mainWindow) override;
+    void init(MainWindowInterface* mainWindow) override;
     QString getName() const override;
     QList<Transition*> getTransitions() override;
 
@@ -24,6 +24,7 @@ protected:
     void onEntry();
 
 private:
+    // callbacks for DeviceChecker signals
     void onDevicesStarted();
     void onSomeDevicesNotStarted();
     void onDevicesStatusOk();
@@ -31,6 +32,5 @@ private:
     void connectToDeviceChecker();
     void disconnectFromDeviceChecker();
 
-    bool _firstLaunch = true;
     Ui::SplashScreen *_ui;
 };

@@ -13,7 +13,7 @@ SplashScreenNoncriticalError::~SplashScreenNoncriticalError()
     delete ui;
 }
 
-void SplashScreenNoncriticalError::init(MainWindow *mainWindow)
+void SplashScreenNoncriticalError::init(MainWindowInterface* mainWindow)
 {
     Page::init(mainWindow);
 }

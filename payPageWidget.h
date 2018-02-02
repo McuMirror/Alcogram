@@ -19,7 +19,7 @@ public:
     explicit PayPageWidget(QWidget *parent = 0);
     ~PayPageWidget();
 
-    void init(MainWindow* mainWindow) override;
+    void init(MainWindowInterface* mainWindow) override;
     QString getName() const override;
     QList<Transition*> getTransitions() override;
 
@@ -33,9 +33,12 @@ private:
     // callback for Machinery signals for POS device
     void onTransactionSucceded(double money, QSharedPointer<Status> status);
     void onTransactionFailed(QSharedPointer<Status> status);
+    void onMoneyReceived(double money, QSharedPointer<Status> status);
+    void onMoneyRejected(QSharedPointer<Status> status);
     void onError(QSharedPointer<Status> status);
-    void onActivate(QSharedPointer<Status> status);
-    void onRestart(QSharedPointer<Status> status);
+    void onActivatePOS(QSharedPointer<Status> status);
+    void onActivateBillAcceptor(QSharedPointer<Status> status);
+    void onRestartPOS(QSharedPointer<Status> status);
 
 
     // init column price QLabel's
@@ -51,7 +54,10 @@ private:
     // setting inaction timer for "not enough money" subpage
     void setNotEnoughMoneyInactionTimer();
 
+    // retrives text templates
     void retrieveTextTemplates();
+
+    // retrives the language dependent text templates
     void retrieveLanguageDependentTemplates();
 
     // returns payState page numbers related to specific state
@@ -68,12 +74,16 @@ private:
     QString _regularPricesText; // 3 column
     QString _lightPricesText; // 4 column
 
+    QString _ofPriceText;
     QString _priceText; // template text for QLabel price
     QString _timerText; // template for NOT_ENOUGH_MONEY timer text
 
-    int _enteredMoneyAmount;
+    int _enteredMoneyAmount; // total money received
     int _price; // price to pay
     int _timerTimeLeft;
+
+    bool _posActive; // POS device is active/not active
+    bool _billAcceptorActive; // bill acceptor device is active/not active
 
     QMap<StateName, int> _payStatePageNumber; // state -> payState page number
 };

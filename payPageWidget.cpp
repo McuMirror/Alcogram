@@ -21,11 +21,9 @@ PayPageWidget::~PayPageWidget()
     delete _ui;
 }
 
-void PayPageWidget::init(MainWindow *mainWindow)
+void PayPageWidget::init(MainWindowInterface* mainWindow)
 {
     Page::init(mainWindow);
-
-    //_posDevice = mainWindow->getDeviceManager()->getPOSDevice();
 }
 
 QString PayPageWidget::getName() const
@@ -40,6 +38,8 @@ QList<Transition*> PayPageWidget::getTransitions()
     // PAY -> SPLASH_SCREEN
     transitions.append(new Transition(PAY, SPLASH_SCREEN, [this](QEvent*) {
         stopTimer();
+        _mainWindow->getMachinery()->deactivateBillAcceptor();
+        _mainWindow->getMachinery()->deactivatePOS();
         _mainWindow->setPage(SPLASH_SCREEN_PAGE);
     }));
 
@@ -53,6 +53,8 @@ QList<Transition*> PayPageWidget::getTransitions()
     // PAY -> MORE_MONEY_THAN_NEED
     transitions.append(new Transition(PAY, MORE_MONEY_THAN_NEED, [this](QEvent*) {
         _ui->continueButton->show();
+       _mainWindow->getMachinery()->deactivateBillAcceptor();
+       _mainWindow->getMachinery()->deactivatePOS();
         setSubPage(MORE_MONEY_THAN_NEED);
         setInactionTimer("inactionMoreMoneyThanNeed");
     }));
@@ -60,12 +62,16 @@ QList<Transition*> PayPageWidget::getTransitions()
     // PAY -> PAYMENT_CONFIRMED
     transitions.append(new Transition(PAY, PAYMENT_CONFIRMED, [this](QEvent*) {
         _ui->cancelButton->hide();
+       _mainWindow->getMachinery()->deactivateBillAcceptor();
+       _mainWindow->getMachinery()->deactivatePOS();
         setSubPage(PAYMENT_CONFIRMED);
         setInactionTimer("paymentConfirmed");
     }));
 
     // NOT_ENOUGH_MONEY -> SPLASH_SCREEN
     transitions.append(new Transition(NOT_ENOUGH_MONEY, SPLASH_SCREEN, [this](QEvent*) {
+        _mainWindow->getMachinery()->deactivateBillAcceptor();
+        _mainWindow->getMachinery()->deactivatePOS();
         _mainWindow->setPage(SPLASH_SCREEN_PAGE);
     }));
 
@@ -99,16 +105,26 @@ void PayPageWidget::onEntry()
     _ui->cancelButton->show();
 
     setSubPage(PAY);
+
+    // set inaction timer on zero money case
     setInactionTimer("inactionPayMoneyZero");
 
+    // compute price
     _price = _mainWindow->getFaceDetector()->facesCount() * 50;
+
+    // set backgroung
     _ui->price->setText(QString(_priceText).replace("@PRICE", QString::number(_price)));
     setPriceToPriceLabels(_price);
 
     _enteredMoneyAmount = 0;
+    _billAcceptorActive = false;
+    _posActive = false;
 
     QObject::connect(_mainWindow->getMachinery(), &Machinery::error, this, &PayPageWidget::onError);
+
+    // activate POS and bill acceptor devices
     _mainWindow->getMachinery()->activatePOS();
+    _mainWindow->getMachinery()->activateBillAcceptor();
 }
 
 void PayPageWidget::onExit()
@@ -166,20 +182,60 @@ void PayPageWidget::setConnections()
                      , this, &PayPageWidget::onTransactionFailed);
 
     QObject::connect(machinery, &Machinery::posActivated
-                     , this, &PayPageWidget::onActivate);
+                     , this, &PayPageWidget::onActivatePOS);
+
+    QObject::connect(machinery, &Machinery::moneyReceived
+                     , this, &PayPageWidget::onMoneyReceived);
+
+    QObject::connect(machinery, &Machinery::moneyRejected
+                     , this, &PayPageWidget::onMoneyRejected);
+
+    QObject::connect(machinery, &Machinery::billAcceptorActivated
+                     , this, &PayPageWidget::onActivateBillAcceptor);
 }
 
 void PayPageWidget::onTransactionSucceded(double money, QSharedPointer<Status> status)
 {
+    // successfull POS transaction
     _enteredMoneyAmount = money;
     _mainWindow->getMachinery()->deactivatePOS();
+    _mainWindow->getMachinery()->deactivateBillAcceptor();
     _mainWindow->goToState(PAYMENT_CONFIRMED);
 }
 
 void PayPageWidget::onTransactionFailed(QSharedPointer<Status> status)
 {
+    // unsuccessfull POS transation
     // TODO: show msg
     _mainWindow->getMachinery()->takeMoney(_price);
+}
+
+void PayPageWidget::onMoneyReceived(double money, QSharedPointer<Status> status)
+{
+    // banknote adopted
+    _enteredMoneyAmount += money;
+
+    if (_enteredMoneyAmount > 0 && _enteredMoneyAmount < _price) {
+        setInactionTimer("inactionNotEnoughMoney");
+    }
+
+    if (_enteredMoneyAmount == _price) {
+        _mainWindow->goToState(PAYMENT_CONFIRMED);
+
+        return;
+    }
+
+    if (_enteredMoneyAmount > _price) {
+        _mainWindow->goToState(MORE_MONEY_THAN_NEED);
+    }
+
+    _ui->price->setText(QString(_ofPriceText).replace("@PRICE", QString::number(_price))
+                        .replace("@AMOUNT", QString::number(_enteredMoneyAmount)));
+}
+
+void PayPageWidget::onMoneyRejected(QSharedPointer<Status> status)
+{
+    // failing banknote
 }
 
 void PayPageWidget::onError(QSharedPointer<Status> status)
@@ -189,7 +245,22 @@ void PayPageWidget::onError(QSharedPointer<Status> status)
     case TAKE_MONEY:
     case ACTIVATE_POS:
         // TODO: show msg
+        _posActive = false;
         _mainWindow->getMachinery()->restart(POS);
+
+        if (!_billAcceptorActive) {
+            _mainWindow->goToState(CRITICAL_ERROR);
+        }
+        break;
+    case MONEY_REQUEST:
+    case ACTIVATE_BILL_ACCEPTOR:
+        // TODO: show msg
+        _billAcceptorActive = false;
+        _mainWindow->getMachinery()->restart(BILL_ACCEPTOR);
+
+        if (!_posActive) {
+             _mainWindow->goToState(CRITICAL_ERROR);
+        }
         break;
     case DEACTIVATE_POS:
         break;
@@ -199,12 +270,18 @@ void PayPageWidget::onError(QSharedPointer<Status> status)
 
 }
 
-void PayPageWidget::onActivate(QSharedPointer<Status> status)
+void PayPageWidget::onActivatePOS(QSharedPointer<Status> status)
 {
+    _posActive = true;
     _mainWindow->getMachinery()->takeMoney(_price);
 }
 
-void PayPageWidget::onRestart(QSharedPointer<Status> status)
+void PayPageWidget::onActivateBillAcceptor(QSharedPointer<Status> status)
+{
+    _billAcceptorActive = true;
+}
+
+void PayPageWidget::onRestartPOS(QSharedPointer<Status> status)
 {
     _mainWindow->getMachinery()->deactivatePOS();
 }
@@ -219,7 +296,7 @@ void PayPageWidget::setPriceLabelsText(QList<QLabel*> labels, const QString& ric
 
 void PayPageWidget::setPriceToPriceLabels(int price)
 {
-    QString priceText = "200";//QString::number(price);
+    QString priceText = QString::number(price);
 
     setPriceLabelsText(_ui->boldPrices->findChildren<QLabel*>()
                     , QString(_boldPricesText).replace("@PRICE", priceText));
@@ -344,6 +421,10 @@ void PayPageWidget::retrieveTextTemplates()
 
         if (t.getName() == "price") {
             _priceText = t.getText();
+        }
+
+        if (t.getName() == "ofPrice") {
+            _ofPriceText = t.getText();
         }
     }
 

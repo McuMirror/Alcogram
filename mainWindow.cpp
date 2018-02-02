@@ -8,6 +8,25 @@
 #include "faceDetector.h"
 #include "logger.h"
 
+const PageName MainWindow::_statePageNames[] = {
+    SPLASH_SCREEN_PAGE // SPLASH_SCREEN state
+    , START_PAGE // START state
+    , SPLASH_SCREEN_ETERNAL_SLEEP_PAGE // SPLASH_SCREEN_ETERNAL_SLEEP
+    , SPLASH_SCREEN_NONCRITICAL_ERROR_PAGE// SPLASH_SCREEN_NONCRITICAL_ERROR
+    , TAKE_PHOTO_PAGE // PREPARING_FOR_PHOTO
+    , TAKE_PHOTO_PAGE //PHOTO_TIMER
+    , TAKE_PHOTO_PAGE // PHOTO_CONFIRMATION
+    , PAY_PAGE // PAY
+    , PAY_PAGE // NOT_ENOUGH_MONEY
+    , PAY_PAGE // MORE_MONEY_THAN_NEED
+    , PAY_PAGE // PAYMENT_CONFIRMED
+    , ALCOTEST_PAGE // ALCOTEST
+    , ALCOTEST_PAGE // DRUNKENESS_NOT_RECOGNIZED
+    , ALCOTEST_PAGE // ALCOTEST_INACTION
+    , PHOTO_PRINT_PAGE // FINAL_PHOTO
+    , PHOTO_PRINT_PAGE // PHOTO_PRINT
+    };
+
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent)
     , _ui(new Ui::MainWindow)
@@ -39,6 +58,7 @@ MainWindow::MainWindow(QWidget *parent) :
     qDebug().noquote() << Logger::instance()->buildSystemEventLog(Logger::INITIALIZATION_FINISH);
 
     QObject::connect(_stateMachine, &StateMachine::criticalError, this, &MainWindow::criticalError);
+    QObject::connect(_stateMachine, &StateMachine::fromCriticalError, this, &MainWindow::onFromCriticalError);
 
     _stateMachine->run();
     setPage(SPLASH_SCREEN_PAGE);
@@ -96,6 +116,11 @@ void MainWindow::switchLanguage()
 
         page->switchLanguage();
     }
+}
+
+void MainWindow::onFromCriticalError(StateName toState)
+{
+    _ui->pages->setCurrentIndex(_statePageNames[static_cast<int>(toState)]);
 }
 
 void MainWindow::loadFonts()

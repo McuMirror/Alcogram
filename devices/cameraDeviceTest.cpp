@@ -50,7 +50,7 @@ void CameraDeviceTest::restart(DeviceCallback onRestart)
 
 void CameraDeviceTest::checkStatus(DeviceCallback onCheckStatus)
 {
-    onCheckStatus(QSharedPointer<Status>(new Status(0, CAMERA, CHECK_STATUS)));
+    onCheckStatus(QSharedPointer<Status>(new Status(STATUS_OK, CAMERA, CHECK_STATUS)));
 }
 
 void CameraDeviceTest::connectionStatus(DeviceCallback onConnection)

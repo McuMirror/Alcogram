@@ -16,7 +16,7 @@ public:
     explicit SplashScreenNoncriticalError(QWidget *parent = 0);
     ~SplashScreenNoncriticalError();
 
-    void init(MainWindow* mainWindow) override;
+    void init(MainWindowInterface* mainWindow) override;
     QString getName() const override;
 
 private:

@@ -22,7 +22,7 @@ AlcoTestPageWidget::~AlcoTestPageWidget()
     delete _ui;
 }
 
-void AlcoTestPageWidget::init(MainWindow *mainWindow)
+void AlcoTestPageWidget::init(MainWindowInterface *mainWindow)
 {
     Page::init(mainWindow);
 
@@ -50,6 +50,8 @@ QList<Transition*> AlcoTestPageWidget::getTransitions()
     // ALCOTEST -> ALCOTEST
     transitions.append(new Transition(ALCOTEST, ALCOTEST, [this](QEvent*) {
         circleCurrentPerson();
+
+        // set delay before next text
         setTimer("recognized");
     }));
 
@@ -61,6 +63,8 @@ QList<Transition*> AlcoTestPageWidget::getTransitions()
     // ALCOTEST -> DRUNKENESS_NOT_RECOGNIZED
     transitions.append(new Transition(ALCOTEST, DRUNKENESS_NOT_RECOGNIZED, [this](QEvent*) {
         circleCurrentPerson();
+
+        // set delay before next retest
         setTimer("drunkenessNotRecognized");
     }));
 
@@ -138,6 +142,8 @@ void AlcoTestPageWidget::onReceivedAlcotesterData(QSharedPointer<Status> status,
 {
     _circleState = SUCCESS;
     _lastPersonValue = value;
+
+    // save the alcovalue
     _mainWindow->getSessionData().addAlcoValue(value);
 
     qDebug().noquote() << Logger::instance()->buildSystemEventLog(Logger::ALCOTEST_SUCCESS, 0, 0
@@ -268,6 +274,8 @@ void AlcoTestPageWidget::test(int i)
         return;
     }
 
+    // not all
+
     _circleState = TEST;
     _currentPerson = i;
 
@@ -279,13 +287,16 @@ void AlcoTestPageWidget::test(int i)
                          , static_cast<double>(faceRect.right())
                          , static_cast<double>(faceRect.bottom())}));
 
+    // circle the tested person
     circleCurrentPerson();
 
+    // send request to receive alcovalue
     _mainWindow->getMachinery()->activateAlcotester();
 
     qDebug().noquote() << Logger::instance()->buildSystemEventLog(Logger::PERSON_ALCOTEST_INIT_END, 0, 0
                                                                   , QList<double>({static_cast<double>(_currentPerson + 1)}));
 
+    // set inaction timer
     setTimer("inactionAlcotest");
 }
 
@@ -307,12 +318,15 @@ void AlcoTestPageWidget::circleCurrentPerson()
     int radius = scale * std::max(faceRect.width(), faceRect.height()) / 2;
     QPoint center = faceRect.center() * scale;
 
+    // draw image
     QPainter p(&target);
     p.setRenderHint(QPainter::Antialiasing);
     p.drawPixmap(0, 0, image);
 
+    // draw previous person values
     drawPreviousPersonValues(p, scale);
 
+    // draw a shadow over the previous values
     p.fillRect(0, 0, image.width(), image.height(), QColor(0, 0, 0, 0.6 * 255));
 
     QPen pen;
@@ -347,12 +361,13 @@ void AlcoTestPageWidget::circleCurrentPerson()
 
 
     p.setPen(pen);
-
+    // cut a circle with a person`s face and draw it
     QRegion r(QRect(faceRect.topLeft() * scale, faceRect.size() * scale), QRegion::Ellipse);
     p.setClipRegion(r);
     p.drawPixmap(0, 0, image);
     p.setClipping(false);
 
+    // draw circle
     p.drawEllipse(center, radius, radius);
 
     //draw upper circle
