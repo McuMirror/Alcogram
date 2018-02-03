@@ -375,7 +375,7 @@ void AlcoTestPageWidget::circleCurrentPerson()
 
     //upperCircleCenter = Utils::rotatePoint(center.x(), center.y(), -90, upperCircleCenter);
 
-    int upperCircleRadius = radius * 0.23;
+    int upperCircleRadius = _mainWindow->getConfigManager()->getSize(getName(), "upperCircleRadius") * scale;//radius * 0.23;
 
     upperCircleCenter = Utils::movePointInRect(target.rect(), upperCircleCenter, center, upperCircleRadius);
 
@@ -427,7 +427,7 @@ void AlcoTestPageWidget::drawPreviousPersonValues(QPainter& p, float scale)
         QRect faceRect = _faceDetector->faceRects().at(i);
         int faceRectRadius = scale * std::max(faceRect.width(), faceRect.height()) / 2;
         QPoint center = faceRect.center() * scale - QPoint(0, faceRectRadius);
-        int radius = faceRectRadius * 0.2;
+        int radius = _mainWindow->getConfigManager()->getSize(getName(), "upperCircleRadius") * scale;//faceRectRadius * 0.2;
         QRect rect(center.x() - radius, center.y() - radius
                                , radius * 2, radius * 2);
 

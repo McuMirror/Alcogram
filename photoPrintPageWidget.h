@@ -47,10 +47,10 @@ private:
     QPixmap generateFinalPhoto(int w, int h);
 
     // draw loser alco circle
-    void drawLoser(QPainter& p, const QRect& faceRect, double value);
+    void drawLoser(QPainter& p, const QRect& faceRect, double value, float scale);
 
     // draw champion alco circle
-    void drawChampion(QPainter& p, const QRect& faceRect, double value);
+    void drawChampion(QPainter& p, const QRect& faceRect, double value, float scale);
 
     // returns color for alcovalue
     QColor getAlcoLevelColor(double value) const;

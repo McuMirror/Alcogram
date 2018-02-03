@@ -26,6 +26,8 @@ void SplashScreen::init(MainWindowInterface* mainWindow)
     Page::init(mainWindow);
 
     QObject::connect(_ui->frameButton, &QPushButton::released, [=] {
+        _timer.stop();
+        disconnectFromDeviceChecker();
         _mainWindow->goToState(START);
     });
 }
@@ -53,26 +55,34 @@ void SplashScreen::onEntry()
 
 void SplashScreen::onDevicesStarted()
 {
-    // TODO: logging
     _mainWindow->getDevicesChecker().checkDevicesStatus();
 }
 
 void SplashScreen::onSomeDevicesNotStarted()
 {
-    // TODO: logging
     disconnectFromDeviceChecker();
     _mainWindow->goToState(CRITICAL_ERROR);
 }
 
 void SplashScreen::onDevicesStatusOk()
 {
-    // TODO: logging
-    disconnectFromDeviceChecker();
+    // set timer for devices checking
+    //int timeMs = _mainWindow->getConfigManager()->getTimeDuration(getName(), "devicesCheckInterval") * 1000;
+
+    int timeMs = _mainWindow->getConfigManager()->getTimeDuration("criticalError", "checkTime") * 1000;
+    _timer.setInterval(timeMs);
+    _timer.setSingleShot(true);
+
+    QObject::connect(&_timer, &QTimer::timeout, [this] {
+        _mainWindow->getDevicesChecker().checkDevicesStatus();
+    });
+
+    _timer.start();
 }
 
 void SplashScreen::onSomeDevicesStatusNotOk()
 {
-    // TODO: logging
+    _timer.stop();
     disconnectFromDeviceChecker();
     _mainWindow->goToState(CRITICAL_ERROR);
 }

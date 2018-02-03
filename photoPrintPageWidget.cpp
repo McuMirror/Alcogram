@@ -168,19 +168,19 @@ QPixmap PhotoPrintPageWidget::generateFinalPhoto(int w, int h)
         QRect faceRect = rects.at(i);
         QRect rect = QRect(faceRect.topLeft() * scale, faceRect.size() * scale);
         if (i != maxValueIndex) {
-            drawLoser(p, rect, values.at(i));
+            drawLoser(p, rect, values.at(i), scale);
         } else {
-            drawChampion(p, rect, values.at(i));
+            drawChampion(p, rect, values.at(i), scale);
         }
     }
 
     return target;
 }
 
-void PhotoPrintPageWidget::drawLoser(QPainter& p, const QRect& faceRect, double value)
+void PhotoPrintPageWidget::drawLoser(QPainter& p, const QRect& faceRect, double value, float scale)
 {
     int faceRectRadius = std::max(faceRect.width(), faceRect.height()) / 2;
-    int radius = 0.2 * faceRectRadius;
+    int radius = _mainWindow->getConfigManager()->getSize(getName(), "upperCircleRadius") * scale;//0.2 * faceRectRadius;
     QPoint center = faceRect.center() - QPoint(0, faceRectRadius);
     QRect rect(center.x() - radius, center.y() - radius
                            , radius * 2, radius * 2);
@@ -200,12 +200,12 @@ void PhotoPrintPageWidget::drawLoser(QPainter& p, const QRect& faceRect, double 
     p.drawText(rect, Qt::AlignCenter, valueText);
 }
 
-void PhotoPrintPageWidget::drawChampion(QPainter& p, const QRect& faceRect, double value)
+void PhotoPrintPageWidget::drawChampion(QPainter& p, const QRect& faceRect, double value, float scale)
 {
     int faceRectRadius = std::max(faceRect.width(), faceRect.height()) / 2;
     QPoint center = faceRect.center() - QPoint(0, faceRectRadius);
     int strokeWidth = faceRectRadius * 0.05;
-    int radius = 0.2 * faceRectRadius;
+    int radius = _mainWindow->getConfigManager()->getSize(getName(), "upperCircleRadius") * scale; //0.2 * faceRectRadius;
 
 
     //rounded rect

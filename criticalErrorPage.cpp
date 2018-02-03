@@ -45,8 +45,7 @@ void CriticalErrorPage::onCriticalError(StateName fromState)
     // set critical error time
     stopTimer();
 
-    // TODO: move to xml
-    int timeMs = 180000;
+    int timeMs = _mainWindow->getConfigManager()->getTimeDuration(getName(), "checkTime") * 1000;
 
     _timer.setInterval(timeMs);
 
@@ -66,7 +65,8 @@ void CriticalErrorPage::onCriticalError(StateName fromState)
 void CriticalErrorPage::setCheckTimer()
 {
     // check devices after a certain period of time
-    // TODO: move to xml
+    int timeMs = _mainWindow->getConfigManager()->getTimeDuration(getName(), "devicesCheckInterval") * 1000;
+
     _checkTimer.setInterval(5000);
     _checkTimer.setSingleShot(true);
 
